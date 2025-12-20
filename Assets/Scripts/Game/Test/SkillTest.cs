@@ -19,7 +19,7 @@ namespace Game.Test
 
             var ctx = new SkillContext
             {
-                Source = attacker,
+                Caster = attacker,
                 Target = defender,
                 SourceBuffs = sourceBuffs,
                 TargetBuffs = targetBuffs
@@ -45,17 +45,15 @@ namespace Game.Test
 
         public void ApplyDamage(int value)
         {
-            throw new System.NotImplementedException();
         }
 
         public bool HasBuff(string buffId)
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public void TakeDamage(float damage)
         {
-            throw new System.NotImplementedException();
         }
     }
 }

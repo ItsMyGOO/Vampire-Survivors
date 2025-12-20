@@ -6,7 +6,7 @@ namespace Combat.Skill
     {
         public void Execute(SkillContext ctx)
         {
-            ctx.Target.ApplyDamage(ctx.Damage.Value);
+            ctx.Target.ApplyDamage(ctx.Damage.FinalDamage);
         }
     }
 }

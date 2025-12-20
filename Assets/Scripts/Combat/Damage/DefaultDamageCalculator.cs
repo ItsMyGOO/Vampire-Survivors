@@ -6,7 +6,7 @@ namespace Combat.Damage
     {
         public int Calculate(SkillContext ctx)
         {
-            var raw = ctx.Source.Attack - ctx.Target.Defense;
+            var raw = ctx.Caster.Attack - ctx.Target.Defense;
             return raw > 0 ? raw : 1;
         }
     }

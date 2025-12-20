@@ -13,7 +13,7 @@ namespace Combat.Buff.Damage
 
         public void ApplyDamageModifiers(SkillContext ctx)
         {
-            ctx.Damage.Value += _value;
+            ctx.Damage.FinalDamage += _value;
         }
 
         public void OnAdd(ISkillTarget owner)

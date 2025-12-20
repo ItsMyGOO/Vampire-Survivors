@@ -2,19 +2,19 @@
 {
     public class SkillContext
     {
-        public ISkillSource Source;
+        public ISkillSource Caster;
         public ISkillTarget Target;
 
         public IDamageModifier SourceBuffs;
         public IDamageModifier TargetBuffs;
 
-        public DamageContext Damage = new();
+        public DamageContext Damage;
         public HitContext Hit;
 
         public class DamageContext
         {
-            public int Base;
-            public int Value;
+            public int BaseDamage;
+            public int FinalDamage;
             public float Multiplier = 1f;
             public bool IsCritical;
         }

@@ -14,7 +14,7 @@ namespace Combat.Skill
 
         public void Execute(SkillContext ctx)
         {
-            ctx.Damage.Value = _calculator.Calculate(ctx);
+            ctx.Damage.FinalDamage = _calculator.Calculate(ctx);
         }
     }
 }
