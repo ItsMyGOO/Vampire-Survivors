@@ -4,9 +4,6 @@
 ---
 print("lua bootstrap start")
 
-local GlobalGuard = require("Dev.GlobalGuard")
-GlobalGuard.enable()
-
-require("Game.Skill.Fireball")
-require("Game.Buff.BuffSystem")
-require("Game.Buff.Impl.FireBoost")
+FireBall = require("Game.Skill.Fireball")
+BuffSystem = require("Game.Buff.BuffSystem")
+FireBoost = require("Game.Buff.Impl.FireBoost")

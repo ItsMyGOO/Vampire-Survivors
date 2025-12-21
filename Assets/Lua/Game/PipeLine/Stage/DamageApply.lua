@@ -4,7 +4,7 @@
 ---
 local DamageApply = {}
 
-function DamageApply.execute(ctx)
+function DamageApply:execute(ctx)
      CS.LuaSkillAPI.ApplyDamage(ctx.target.id, ctx.damage)
 
     print(string.format(
