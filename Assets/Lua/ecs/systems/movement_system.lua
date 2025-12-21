@@ -2,8 +2,8 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 21:46
 ---
-local Velocity = require("components.velocity")
-local Transform = require("components.transform")
+local Velocity = require("ecs.components.velocity")
+local Transform = require("ecs.components.transform")
 
 local MovementSystem = {
     world = nil  -- 由 World 注入

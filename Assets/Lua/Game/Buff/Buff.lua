@@ -2,13 +2,13 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 11:05
 ---
-local Buff = {}
-Buff.__index = Buff
+local buff = {}
+buff.__index = buff
 
-function Buff.new(hooks)
+function buff.new(hooks)
     return setmetatable({
         hooks = hooks
-    }, Buff)
+    }, buff)
 end
 
-return Buff
+return buff

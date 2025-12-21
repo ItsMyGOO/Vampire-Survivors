@@ -4,21 +4,23 @@
 ---
 print("lua bootstrap start")
 
-FireBall = require("Game.Skill.Fireball")
-BuffSystem = require("Game.Buff.BuffSystem")
-FireBoost = require("Game.Buff.Impl.FireBoost")
+FireBall = require('Game.Skill.fireball')
+BuffSystem = require('Game.Buff.buff_system')
+FireBoost = require('Game.Buff.Impl.fire_boost')
 
 local World = require("ecs.world")
 local Transform = require("ecs.components.transform")
 local Velocity = require("ecs.components.velocity")
 local Health = require("ecs.components.health")
 
+local MovementSystem = require("ecs.systems.movement_system")
+
 -- 创建世界
 MainWorld = World
 
 -- 注册系统
-MainWorld:AddSystem(require("ecs.systems.movement_system"))
-MainWorld:AddSystem(require("ecs.systems.combat_system"))
+MainWorld:AddSystem(MovementSystem)
+--MainWorld:AddSystem(require("ecs.systems.combat_system"))
 
 -- 创建玩家实体
 local playerEid = MainWorld:AddEntity()
