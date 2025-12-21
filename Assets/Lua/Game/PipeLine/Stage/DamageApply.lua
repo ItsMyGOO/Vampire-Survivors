@@ -5,7 +5,7 @@
 local DamageApply = {}
 
 function DamageApply.execute(ctx)
-    ctx.target.hp = ctx.target.hp - ctx.damage
+     CS.LuaSkillAPI.ApplyDamage(ctx.target.id, ctx.damage)
 
     print(string.format(
         "%s deals %d damage to %s",

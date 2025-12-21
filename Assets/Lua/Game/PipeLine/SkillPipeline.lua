@@ -6,15 +6,14 @@ local SkillPipeline = {}
 SkillPipeline.__index = SkillPipeline
 
 function SkillPipeline.new(stages)
-    return setmetatable({ stages = stages }, SkillPipeline)
+    return setmetatable({
+        stages = stages
+    }, SkillPipeline)
 end
 
 function SkillPipeline:execute(ctx)
     for _, stage in ipairs(self.stages) do
-        if ctx.cancelled then
-            return
-        end
-        stage.execute(ctx)
+        stage:execute(ctx) -- 必须用 :
     end
 end
 

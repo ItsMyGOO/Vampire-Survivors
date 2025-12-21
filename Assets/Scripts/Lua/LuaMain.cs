@@ -5,16 +5,13 @@ namespace Lua
 {
     public class LuaMain : MonoBehaviour
     {
-        private LuaEnv _luaEnv;
+        public static LuaEnv Env { get; private set; }
 
         void Awake()
         {
-            _luaEnv = new LuaEnv();
-
-            // 指定 Lua 根目录
-            _luaEnv.AddLoader(CustomLoader);
-
-            _luaEnv.DoString("require('bootstrap')");
+            Env = new LuaEnv();
+            Env.AddLoader(CustomLoader);
+            Env.DoString("require('bootstrap')");
         }
 
         private byte[] CustomLoader(ref string filepath)
@@ -22,16 +19,21 @@ namespace Lua
             var fullPath = Application.dataPath + "/Lua/" +
                            filepath.Replace('.', '/') + ".lua";
             if (System.IO.File.Exists(fullPath))
-                return System.Text.Encoding.UTF8.GetBytes(
-                    System.IO.File.ReadAllText(fullPath)
-                );
+                return System.Text.Encoding.UTF8.GetBytes(System.IO.File.ReadAllText(fullPath));
 
+            Debug.LogError("Lua not found: " + fullPath);
             return null;
+        }
+
+        void Update()
+        {
+            Env.Tick();
         }
 
         void OnDestroy()
         {
-            _luaEnv.Dispose();
+            Env.Dispose();
+            Env = null;
         }
     }
 }
