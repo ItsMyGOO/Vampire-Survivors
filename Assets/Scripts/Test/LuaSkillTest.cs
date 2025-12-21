@@ -17,6 +17,8 @@ namespace Game.Test
 
             // skill test
             new LuaSkillExecutor(_luaEnv).CastSkill("fireball", new Player(), new Player());
+            
+            _luaEnv.DoString("require 'test/bootstrap'");
         }
 
         private byte[] CustomLoader(ref string filepath)
@@ -63,8 +65,6 @@ namespace Game.Test
             GetSkill(skillName).Get<System.Action<SkillContext>>("Cast")(ctx);
             // 统一结算
             target.TakeDamage(ctx.Damage.FinalDamage);
-            
-            _lua.DoString("require 'test/bootstrap'");
         }
 
         private LuaTable GetSkill(string skillName)
