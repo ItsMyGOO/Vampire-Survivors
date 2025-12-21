@@ -17,7 +17,7 @@ namespace Game.Test
 
             // skill test
             new LuaSkillExecutor(_luaEnv).CastSkill("fireball", new Player(), new Player());
-            
+            // lua skill test
             _luaEnv.DoString("require 'test/bootstrap'");
         }
 

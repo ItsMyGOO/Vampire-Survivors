@@ -23,4 +23,13 @@ function SkillContext.new(caster, target, skill_id)
     }, SkillContext)
 end
 
+function SkillContext:has_tag(tag)
+    for _, t in ipairs(self.tags) do
+        if t == tag then
+            return true
+        end
+    end
+    return false
+end
+
 return SkillContext
