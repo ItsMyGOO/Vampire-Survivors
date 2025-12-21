@@ -5,7 +5,7 @@ using XLua;
 
 namespace Lua
 {
-    public class LuaEntry : MonoBehaviour
+    public class LuaEntryTest : MonoBehaviour
     {
         private LuaEnv _luaEnv;
 
@@ -15,19 +15,16 @@ namespace Lua
             _luaEnv.AddLoader(CustomLoader);
 
             BaseTest();
-
-            // skill test
-            new LuaSkillExecutor(_luaEnv).CastSkill("fireball", new Player(), new Player());
         }
 
         void BaseTest()
         {
-            _luaEnv.DoString("require 'Entry'");
+            _luaEnv.DoString("require 'test/entry'");
 
             int sum = _luaEnv.Global.Get<IntBinaryOp>("Add")(2, 3);
             Debug.Log("Lua Add result: " + sum);
 
-            var call = _luaEnv.Global.Get<System.Action<LuaEntry>>("CallCS");
+            var call = _luaEnv.Global.Get<System.Action<LuaEntryTest>>("CallCS");
             call(this);
         }
 
