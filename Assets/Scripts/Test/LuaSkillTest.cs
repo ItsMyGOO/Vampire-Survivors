@@ -61,9 +61,10 @@ namespace Game.Test
 
             // Lua 技能逻辑
             GetSkill(skillName).Get<System.Action<SkillContext>>("Cast")(ctx);
-
             // 统一结算
             target.TakeDamage(ctx.Damage.FinalDamage);
+            
+            _lua.DoString("require 'test/bootstrap'");
         }
 
         private LuaTable GetSkill(string skillName)
