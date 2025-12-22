@@ -7,5 +7,3 @@ print("lua bootstrap start")
 FireBall = require('Game.Skill.fireball')
 BuffSystem = require('Game.Buff.buff_system')
 FireBoost = require('Game.Buff.Impl.fire_boost')
-
-require("Test.movement_system_test")()

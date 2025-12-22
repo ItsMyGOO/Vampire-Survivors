@@ -4,6 +4,8 @@
 ---
 print("🎮 Vampire Survivors Demo Start!")
 
+require("Test.movement_system_test")()
+
 -- 加载模块
 local World = require("ecs.world")
 local Transform = require("ecs.components.transform")
