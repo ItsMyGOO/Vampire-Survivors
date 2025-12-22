@@ -2,109 +2,153 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 21:43
 ---
----
---- ECS世界管理器，负责实体、组件和系统的管理
---- @class World
---- @field entities table<integer, boolean> 实体ID映射表，entity_id -> true
---- @field components table<string, table<integer, table>> 组件数据存储，component_name -> { entity_id -> component_data }
---- @field systems table 系统列表
+-- ecs/world.lua
+-- 核心实体-组件存储系统
+-- 设计原则：只做容器管理，不含任何游戏逻辑
+
 local World = {
-    entities = {},   -- entity_id -> true
-    components = {}, -- component_name -> { entity_id -> component_data }
-    systems = {}
+    ---@private 实体集合
+    entities = {}, -- eid -> true
+
+    ---@private 组件池：componentName -> eid -> component_data
+    components = {}, -- string -> table<integer, table>
+
+    ---@type EventBus?
+    eventBus = nil,
+
+    ---@private 组件名缓存：schema -> name（避免重复查找）
+    schemaNames = {}
 }
 
----
---- 创建并添加一个新的实体
---- @return integer entity_id 实体唯一标识符
+--- 创建新实体
 function World:AddEntity()
     local eid = require("ecs.entity").Create()
     self.entities[eid] = true
     return eid
 end
 
----
---- 为指定实体添加组件
---- @param eid integer 实体ID
---- @param CompType table 组件类型构造器
---- @param initValues table? 组件初始值表
-function World:AddComponent(eid, CompType, initValues)
-    local name = CompType.__name
+--- 添加组件到实体
+-- @param eid integer
+-- @param schema table 来自 require("components.xxx")
+-- @param override? table 覆盖字段
+function World:AddComponent(eid, schema, override)
+    local name = self:getSchemaName(schema)
+
+    -- 初始化组件池
     if not self.components[name] then
         self.components[name] = {}
     end
-    local compData = CompType() -- 调用构造器
-    for k, v in pairs(initValues or {}) do
-        compData[k] = v
-    end
-    self.components[name][eid] = compData
-end
 
----
---- 获取指定实体的组件数据
---- @param eid integer 实体ID
---- @param CompType table 组件类型构造器
---- @return table|nil 组件数据或nil
-function World:GetComponent(eid, CompType)
-    local name = CompType.__name
-    return self.components[name] and self.components[name][eid]
-end
-
----
---- 检查指定实体是否具有某个组件
---- @param eid integer 实体ID
---- @param CompType table 组件类型构造器
---- @return boolean 是否具有该组件
-function World:HasComponent(eid, CompType)
-    return self:GetComponent(eid, CompType) ~= nil
-end
-
----
---- 移除指定实体及其所有组件
---- @param eid integer 实体ID
-function World:RemoveEntity(eid)
-    -- 触发清理事件
-    self:emit("entity_removed", eid)
-
-    for name, compTable in pairs(self.components) do
-        local comp = compTable[eid]
-        if comp and comp.dispose then
-            pcall(comp.dispose, comp)
+    -- 深拷贝默认值 + 合并覆盖
+    local comp = self:deepCopy(schema)
+    if override then
+        for k, v in pairs(override) do
+            comp[k] = v
         end
-        compTable[eid] = nil
     end
+
+    self.components[name][eid] = comp
+
+    -- 可选：触发事件
+    if self.eventBus then
+        self.eventBus:emit("component_added", {
+            entityId = eid,
+            componentName = name,
+            component = comp
+        })
+    end
+end
+
+--- 获取组件
+-- @return table? 若不存在返回 nil
+function World:GetComponent(eid, schema)
+    local name = self:getSchemaName(schema)
+    local pool = self.components[name]
+    return pool and pool[eid]
+end
+
+--- 判断是否拥有某组件
+function World:HasComponent(eid, schema)
+    return self:GetComponent(eid, schema) ~= nil
+end
+
+--- 移除组件
+function World:RemoveComponent(eid, schema)
+    local name = self:getSchemaName(schema)
+    local pool = self.components[name]
+    if pool and pool[eid] then
+        pool[eid] = nil
+
+        if self.eventBus then
+            self.eventBus:emit("component_removed", {
+                entityId = eid,
+                componentName = name
+            })
+        end
+    end
+end
+
+--- 销毁实体（移除所有组件）
+function World:DestroyEntity(eid)
+    if not self.entities[eid] then return end
+
+    -- 遍历所有组件池，清理该 eid
+    for name, pool in pairs(self.components) do
+        if pool[eid] then
+            pool[eid] = nil
+        end
+    end
+
     self.entities[eid] = nil
-end
 
----
---- 更新所有系统
---- @param dt number 帧间隔时间
-function World:UpdateSystems(dt)
-    for _, sys in ipairs(self.systems) do
-        sys:Update(dt)
+    if self.eventBus then
+        self.eventBus:emit("entity_destroyed", { entityId = eid })
     end
 end
 
----
---- 添加系统到世界中
---- @param system table 系统实例
-function World:AddSystem(system)
-    table.insert(self.systems, system)
-    system.world = self
-end
+-- ---------------------------------------
+-- 内部工具方法
+-- ---------------------------------------
 
-function World:createView(compTypes)
-    local view = {}
-    for eid in pairs(self.entities) do
-        local match = true
-        for _, Comp in ipairs(compTypes) do
-            if not self:HasComponent(eid, Comp) then
-                match = false; break
-            end
+--- 获取组件名称（缓存 + 回退）
+-- @param schema table
+-- @return string 如 "Transform"
+function World:getSchemaName(schema)
+    -- 优先从缓存读
+    local cached = self.schemaNames[schema]
+    if cached then return cached end
+
+    -- 从元表获取
+    local mt = getmetatable(schema)
+    if mt and mt.__name then
+        self.schemaNames[schema] = mt.__name
+        return mt.__name
+    end
+
+    -- 回退：遍历 package.loaded（仅一次）
+    for fullName, mod in pairs(package.loaded) do
+        if mod == schema then
+            local shortName = fullName:match("^.-(%w+)$") or "unknown"
+            self.schemaNames[schema] = shortName
+            return shortName
         end
-        if match then table.insert(view, eid) end
     end
-    return view
+
+    error("Failed to determine schema name for component table", 2)
+end
+
+--- 深拷贝（用于创建组件实例）
+-- 注意：不处理函数和 userdata
+function World:deepCopy(orig)
+    local copy = {}
+    for k, v in pairs(orig) do
+        if type(v) == "table" then
+            copy[k] = self:deepCopy(v)
+        else
+            copy[k] = v
+        end
+    end
+    return copy
 end
 
 return World

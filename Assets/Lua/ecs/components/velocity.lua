@@ -2,10 +2,12 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 21:51
 ---
-local Component = require("ecs.component")
+-- components/velocity.lua
+local M = {
+    x = 0.0,
+    y = 0.0,
+    z = 0.0,
+    active = true
+}
 
-local Velocity = Component.Register("Velocity", {
-    x = 0, y = 0, z = 0,
-})
-
-return Velocity
+return setmetatable(M, { __name = "Velocity" })

@@ -3,10 +3,11 @@
 --- DateTime: 2025/12/22 15:29
 ---
 -- 生命周期组件（用于延迟销毁）
-local Component = require("ecs.component")
+-- components/life_time.lua
 
-local LifeTime = Component.Register("LifeTime", {
+return {
+    ---@type number 剩余存活时间
     remaining = 1.0,
+    ---@type function|nil 过期时的回调函数
     onExpire = nil,
-})
-return LifeTime
+}
