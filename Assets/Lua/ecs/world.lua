@@ -2,35 +2,42 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 21:43
 ---
--- ecs/world.lua
--- 核心实体-组件存储系统
--- 设计原则：只做容器管理，不含任何游戏逻辑
-
+---
+--- 核心实体-组件存储系统
+--- 设计原则：只做容器管理，不含任何游戏逻辑
+--- @class World
+--- @field private entities table 实体集合 eid -> true
+--- @field private components table 组件池：componentName -> eid -> component_data
+--- @field eventBus EventBus? 事件总线
+--- @field private schemaNames table 组件名缓存：schema -> name（避免重复查找）
 local World = {
-    ---@private 实体集合
+    ---@private
     entities = {}, -- eid -> true
 
-    ---@private 组件池：componentName -> eid -> component_data
+    ---@private
     components = {}, -- string -> table<integer, table>
 
     ---@type EventBus?
     eventBus = nil,
 
-    ---@private 组件名缓存：schema -> name（避免重复查找）
+    ---@private
     schemaNames = {}
 }
 
+---
 --- 创建新实体
+--- @return integer entity_id 实体唯一标识符
 function World:AddEntity()
     local eid = require("ecs.entity").Create()
     self.entities[eid] = true
     return eid
 end
 
+---
 --- 添加组件到实体
--- @param eid integer
--- @param schema table 来自 require("components.xxx")
--- @param override? table 覆盖字段
+--- @param eid integer 实体ID
+--- @param schema table 来自 require("components.xxx")
+--- @param override? table 覆盖字段
 function World:AddComponent(eid, schema, override)
     local name = self:getSchemaName(schema)
 
@@ -59,20 +66,38 @@ function World:AddComponent(eid, schema, override)
     end
 end
 
+---
 --- 获取组件
--- @return table? 若不存在返回 nil
+--- @param eid integer 实体ID
+--- @param schema table 组件模式表
+--- @return table? 若不存在返回 nil
 function World:GetComponent(eid, schema)
     local name = self:getSchemaName(schema)
     local pool = self.components[name]
     return pool and pool[eid]
 end
 
+---
+--- 获取所有schema类型组件
+--- @param schema table 组件模式表
+--- @return table components[schema]
+function World:GetComponentOfType(schema)
+    return self.components[self:getSchemaName(schema)]
+end
+
+---
 --- 判断是否拥有某组件
+--- @param eid integer 实体ID
+--- @param schema table 组件模式表
+--- @return boolean 是否拥有该组件
 function World:HasComponent(eid, schema)
     return self:GetComponent(eid, schema) ~= nil
 end
 
+---
 --- 移除组件
+--- @param eid integer 实体ID
+--- @param schema table 组件模式表
 function World:RemoveComponent(eid, schema)
     local name = self:getSchemaName(schema)
     local pool = self.components[name]
@@ -88,7 +113,9 @@ function World:RemoveComponent(eid, schema)
     end
 end
 
+---
 --- 销毁实体（移除所有组件）
+--- @param eid integer 实体ID
 function World:DestroyEntity(eid)
     if not self.entities[eid] then return end
 
@@ -110,9 +137,10 @@ end
 -- 内部工具方法
 -- ---------------------------------------
 
+---
 --- 获取组件名称（缓存 + 回退）
--- @param schema table
--- @return string 如 "Transform"
+--- @param schema table 组件模式表
+--- @return string 组件名称 如 "Transform"
 function World:getSchemaName(schema)
     -- 优先从缓存读
     local cached = self.schemaNames[schema]
@@ -137,8 +165,11 @@ function World:getSchemaName(schema)
     error("Failed to determine schema name for component table", 2)
 end
 
+---
 --- 深拷贝（用于创建组件实例）
--- 注意：不处理函数和 userdata
+--- 注意：不处理函数和 userdata
+--- @param orig table 原始表
+--- @return table 拷贝后的表
 function World:deepCopy(orig)
     local copy = {}
     for k, v in pairs(orig) do

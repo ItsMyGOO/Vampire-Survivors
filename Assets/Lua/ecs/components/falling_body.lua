@@ -4,11 +4,10 @@
 ---
 -- components/falling_body.lua
 -- 表示任何会下落的物体（子弹雨、陨石、炸弹等）
-return {
-    ---@type number 下落速度
+local M = {
     speed = 3.0,
-    ---@type number 目标高度（如地面）
     targetY = 0,
-    ---@type boolean 是否正在下落
     isFalling = true
 }
+
+return setmetatable(M, { __name = "FallingBody" })

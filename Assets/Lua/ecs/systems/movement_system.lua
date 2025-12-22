@@ -2,30 +2,40 @@
 --- Created by echo.
 --- DateTime: 2025/12/21 21:46
 ---
--- ecs/systems/movement_system.lua
----@class MovementSystem
+---
+--- 处理实体移动的系统
+--- @class MovementSystem
+--- @field world World? ECS世界实例
+--- @field transforms table? Transform组件池
+--- @field velocities table? Velocity组件池
 local MovementSystem = {
     world = nil,
-    _transforms = nil,
-    _velocities = nil
+    transforms = nil,
+    velocities = nil
 }
 
+---
+--- 系统启动时调用，初始化系统所需组件
+--- @param world World ECS世界实例
 function MovementSystem:start(world)
-    self.world = assert(world, "World is required")
+    self.world = world
 
     -- 使用 schema 获取真实名称
     local Transform = require("ecs.components.transform")
     local Velocity = require("ecs.components.velocity")
 
-    self._transforms = self.world.components[self.world:getSchemaName(Transform)]
-    self._velocities = self.world.components[self.world:getSchemaName(Velocity)]
+    self.transforms = self.world:GetComponentOfType(Transform)
+    self.velocities = self.world:GetComponentOfType(Velocity)
 end
 
+---
+--- 更新系统逻辑，处理实体移动
+--- @param dt number 帧间隔时间
 function MovementSystem:update(dt)
-    if not self._transforms or not self._velocities then return end
+    if not self.transforms or not self.velocities then return end
 
-    local transforms = self._transforms
-    local velocities = self._velocities
+    local transforms = self.transforms
+    local velocities = self.velocities
 
     for eid, vel in pairs(velocities) do
         local trans = transforms[eid]
