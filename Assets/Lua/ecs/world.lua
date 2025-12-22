@@ -8,6 +8,7 @@
 --- @class World
 --- @field private entities table 实体集合 eid -> true
 --- @field private components table 组件池：componentName -> eid -> component_data
+--- @field private systems table 系统集合：systemName -> system_data
 --- @field eventBus EventBus? 事件总线
 --- @field private schemaNames table 组件名缓存：schema -> name（避免重复查找）
 local World = {
@@ -16,6 +17,9 @@ local World = {
 
     ---@private
     components = {}, -- string -> table<integer, table>
+
+    ---@private
+    systems = {}, -- string -> table
 
     ---@type EventBus?
     eventBus = nil,
@@ -63,6 +67,32 @@ function World:AddComponent(eid, schema, override)
             componentName = name,
             component = comp
         })
+    end
+end
+
+--- 添加一个系统到世界
+--- @param system table 必须有 start(world) 和 update(dt)
+function World:AddSystem(system)
+    table.insert(self.systems, system)
+
+    -- 如果系统有 start 方法，立即调用
+    if system.start then
+        system:start(self)
+    end
+end
+
+--- 更新所有系统
+--- @param dt number 增量时间（秒）
+function World:UpdateSystems(dt)
+    for _, system in ipairs(self.systems) do
+        if system.update then
+            -- 使用 xpcall 防止单个系统崩溃导致整个游戏退出
+            local ok, err = xpcall(system.update, debug.traceback, system, dt)
+            if not ok then
+                print("❌ Lua Error in system.update:")
+                print(err)
+            end
+        end
     end
 end
 

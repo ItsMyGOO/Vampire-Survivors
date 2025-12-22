@@ -16,7 +16,7 @@ local function test_movement_applies_velocity()
     world:AddComponent(eid, Transform, { x = 0, y = 0, z = 0 })
     world:AddComponent(eid, Velocity, { x = 1, y = 0, z = 0 })
 
-    local sys = require("ecs.systems.movement_system")
+    local sys = require("ecs.systems.movement_system")()
     sys:start(world)
     -- Act
     sys:update(1.0) -- 移动 1 秒
