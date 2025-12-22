@@ -25,7 +25,7 @@ end
 
 ---
 --- 为指定实体添加组件
---- @param eid string 实体ID
+--- @param eid integer 实体ID
 --- @param CompType table 组件类型构造器
 --- @param initValues table? 组件初始值表
 function World:AddComponent(eid, CompType, initValues)

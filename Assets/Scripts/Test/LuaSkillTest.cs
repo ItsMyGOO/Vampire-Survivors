@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Combat.Skill;
 using Core;
+using Lua;
 using UnityEngine;
 using XLua;
 
@@ -8,33 +10,23 @@ namespace Game.Test
 {
     public class LuaSkillTest : MonoBehaviour
     {
-        private LuaEnv _luaEnv;
-
         void Start()
         {
-            _luaEnv = new LuaEnv();
-            _luaEnv.AddLoader(CustomLoader);
+            var buffSystem = LuaMain.Env.DoString(@"
+            local bs = BuffSystem.new()
+            bs:add(FireBoost.new())
+            return bs
+        ")[0] as LuaTable;
 
-            // skill test
-            new LuaSkillExecutor(_luaEnv).CastSkill("fireball", new Player(), new Player());
-            // lua skill test
-            _luaEnv.DoString("require 'test/bootstrap'");
-        }
+            var skillExecutor = new LuaSkillExecutor(LuaMain.Env);
 
-        private byte[] CustomLoader(ref string filepath)
-        {
-            string fullPath = Application.dataPath + "/Lua/" + filepath + ".lua";
-            if (System.IO.File.Exists(fullPath))
-                return System.Text.Encoding.UTF8.GetBytes(
-                    System.IO.File.ReadAllText(fullPath)
-                );
+            var ctx = LuaMain.Env.NewTable();
+            ctx.Set("caster", new { id = 1 });
+            ctx.Set("target", new { id = 2 });
+            ctx.Set("base_damage", 100);
+            ctx.Set("buff_system", buffSystem);
 
-            return null;
-        }
-
-        void OnDestroy()
-        {
-            _luaEnv.Dispose();
+            skillExecutor.CastSkill("fireball", ctx);
         }
     }
 
@@ -48,23 +40,12 @@ namespace Game.Test
             _lua = lua;
         }
 
-        public void CastSkill(string skillName, ISkillSource caster, ISkillTarget target)
+        public void CastSkill<T>(string skillName, T ctx)
         {
-            var ctx = new SkillContext
-            {
-                Caster = caster,
-                Target = target,
-                Damage = new SkillContext.DamageContext()
-                {
-                    BaseDamage = caster.Attack,
-                    FinalDamage = caster.Attack
-                }
-            };
-
             // Lua 技能逻辑
-            GetSkill(skillName).Get<System.Action<SkillContext>>("Cast")(ctx);
-            // 统一结算
-            target.TakeDamage(ctx.Damage.FinalDamage);
+            var skill = GetSkill(skillName);
+            var cast = skill.Get<Action<T>>("cast");
+            cast(ctx);
         }
 
         private LuaTable GetSkill(string skillName)
@@ -72,8 +53,8 @@ namespace Game.Test
             if (_skillCache.TryGetValue(skillName, out var table))
                 return table;
 
-            var require = _lua.Global.Get<System.Func<string, LuaTable>>("require");
-            table = require($"test/{skillName}");
+            var require = _lua.Global.Get<Func<string, LuaTable>>("require");
+            table = require($"Game/Skill/{skillName}");
 
             _skillCache.Add(skillName, table);
             return table;

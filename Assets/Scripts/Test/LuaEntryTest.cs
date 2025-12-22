@@ -19,7 +19,7 @@ namespace Lua
 
         void BaseTest()
         {
-            _luaEnv.DoString("require 'test/entry'");
+            _luaEnv.DoString("require 'test/entry_test'");
 
             int sum = _luaEnv.Global.Get<IntBinaryOp>("Add")(2, 3);
             Debug.Log("Lua Add result: " + sum);
