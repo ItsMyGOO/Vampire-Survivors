@@ -4,12 +4,13 @@
 ---
 --- ECS系统接口定义
 ---@interface ISystem
----@field world World ECS世界实例
+---@field world World
 local ISystem = {}
 
 ---
 --- 系统启动时调用
-function ISystem:start() end
+--- @param world World
+function ISystem:start(world) end
 
 ---
 --- 系统更新逻辑
