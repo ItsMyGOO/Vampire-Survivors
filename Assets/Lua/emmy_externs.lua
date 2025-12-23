@@ -6,25 +6,45 @@
 
 --- CSharp Interop Namespace (Injected by xLua/ToLua at runtime)
 ---
----@class CSNamespace
+---@class CS
 CS = {}
 
----@class UnityEngine
+---@class CS.UnityEngine
 CS.UnityEngine = {}
 
----@class UnityEngine.Vector3
+---@class CS.UnityEngine.Debug
+CS.UnityEngine.Debug = {}
+
+---@param msg string
+function CS.UnityEngine.Debug.Log(msg) end
+
+---@class CS.UnityEngine.Vector3
 ---@field public x number
 ---@field public y number
 ---@field public z number
 ---@overload fun(x: number, y: number, z: number): UnityEngine.Vector3
 CS.UnityEngine.Vector3 = {}
 
--- 添加常用类...
----@class UnityEngine.GameObject
----@field public name string
----@field public transform UnityEngine.Transform
-CS.UnityEngine.GameObject = {}
+---@class CS.UnityEngine.Object
+CS.UnityEngine.Object = {}
 
----@class UnityEngine.Behaviour
----@field public enabled boolean
-CS.UnityEngine.Behaviour = {}
+---@class CS.UnityEngine.GameObject
+CS.UnityEngine.GameObject = {}
+---@overload fun(original: CS.UnityEngine.GameObject): CS.UnityEngine.GameObject
+---@overload fun(original: CS.UnityEngine.GameObject, parent: CS.UnityEngine.Transform): CS.UnityEngine.GameObject
+---@overload fun(original: CS.UnityEngine.GameObject, position: CS.UnityEngine.Vector3, rotation: CS.UnityEngine.Quaternion): CS.UnityEngine.GameObject
+---@overload fun(original: CS.UnityEngine.GameObject, position: CS.UnityEngine.Vector3, rotation: CS.UnityEngine.Quaternion, parent: CS.UnityEngine.Transform): CS.UnityEngine.GameObject
+---@return CS.UnityEngine.GameObject
+function CS.UnityEngine.GameObject.Instantiate(original, param1, param2, param3) end
+
+
+---@class CS.UnityEngine.Component : CS.UnityEngine.Object
+CS.UnityEngine.Component = {}
+
+---@class UnityEngine.Transform
+---@field public position UnityEngine.Vector3
+---@field public rotation UnityEngine.Quaternion
+---@field public localScale UnityEngine.Vector3
+---@field public parent UnityEngine.Transform
+---@field public childCount integer
+CS.UnityEngine.Transform = {}

@@ -18,7 +18,6 @@ namespace Test
             // 注册 C# 对象给 Lua 使用
             luaEnv.Global.Set("CSPlayerPrefab", playerPrefab);
             luaEnv.Global.Set("CSEnemyPrefab", enemyPrefab);
-            luaEnv.Global.Set("CSLuaManager", this); // 提供日志等接口
 
             // 启动 Lua 主逻辑
             luaEnv.DoString(@"require('test/ecs_test')");
@@ -42,8 +41,5 @@ namespace Test
             var updateFunc = luaEnv.Global.Get<LuaFunction>("UpdateGame");
             updateFunc?.Call(Time.deltaTime);
         }
-
-        // 可供 Lua 调用的日志函数
-        public void Log(string msg) => Debug.Log("[Lua] " + msg);
     }
 }

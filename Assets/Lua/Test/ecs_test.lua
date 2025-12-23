@@ -39,7 +39,7 @@ function SpawnPlayer(x, z)
         x = 0, y = 0, z = 0 -- 玩家暂时不动
     })
 
-    CSLuaManager:Log("Player spawned at " .. (x or 0) .. ", " .. (z or 0))
+    CS.UnityEngine.Debug.Log("Player spawned at " .. (x or 0) .. ", " .. (z or 0))
     return eid
 end
 
@@ -69,7 +69,7 @@ function SpawnEnemy(x, z)
         active = true
     })
 
-    CSLuaManager:Log("Enemy spawned at " .. x .. ", " .. z)
+    CS.UnityEngine.Debug.Log("Enemy spawned at " .. x .. ", " .. z)
     return eid
 end
 
