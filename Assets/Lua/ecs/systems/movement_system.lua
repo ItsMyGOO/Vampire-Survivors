@@ -10,17 +10,12 @@ local BaseSystem = require("ecs.base_system")
 local MovementSystem = {}
 MovementSystem.__index = MovementSystem
 
---- 创建新的移动系统实例
----@override
----@return MovementSystem
 function MovementSystem.new()
     local self = BaseSystem.new()
     return setmetatable(self, MovementSystem)
 end
 
---- 系统启动方法，初始化移动系统所需组件
----@override
---- @param world table ECS世界实例
+---@param world World
 function MovementSystem:start(world)
     BaseSystem.start(self, world)
 
@@ -31,9 +26,6 @@ function MovementSystem:start(world)
     self.velocities = world:GetComponentOfType(Velocity)
 end
 
---- 系统更新方法，根据速度更新实体位置
---- @override
---- @param dt number 帧时间间隔
 function MovementSystem:update(dt)
     for eid, vel in pairs(self.velocities) do
         local trans = self.transforms[eid]
@@ -46,8 +38,6 @@ function MovementSystem:update(dt)
     end
 end
 
---- 系统关闭方法，清理引用
----@override
 function MovementSystem:shutdown()
     self.transforms = nil
     self.velocities = nil

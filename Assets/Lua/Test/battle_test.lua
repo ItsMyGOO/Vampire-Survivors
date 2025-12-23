@@ -1,9 +1,7 @@
 ﻿---
 --- Created by echo.
---- DateTime: 2025/12/22 21:42
+--- DateTime: 2025/12/23 22:39
 ---
-print("🎮 Vampire Survivors Demo Start!")
-
 -- 加载模块
 local World = require("ecs.world")
 local Transform = require("ecs.components.transform")

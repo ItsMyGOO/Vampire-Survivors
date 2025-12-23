@@ -9,7 +9,7 @@ local BaseSystem = {}
 BaseSystem.__index = BaseSystem
 
 --- 创建新的系统实例
----@return BaseSystem
+---@return table
 function BaseSystem.new()
     local self = setmetatable({}, BaseSystem)
     return self

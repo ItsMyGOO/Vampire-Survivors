@@ -11,10 +11,36 @@ namespace Test
 
         private LuaEnv luaEnv;
 
+        public enum TestPhrase
+        {
+            Phrase1,
+            Phrase2,
+        }
+
+        public TestPhrase testPhrase;
+
         void Start()
         {
             luaEnv = LuaMain.Env;
 
+            switch (testPhrase)
+            {
+                case TestPhrase.Phrase1:
+                    Test1();
+                    break;
+                case TestPhrase.Phrase2:
+                    Test2();
+                    break;
+            }
+        }
+
+        void Test1()
+        {
+            luaEnv.DoString(@"require(""Test.movement_system_test"")()");
+        }
+
+        void Test2()
+        {
             // 注册 C# 对象给 Lua 使用
             luaEnv.Global.Set("CSPlayerPrefab", playerPrefab);
             luaEnv.Global.Set("CSEnemyPrefab", enemyPrefab);
