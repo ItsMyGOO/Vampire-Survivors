@@ -112,7 +112,13 @@ end
 --- @param schema table 组件模式表
 --- @return table components[schema]
 function World:GetComponentOfType(schema)
-    return self.components[self:getSchemaName(schema)]
+    local schemaName = self:getSchemaName(schema)
+    local components = self.components[schemaName]
+    if not components then
+        components = {}
+        self.components[schemaName] = components
+    end
+    return components
 end
 
 ---

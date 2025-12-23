@@ -431,6 +431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 1750391120}
   enemyPrefab: {fileID: 41787229}
+  testPhrase: 1
 --- !u!1 &1435425840
 GameObject:
   m_ObjectHideFlags: 0

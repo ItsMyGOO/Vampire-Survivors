@@ -10,6 +10,7 @@ local BaseSystem = require("ecs.base_system")
 local TransformSyncSystem = {}
 TransformSyncSystem.__index = TransformSyncSystem
 
+---@return TransformSyncSystem
 function TransformSyncSystem.new()
     local self = BaseSystem.new()
     return setmetatable(self, TransformSyncSystem)

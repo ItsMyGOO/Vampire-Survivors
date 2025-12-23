@@ -15,6 +15,7 @@ MainWorld.eventBus = require("utils.event_bus")()
 
 MainWorld:AddSystem(require("ecs.systems.movement_system").new())
 MainWorld:AddSystem(require("ecs.systems.transform_sync_system").new())
+
 -- 全局暴露给 C#
 _G.UpdateGame = function(dt)
     MainWorld:UpdateSystems(dt)
@@ -75,3 +76,4 @@ end
 -- 暴露给 C#
 _G.SpawnPlayer = SpawnPlayer
 _G.SpawnEnemy = SpawnEnemy
+_G.MainWorld = MainWorld

@@ -10,6 +10,7 @@ local BaseSystem = require("ecs.base_system")
 local MovementSystem = {}
 MovementSystem.__index = MovementSystem
 
+---@return MovementSystem
 function MovementSystem.new()
     local self = BaseSystem.new()
     return setmetatable(self, MovementSystem)
