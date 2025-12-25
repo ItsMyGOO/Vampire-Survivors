@@ -9,7 +9,6 @@ local BaseSystem = require("ecs.base_system")
 ---@class PlayerInputSystem : BaseSystem
 ---@field input CS.UnityEngine.Input
 local PlayerInputSystem = {
-    input = nil,
 }
 PlayerInputSystem.__index = PlayerInputSystem
 

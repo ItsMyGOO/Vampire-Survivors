@@ -22,7 +22,7 @@ local BulletRainSystem = {
     nextSpawnTime = 0,
     dropsRemaining = 0,
     isActive = false,
-    config = nil,
+    config = {},
 }
 
 ---
