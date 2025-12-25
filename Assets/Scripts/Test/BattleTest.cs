@@ -22,9 +22,8 @@ namespace Test
             luaEnv.Global.Set("CSEnemyPrefab", enemyPrefab);
 
             // 启动 Lua 主逻辑
-            luaEnv.DoString(@"require('test/ecs_test')");
-
-
+            luaEnv.DoString(@"require('test/battle_test')");
+            
             // 生成玩家
             luaEnv.Global.Get<LuaFunction>("SpawnPlayer").Call(0, 0);
 
@@ -32,8 +31,8 @@ namespace Test
             for (int i = 0; i < 10; i++)
             {
                 float x = Random.Range(-8f, 8f);
-                float z = Random.Range(-8f, 8f);
-                luaEnv.Global.Get<LuaFunction>("SpawnEnemy").Call(x, z);
+                float y = Random.Range(-8f, 8f);
+                luaEnv.Global.Get<LuaFunction>("SpawnEnemy").Call(x, y);
             }
         }
 

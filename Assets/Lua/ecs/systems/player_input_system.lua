@@ -7,9 +7,13 @@
 local BaseSystem = require("ecs.base_system")
 
 ---@class PlayerInputSystem : BaseSystem
-local PlayerInputSystem = {}
+---@field input CS.UnityEngine.Input
+local PlayerInputSystem = {
+    input = nil,
+}
 PlayerInputSystem.__index = PlayerInputSystem
 
+---@param input CS.UnityEngine.Input
 function PlayerInputSystem.new(input)
     local self = BaseSystem.new()
     self.input = input -- 注入输入模块
@@ -28,8 +32,8 @@ function PlayerInputSystem:start(world)
 end
 
 function PlayerInputSystem:update(dt)
-    local ix = self.input:GetAxis("Horizontal")
-    local iz = self.input:GetAxis("Vertical")
+    local ix = self.input.GetAxisRaw("Horizontal")
+    local iz = self.input.GetAxisRaw("Vertical")
 
     for eid in pairs(self.players) do
         local vel = self.velocities[eid]

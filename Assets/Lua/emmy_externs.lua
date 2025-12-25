@@ -18,6 +18,13 @@ CS.UnityEngine.Debug = {}
 ---@param msg string
 function CS.UnityEngine.Debug.Log(msg) end
 
+---@class CS.UnityEngine.Input
+CS.UnityEngine.Input = {}
+---@param msg string
+function CS.UnityEngine.Input.GetAxis(msg) end
+---@param msg string
+function CS.UnityEngine.Input.GetAxisRaw(msg) end
+
 ---@class CS.UnityEngine.Vector3
 ---@field public x number
 ---@field public y number

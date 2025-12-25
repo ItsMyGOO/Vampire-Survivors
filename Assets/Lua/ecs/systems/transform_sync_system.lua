@@ -28,7 +28,7 @@ function TransformSyncSystem:update(dt)
     for _, trans in pairs(self.transforms) do
         if trans.go and trans.dirty then
             trans.go.transform.position =
-                CS.UnityEngine.Vector3(trans.x, trans.y, trans.z)
+                CS.UnityEngine.Vector3(trans.x, trans.z, 0)
             trans.dirty = false
         end
     end
