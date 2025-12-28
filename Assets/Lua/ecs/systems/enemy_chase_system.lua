@@ -31,15 +31,15 @@ function EnemyChaseSystem:update(dt)
         local vel = self.velocities[eid]
         local trans = self.transforms[eid]
         local targetTrans = self.transforms[chase.target_eid]
-        
+
         if vel and trans and targetTrans then
             local dx = targetTrans.x - trans.x
             local dz = targetTrans.z - trans.z
             local len = math.sqrt(dx * dx + dz * dz)
 
             if len > 0.001 then
-                vel.x = (dx / len) * vel.speed
-                vel.z = (dz / len) * vel.speed
+                vel.x = (dx / len) * chase.speed
+                vel.z = (dz / len) * chase.speed
             else
                 vel.x, vel.z = 0, 0
             end
