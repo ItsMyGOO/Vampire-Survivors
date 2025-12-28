@@ -42,7 +42,7 @@ function EnemyChaseSystem:update(dt)
             local dz = targetTrans.z - trans.z
             local len = math.sqrt(dx * dx + dz * dz)
 
-            if len < chase.stop_distance then
+            if len > chase.stop_distance then
                 vel.x = (dx / len) * chase.speed
                 vel.z = (dz / len) * chase.speed
             else
