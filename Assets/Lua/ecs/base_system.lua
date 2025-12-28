@@ -5,7 +5,10 @@
 -- ECS系统基类定义
 -- 定义所有ECS系统的通用接口和生命周期管理
 ---@class BaseSystem
-local BaseSystem = {}
+local BaseSystem = {
+    ---@type World?
+    world = nil
+}
 BaseSystem.__index = BaseSystem
 
 --- 创建新的系统实例
@@ -16,7 +19,7 @@ function BaseSystem.new()
 end
 
 --- 系统启动方法
---- @param world table ECS世界实例
+--- @param world World ECS世界实例
 function BaseSystem:start(world)
     self.world = world
 end

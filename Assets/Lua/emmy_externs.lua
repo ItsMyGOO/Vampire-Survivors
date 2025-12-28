@@ -65,3 +65,6 @@ CS.UnityEngine.Component = {}
 ---@field public parent UnityEngine.Transform
 ---@field public childCount integer
 CS.UnityEngine.Transform = {}
+
+---@class CS.UnityEngine.SpriteRenderer
+CS.UnityEngine.SpriteRendere = {}
