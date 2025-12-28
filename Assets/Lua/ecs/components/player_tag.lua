@@ -4,6 +4,9 @@
 ---
 -- components/player_tag.lua
 -- 玩家标识组件
+
+--- @class PlayerTagComponent: table
+--- 玩家标识组件，通常为空组件，仅用于标记实体为玩家
 local M = {
     -- 玩家标识组件，通常为空组件，仅用于标记实体为玩家
 }

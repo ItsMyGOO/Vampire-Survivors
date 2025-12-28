@@ -4,6 +4,12 @@
 ---
 -- components/transform.lua
 -- 位置与 GameObject 绑定
+
+--- @class TransformComponent: table
+--- @field x number X轴坐标
+--- @field y number Y轴坐标  
+--- @field z number Z轴坐标
+--- @field go CS.UnityEngine.GameObject? 对应的Unity游戏对象
 local M = {
     x = 0.0,
     y = 0.0,
