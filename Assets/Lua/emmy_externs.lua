@@ -34,7 +34,6 @@ CS.UnityEngine.Vector3 = {}
 ---@class CS.UnityEngine.Object
 CS.UnityEngine.Object = {}
 
-
 --- GameObject 类型定义扩展
 ---@class CS.UnityEngine.GameObject : CS.UnityEngine.Object
 ---@field public transform CS.UnityEngine.Transform
@@ -44,6 +43,10 @@ CS.UnityEngine.Object = {}
 ---@field public tag string
 ---@field public layer integer
 CS.UnityEngine.GameObject = {}
+
+---@param self CS.UnityEngine.GameObject
+---@param active boolean
+function CS.UnityEngine.GameObject.SetActive(self, active) end
 
 ---@overload fun(original: CS.UnityEngine.GameObject): CS.UnityEngine.GameObject
 ---@overload fun(original: CS.UnityEngine.GameObject, parent: CS.UnityEngine.Transform): CS.UnityEngine.GameObject

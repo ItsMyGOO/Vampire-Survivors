@@ -11,6 +11,7 @@
 --- @field private systems table 系统集合：systemName -> system_data
 --- @field eventBus EventBus? 事件总线
 --- @field private schemaNames table 组件名缓存：schema -> name（避免重复查找）
+--- @field player_eid integer 玩家实体ID
 local World = {
     ---@private
     entities = {}, -- eid -> true
@@ -25,7 +26,9 @@ local World = {
     eventBus = nil,
 
     ---@private
-    schemaNames = {}
+    schemaNames = {},
+
+    player_eid = -1,
 }
 
 ---

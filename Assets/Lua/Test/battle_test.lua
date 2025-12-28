@@ -13,7 +13,8 @@ MainWorld = World
 MainWorld.eventBus = require("utils.event_bus")()
 
 MainWorld:AddSystem(require("ecs.systems.player_input_system").new(CS.UnityEngine.Input))
-MainWorld:AddSystem(require("ecs.systems.enemy_ai_system").new())
+MainWorld:AddSystem(require("ecs.systems.enemy_perception_system").new())
+MainWorld:AddSystem(require("ecs.systems.enemy_chase_system").new())
 MainWorld:AddSystem(require("ecs.systems.movement_system").new())
 MainWorld:AddSystem(require("ecs.systems.transform_sync_system").new())
 
@@ -28,12 +29,14 @@ function SpawnPlayer(x, z)
 
     local go = CS.UnityEngine.GameObject.Instantiate(CSPlayerPrefab)
     go.name = "Player"
+    go:SetActive(true)
 
     MainWorld:AddComponent(eid, require("ecs.components.player_tag"))
     MainWorld:AddComponent(eid, Transform, { go = go })
-    MainWorld:AddComponent(eid, Velocity)
+    MainWorld:AddComponent(eid, Velocity, { speed = 3 })
 
-    CS.UnityEngine.Debug.Log("Player spawned at " .. (x or 0) .. ", " .. (z or 0))
+    MainWorld.player_eid = eid
+
     return eid
 end
 
@@ -43,6 +46,7 @@ function SpawnEnemy(x, z)
 
     local go = CS.UnityEngine.GameObject.Instantiate(CSEnemyPrefab)
     go.name = "Enemy"
+    go:SetActive(true)
 
     MainWorld:AddComponent(eid, Transform, {
         x = x,
@@ -51,17 +55,9 @@ function SpawnEnemy(x, z)
     })
 
     -- 计算朝向玩家（简化为朝向原点）
-    local dirX, dirZ = -x, -z
-    local len = math.sqrt(dirX * dirX + dirZ * dirZ)
-    dirX, dirZ = dirX / len, dirZ / len
-    MainWorld:AddComponent(eid, Velocity, {
-        x = dirX * 2.0,
-        y = 0,
-        z = dirZ * 2.0,
-        active = true
-    })
+    MainWorld:AddComponent(eid, Velocity)
+    MainWorld:AddComponent(eid, require("ecs.components.chase"))
 
-    CS.UnityEngine.Debug.Log("Enemy spawned at " .. x .. ", " .. z)
     return eid
 end
 

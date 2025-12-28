@@ -15,6 +15,8 @@ namespace Test
 
         void Start()
         {
+            Application.targetFrameRate = 60;
+            
             luaEnv = LuaMain.Env;
 
             // 注册 C# 对象给 Lua 使用

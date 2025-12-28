@@ -4,7 +4,8 @@
 ---
 local M = {
     speed = 2,
-    stop_distance = 0.5
+    stop_distance = 0.5,
+    target_eid = -1
 }
 
 return setmetatable(M, { __name = "chase" })
