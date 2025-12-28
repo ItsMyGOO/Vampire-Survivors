@@ -9,4 +9,4 @@ local M = {
     onExpire = nil,
 }
 
-return setmetatable(M, { __name = "LifeTime" })
+return M

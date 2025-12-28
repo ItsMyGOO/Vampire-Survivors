@@ -11,4 +11,4 @@ local M = {
     go = nil  -- UnityEngine.GameObject
 }
 
-return setmetatable(M, { __name = "Transform" })
+return M

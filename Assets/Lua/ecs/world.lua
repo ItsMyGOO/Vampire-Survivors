@@ -46,11 +46,9 @@ end
 --- @param schema table 来自 require("components.xxx")
 --- @param override? table 覆盖字段
 function World:AddComponent(eid, schema, override)
-    local name = self:getSchemaName(schema)
-
     -- 初始化组件池
-    if not self.components[name] then
-        self.components[name] = {}
+    if not self.components[schema] then
+        self.components[schema] = {}
     end
 
     -- 深拷贝默认值 + 合并覆盖
@@ -61,13 +59,13 @@ function World:AddComponent(eid, schema, override)
         end
     end
 
-    self.components[name][eid] = comp
+    self.components[schema][eid] = comp
 
     -- 可选：触发事件
     if self.eventBus then
         self.eventBus:emit("component_added", {
             entityId = eid,
-            componentName = name,
+            componentName = schema,
             component = comp
         })
     end
@@ -105,8 +103,7 @@ end
 --- @param schema table 组件模式表
 --- @return table? 若不存在返回 nil
 function World:GetComponent(eid, schema)
-    local name = self:getSchemaName(schema)
-    local pool = self.components[name]
+    local pool = self.components[schema]
     return pool and pool[eid]
 end
 
@@ -115,11 +112,10 @@ end
 --- @param schema table 组件模式表
 --- @return table components[schema]
 function World:GetComponentOfType(schema)
-    local schemaName = self:getSchemaName(schema)
-    local components = self.components[schemaName]
+    local components = self.components[schema]
     if not components then
         components = {}
-        self.components[schemaName] = components
+        self.components[schema] = components
     end
     return components
 end
@@ -138,15 +134,14 @@ end
 --- @param eid integer 实体ID
 --- @param schema table 组件模式表
 function World:RemoveComponent(eid, schema)
-    local name = self:getSchemaName(schema)
-    local pool = self.components[name]
+    local pool = self.components[schema]
     if pool and pool[eid] then
         pool[eid] = nil
 
         if self.eventBus then
             self.eventBus:emit("component_removed", {
                 entityId = eid,
-                componentName = name
+                componentName = schema
             })
         end
     end
@@ -175,35 +170,6 @@ end
 -- ---------------------------------------
 -- 内部工具方法
 -- ---------------------------------------
-
----
---- 获取组件名称（缓存 + 回退）
---- @param schema table 组件模式表
---- @return string 组件名称 如 "Transform"
-function World:getSchemaName(schema)
-    -- 优先从缓存读
-    local cached = self.schemaNames[schema]
-    if cached then return cached end
-
-    -- 从元表获取
-    local mt = getmetatable(schema)
-    if mt and mt.__name then
-        self.schemaNames[schema] = mt.__name
-        return mt.__name
-    end
-
-    -- 回退：遍历 package.loaded（仅一次）
-    for fullName, mod in pairs(package.loaded) do
-        if mod == schema then
-            local shortName = fullName:match("^.-(%w+)$") or "unknown"
-            self.schemaNames[schema] = shortName
-            return shortName
-        end
-    end
-
-    error("Failed to determine schema name for component table", 2)
-end
-
 ---
 --- 深拷贝（用于创建组件实例）
 --- 注意：不处理函数和 userdata

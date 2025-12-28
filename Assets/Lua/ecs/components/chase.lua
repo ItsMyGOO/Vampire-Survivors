@@ -8,4 +8,4 @@ local M = {
     target_eid = -1
 }
 
-return setmetatable(M, { __name = "chase" })
+return M

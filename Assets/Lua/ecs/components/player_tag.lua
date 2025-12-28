@@ -8,4 +8,4 @@ local M = {
     -- 玩家标识组件，通常为空组件，仅用于标记实体为玩家
 }
 
-return setmetatable(M, { __name = "PlayerTag" })
+return M

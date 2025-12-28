@@ -11,4 +11,4 @@ local M = {
     active = true
 }
 
-return setmetatable(M, { __name = "Velocity" })
+return M

@@ -9,4 +9,4 @@ local M = {
     hasExploded = false
 }
 
-return setmetatable(M, { __name = "AOEExplosion" })
+return M

@@ -9,4 +9,4 @@ local M = {
     max = 100
 }
 
-return setmetatable(M, { __name = "Health" })
+return M

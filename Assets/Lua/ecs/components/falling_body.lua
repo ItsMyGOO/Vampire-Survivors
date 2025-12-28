@@ -10,4 +10,4 @@ local M = {
     isFalling = true
 }
 
-return setmetatable(M, { __name = "FallingBody" })
+return M
