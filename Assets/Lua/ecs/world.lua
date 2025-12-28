@@ -107,10 +107,9 @@ function World:GetComponent(eid, schema)
     return pool and pool[eid]
 end
 
----
---- 获取所有schema类型组件
+--- 获取所有指定类型的组件
 --- @param schema table 组件模式表
---- @return table components[schema]
+--- @return table<integer, table> eid -> component_data 映射表，键为实体ID，值为组件数据表
 function World:GetComponentOfType(schema)
     local components = self.components[schema]
     if not components then

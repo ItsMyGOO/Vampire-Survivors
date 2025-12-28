@@ -5,6 +5,7 @@
 local BaseSystem = require("ecs.base_system")
 
 ---@class EnemyAISystem : BaseSystem
+---@field private transforms table
 local EnemyChaseSystem = {}
 EnemyChaseSystem.__index = EnemyChaseSystem
 
