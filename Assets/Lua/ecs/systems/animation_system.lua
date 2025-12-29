@@ -63,7 +63,8 @@ function AnimationSystem:update(dt)
                     end
                 end
             end
-            
+
+            spriteKeyComp.sheet = clip.sheet
             spriteKeyComp.key = clip.frames[anim.frame]
 
             ::continue::
@@ -73,6 +74,7 @@ end
 
 function AnimationSystem:shutdown()
     self.animations = nil
+    self.sprite_key = nil
 end
 
 return AnimationSystem

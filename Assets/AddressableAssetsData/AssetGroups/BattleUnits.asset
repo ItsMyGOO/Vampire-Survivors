@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: BattleUnits
+  m_EditorClassIdentifier: 
+  m_GroupName: BattleUnits
+  m_Data:
+    m_SerializedData: []
+  m_GUID: fb32b67907868b246aca925456ee4be8
+  m_SerializeEntries:
+  - m_GUID: 1bc6097228993f045852159e71f81d5b
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Enemy 0.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3bcb7877229a5334da528f2f0872b5c3
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Enemy 1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4104ee12b4d54f54b91b3ba875787837
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Enemy 2.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d33598d781682e049a53a0a13104ef29
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Enemy 3.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4d2ccab0c2ad7e47853b6e31a7ac7c2
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Enemy 4.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 99a24620d31e5ce4e823c32d11e17c2c
+    m_Address: Farmer 0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0c187a32c5bde4747be8d00770b07403
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Farmer 1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f7a60065e3984c489b9c4d41bc3dc4e
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Farmer 2.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57a1443e67528144aa07582927559650
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Farmer 3.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: a8daa991008a1de44986f236eb106f56, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: b14cf7f5642920d4fa941dd06907df64, type: 2}
+    - {fileID: 11400000, guid: a9dcee23b5a4c5d4c8e8525adcbd061a, type: 2}

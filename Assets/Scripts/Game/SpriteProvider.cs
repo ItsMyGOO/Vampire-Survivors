@@ -6,27 +6,53 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public static class SpriteProvider
 {
-    static Dictionary<string, Sprite> cache = new();
-    static HashSet<string> loading = new();
+    static readonly Dictionary<string, Dictionary<string, Sprite>> _sheetCache = new();
+    static readonly Dictionary<string, List<Action>> _loading = new();
 
-    public static void Get(string key, Action<Sprite> cb)
+    /// <summary>
+    /// sheet: Addressables key（如 farmer）
+    /// spriteName: run_3
+    /// </summary>
+    public static void Get(string sheet, string spriteName, Action<Sprite> cb)
     {
-        if (cache.TryGetValue(key, out var sprite))
+        // 已缓存
+        if (_sheetCache.TryGetValue(sheet, out var sprites))
         {
-            cb(sprite);
+            if (sprites.TryGetValue(spriteName, out var s))
+                cb(s);
             return;
         }
 
-        if (!loading.Add(key))
-            return;
-
-        Addressables.LoadAssetAsync<Sprite>(key).Completed += h =>
+        // 正在加载
+        if (_loading.TryGetValue(sheet, out var waiters))
         {
-            loading.Remove(key);
+            waiters.Add(() => Get(sheet, spriteName, cb));
+            return;
+        }
+
+        // 开始加载 sheet
+        _loading[sheet] = new List<Action>
+        {
+            () => Get(sheet, spriteName, cb)
+        };
+
+        Addressables.LoadAssetAsync<Sprite[]>(sheet).Completed += h =>
+        {
+            var callbacks = _loading[sheet];
+            _loading.Remove(sheet);
+
             if (h.Status != AsyncOperationStatus.Succeeded)
                 return;
-            cache[key] = h.Result;
-            cb(h.Result);
+
+            var dict = new Dictionary<string, Sprite>();
+            foreach (var s in h.Result)
+                dict[s.name] = s;
+
+            _sheetCache[sheet] = dict;
+
+            // 回放等待的请求
+            foreach (var action in callbacks)
+                action();
         };
     }
 }

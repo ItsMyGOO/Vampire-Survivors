@@ -58,7 +58,7 @@ function CS.UnityEngine.GameObject.Instantiate(original, param1, param2, param3)
 ---@class CS.UnityEngine.Component : CS.UnityEngine.Object
 CS.UnityEngine.Component = {}
 
----@class UnityEngine.Transform
+---@class CS.UnityEngine.Transform
 ---@field public position UnityEngine.Vector3
 ---@field public rotation UnityEngine.Quaternion
 ---@field public localScale UnityEngine.Vector3
@@ -66,5 +66,21 @@ CS.UnityEngine.Component = {}
 ---@field public childCount integer
 CS.UnityEngine.Transform = {}
 
----@class CS.UnityEngine.SpriteRenderer
-CS.UnityEngine.SpriteRendere = {}
+---@class CS.UnityEngine.SpriteRenderer : CS.UnityEngine.Component
+---@field public sprite CS.UnityEngine.Sprite
+---@field public color CS.UnityEngine.Color
+---@field public flipX boolean
+---@field public flipY boolean
+---@field public material CS.UnityEngine.Material
+---@field public sharedMaterials CS.UnityEngine.Material[]
+---@field public sortingLayerName string
+---@field public sortingLayerID integer
+---@field public sortingOrder integer
+---@field public bounds CS.UnityEngine.Bounds
+---@field public enabled boolean
+---@field public gameObject CS.UnityEngine.GameObject
+---@field public tag string
+---@field public name string
+---@field public transform CS.UnityEngine.Transform
+CS.UnityEngine.SpriteRenderer = {}
+

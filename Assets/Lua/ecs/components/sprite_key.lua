@@ -4,7 +4,9 @@
 ---
 --- @class SpriteKeyComponent: table
 --- @field key string?
+--- @field sheet string?
 local M = {
+    sheet = nil,
     key = nil
 }
 

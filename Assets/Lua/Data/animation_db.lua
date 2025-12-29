@@ -3,6 +3,7 @@
 ---
 -- AnimationDB.lua
 ---@class AnimationConfig
+---@field sheet string 帧图片名称
 ---@field frames string[] 动画帧名称数组
 ---@field fps number 动画播放帧率
 ---@field loop boolean 是否循环播放
@@ -15,6 +16,7 @@
 AnimationDB = {
     Player = {
         Run = {
+            sheet = "Farmer 0",
             frames = {
                 "Run 0",
                 "Run 1",

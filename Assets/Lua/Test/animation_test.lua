@@ -13,9 +13,11 @@ MainWorld:AddSystem(require("ecs.systems.animation_system").new())
 local AnimationComponent = require("ecs.components.animation")
 local SpriteKeyComponent = require("ecs.components.sprite_key")
 local AnimationCommand = require("ecs.components.animation_command")
-local SpriteRenderer = require("ecs.components.sprite_renderer")
+local RenderHandler = require("ecs.components.render_handler")
 
-function CreateTestEntity(spriteRenderer)
+--- @param transform CS.UnityEngine.Transform
+--- @param spriteRenderer CS.UnityEngine.SpriteRenderer
+function CreateTestEntity(transform, spriteRenderer)
     local eid = MainWorld:AddEntity()
 
     MainWorld:AddComponent(eid, AnimationComponent, {
@@ -25,8 +27,9 @@ function CreateTestEntity(spriteRenderer)
     MainWorld:AddComponent(eid, AnimationCommand, {
         play_animation_name = "Run"
     })
-    MainWorld:AddComponent(eid, SpriteRenderer, {
-        sprite_renderer = spriteRenderer,
+    MainWorld:AddComponent(eid, RenderHandler, {
+        transform = transform,
+        renderer = spriteRenderer,
     })
 
     return eid

@@ -9,37 +9,25 @@ public class AnimationTest : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     private LuaEnv luaEnv;
 
-    SpriteRenderSystem renderSystem = new();
-    List<Entity> entities = new();
+    RenderSystem renderSystem = new();
+    LuaRenderBridgeProxy renderBridge;
+    private LuaTable world;
 
     void Start()
     {
         Application.targetFrameRate = 60;
         luaEnv = LuaMain.Env;
 
-        luaEnv.DoString(@"require('test/animation_test')");
+        luaEnv.DoString(@"require('test/animation_test')
+                                require('Presentation/lua_render_bridge')
+                            ");
 
         // 创建 Lua Entity
-        luaEnv.Global.Get<Action<SpriteRenderer>>("CreateTestEntity")
-            ?.Invoke(spriteRenderer);
+        luaEnv.Global.Get<Action<Transform, SpriteRenderer>>("CreateTestEntity")
+            ?.Invoke(null, spriteRenderer);
 
-        // Unity 侧 mirror entity（最小桥）
-        var e = new Entity
-        {
-            SpriteKeyComponent = new SpriteKeyComponent(),
-            SpriteRendererComponent = new SpriteRendererComponent
-            {
-                renderer = spriteRenderer
-            }
-        };
-
-        entities.Add(e);
-
-        // Lua → C# 同步 key（演示用）
-        luaEnv.Global.Set("SyncSpriteKey", new Action<string>(key =>
-        {
-            e.SpriteKeyComponent.key = key;
-        }));
+        world = luaEnv.Global.Get<LuaTable>("MainWorld");
+        renderBridge = new LuaRenderBridgeProxy(luaEnv);
     }
 
     // Update is called once per frame
@@ -48,6 +36,26 @@ public class AnimationTest : MonoBehaviour
         // 驱动 ECS 系统更新
         var updateFunc = luaEnv.Global.Get<LuaFunction>("UpdateGame");
         updateFunc?.Call(Time.deltaTime);
-        renderSystem.Update(entities);
+
+        var renderItems = renderBridge.Collect(world);
+        renderSystem.Render(renderItems);
+    }
+}
+
+public class LuaRenderBridgeProxy
+{
+    LuaTable bridge;
+    LuaFunction collectFunc;
+
+    public LuaRenderBridgeProxy(LuaEnv env)
+    {
+        bridge = env.Global.Get<LuaTable>("LuaRenderBridge");
+        collectFunc = bridge.Get<LuaFunction>("Collect");
+    }
+
+    public LuaTable Collect(LuaTable world)
+    {
+        object[] ret = collectFunc.Call(bridge, world);
+        return ret[0] as LuaTable;
     }
 }
