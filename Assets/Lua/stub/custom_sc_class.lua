@@ -1,0 +1,13 @@
+﻿---
+--- Created by echo.
+--- DateTime: 2025/12/29 15:24
+---
+---@class CS.LuaRenderItem
+---@field public transform CS.UnityEngine.Transform
+---@field public renderer CS.UnityEngine.SpriteRenderer
+---@field public pos CS.UnityEngine.Vector3
+---@field public velocityX number
+---@field public sheet string
+---@field public spriteKey string
+---@overload fun(): CS.LuaRenderItem
+CS.LuaRenderItem = {}

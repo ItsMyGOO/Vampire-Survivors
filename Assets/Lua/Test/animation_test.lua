@@ -19,6 +19,9 @@ local RenderHandler = require("ecs.components.render_handler")
 --- @param spriteRenderer CS.UnityEngine.SpriteRenderer
 function CreateTestEntity(transform, spriteRenderer)
     local eid = MainWorld:AddEntity()
+    MainWorld:AddComponent(eid, require("ecs.components.velocity"), {
+        x = -1
+    })
 
     MainWorld:AddComponent(eid, AnimationComponent, {
         clipSetId = "Player1"

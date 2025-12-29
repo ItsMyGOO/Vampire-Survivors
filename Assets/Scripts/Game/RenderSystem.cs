@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Lua;
 using XLua;
 
 public class RenderSystem
@@ -13,9 +13,13 @@ public class RenderSystem
 
             // Transform
             if (item.transform)
-                item.transform.position =
-                    new Vector3(item.x, item.y, 0);
-
+                item.transform.position = item.pos;
+            item.renderer.flipX = item.velocityX switch
+            {
+                > 0 => false,
+                < 0 => true,
+                _ => item.renderer.flipX
+            };
             // Sprite
             SpriteProvider.Get(item.sheet, item.spriteKey, sprite =>
             {

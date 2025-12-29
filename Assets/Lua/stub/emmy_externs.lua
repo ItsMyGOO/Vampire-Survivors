@@ -28,7 +28,7 @@ function CS.UnityEngine.Input.GetAxisRaw(msg) end
 ---@field public x number
 ---@field public y number
 ---@field public z number
----@overload fun(x: number, y: number, z: number): UnityEngine.Vector3
+---@overload fun(x: number, y: number, z: number): CS.UnityEngine.Vector3
 CS.UnityEngine.Vector3 = {}
 
 ---@class CS.UnityEngine.Object

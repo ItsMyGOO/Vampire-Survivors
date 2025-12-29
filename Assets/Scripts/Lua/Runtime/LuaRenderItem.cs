@@ -6,9 +6,8 @@ public struct LuaRenderItem
 {
     public Transform transform;
     public SpriteRenderer renderer;
-    public float x;
-    public float y;
-    public float z;
+    public Vector3 pos;
+    public float velocityX;
     public string sheet;
     public string spriteKey;
 }
