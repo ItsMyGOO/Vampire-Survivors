@@ -4,7 +4,7 @@
 ---
 -- AnimationSystem.lua
 local BaseSystem = require("ecs.base_system")
-local AnimationDB = require("Data.animation_db")
+local AnimationConfigHandler = require("ConfigHandler.anim_config_handler")
 
 ---@class AnimationSystem: BaseSystem
 AnimationSystem = {
@@ -39,10 +39,7 @@ function AnimationSystem:update(dt)
                 goto continue
             end
 
-            ---@type PlayerAnimations
-            local clipSet = AnimationDB[anim.clipSetId]
-            ---@type AnimationConfig
-            local clip = clipSet and clipSet[anim.clipId]
+            local clip = AnimationConfigHandler.GetConfig(anim.clipSetId, anim.clipId)
             if not clip then
                 goto continue
             end

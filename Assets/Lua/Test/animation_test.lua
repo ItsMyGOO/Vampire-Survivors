@@ -21,7 +21,7 @@ function CreateTestEntity(transform, spriteRenderer)
     local eid = MainWorld:AddEntity()
 
     MainWorld:AddComponent(eid, AnimationComponent, {
-        clipSetId = "Player"
+        clipSetId = "Player1"
     })
     MainWorld:AddComponent(eid, SpriteKeyComponent)
     MainWorld:AddComponent(eid, AnimationCommand, {

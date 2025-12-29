@@ -8,6 +8,7 @@ local Transform = require("ecs.components.transform")
 local SpriteKey = require("ecs.components.sprite_key")
 local RenderHandle = require("ecs.components.render_handler")
 
+---@diagnostic disable-next-line: undefined-field
 ---@class LuaRenderItem
 local LuaRenderItem = CS.LuaRenderItem
 ---@param world World

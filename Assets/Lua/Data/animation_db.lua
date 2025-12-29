@@ -4,6 +4,8 @@
 -- AnimationDB.lua
 ---@class AnimationConfig
 ---@field sheet string 帧图片名称
+---@field name string 动画名称
+---@field frame_count number 帧数量
 ---@field frames string[] 动画帧名称数组
 ---@field fps number 动画播放帧率
 ---@field loop boolean 是否循环播放
@@ -14,17 +16,12 @@
 ---@class AnimationDB
 ---@field Player PlayerAnimations 玩家动画配置集合
 AnimationDB = {
-    Player = {
+    Player1 = {
         Run = {
-            sheet = "Farmer 0",
-            frames = {
-                "Run 0",
-                "Run 1",
-                "Run 2",
-                "Run 3",
-                "Run 4",
-                "Run 5",
-            },
+            sheet = "Assets/3rdParty/Undead Survivor/Sprites/Farmer 0",
+            name = "Run",
+            frame_count = 6,
+            frames = nil,
             fps = 12,
             loop = true
         }
