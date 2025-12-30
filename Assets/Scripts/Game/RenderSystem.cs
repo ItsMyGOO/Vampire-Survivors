@@ -6,6 +6,8 @@ using XLua;
 public class RenderSystem
 {
     private SpriteProvider spriteProvider;
+
+    private Dictionary<(int sheet, int key), Sprite> spriteCache = new();
     private Dictionary<int, Transform> transforms = new();
     private Dictionary<int, SpriteRenderer> renderers = new();
 
@@ -33,7 +35,7 @@ public class RenderSystem
 
             var renderer = renderers[eid];
             // Transform
-            transform.position = item.pos;
+            transform.position = new Vector3(item.posX, item.posY, item.posZ);
             renderer.flipX = item.velocityX switch
             {
                 > 0 => false,
@@ -41,6 +43,7 @@ public class RenderSystem
                 _ => renderer.flipX
             };
             // Sprite
+
             spriteProvider.Get(item.sheet, item.spriteKey, sprite =>
             {
                 if (renderer.sprite != sprite)

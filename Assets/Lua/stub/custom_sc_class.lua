@@ -4,7 +4,9 @@
 ---
 ---@class CS.LuaRenderItem
 ---@field public eid number
----@field public pos CS.UnityEngine.Vector3
+---@field public posX number
+---@field public posY number
+---@field public posZ number
 ---@field public velocityX number
 ---@field public sheet string
 ---@field public spriteKey string
