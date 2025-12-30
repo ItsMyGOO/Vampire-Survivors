@@ -26,7 +26,7 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
     world:AddComponent(eid, ComponentRegistry.Chase)
 
     world:AddComponent(eid, ComponentRegistry.Animation, {
-        clipSetId = "Enemy1"
+        clipSetId = "Enemy"
     })
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
     world:AddComponent(eid, ComponentRegistry.AnimationCommand, {

@@ -6,8 +6,9 @@ local AnimationDB = require("Data.animation_db")
 
 local AnimConfigHandler = {}
 
----@param setId string?
----@param clipId string?
+---@param setId string
+---@param clipId string
+---@return string?
 ---@return AnimationConfig?
 function AnimConfigHandler.GetConfig(setId, clipId)
     ---@type PlayerAnimations
@@ -30,7 +31,7 @@ function AnimConfigHandler.GetConfig(setId, clipId)
         clip.frames = frames
     end
 
-    return clip
+    return clipSet.sheet, clip
 end
 
 return AnimConfigHandler

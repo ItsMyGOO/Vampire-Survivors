@@ -21,7 +21,7 @@ function LuaRenderBridge:Collect(world)
     local velocities = world:GetComponentOfType(ComponentRegistry.Velocity)
 
     for eid, anim in pairs(animations) do
-        local pos     = positions[eid]
+        local pos       = positions[eid]
         local velocity  = velocities[eid]
         local spriteKey = spriteKeys[eid]
 
@@ -33,7 +33,7 @@ function LuaRenderBridge:Collect(world)
         item.velocityX  = velocity and velocity.x or 0
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
-
+        
         list[#list + 1] = item
     end
 

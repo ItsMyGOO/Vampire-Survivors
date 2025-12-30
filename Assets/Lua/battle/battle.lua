@@ -42,7 +42,7 @@ function Battle.StartBattle(stageCfg)
     world:AddComponent(player, ComponentRegistry.Position)
     world:AddComponent(player, ComponentRegistry.Velocity)
     world:AddComponent(player, ComponentRegistry.Animation, {
-        clipSetId = "Player1"
+        clipSetId = "Player"
     })
     world:AddComponent(player, ComponentRegistry.SpriteKey)
 

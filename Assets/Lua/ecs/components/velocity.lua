@@ -14,7 +14,7 @@ local M = {
     x = 0.0,
     y = 0.0,
     z = 0.0,
-    speed = 1,
+    speed = 2,
     active = true
 }
 

@@ -33,16 +33,20 @@ public class RenderSystem
                 renderers.Add(eid, go.AddComponent<SpriteRenderer>());
             }
 
-            var renderer = renderers[eid];
+
             // Transform
             transform.position = new Vector3(item.posX, item.posY, item.posZ);
+
+            // Sprite
+            var renderer = renderers[eid];
+            var sortingOrder = -(int)(item.posY * 100);
+            renderer.sortingOrder = sortingOrder;
             renderer.flipX = item.velocityX switch
             {
                 > 0 => false,
                 < 0 => true,
                 _ => renderer.flipX
             };
-            // Sprite
 
             spriteProvider.Get(item.sheet, item.spriteKey, sprite =>
             {

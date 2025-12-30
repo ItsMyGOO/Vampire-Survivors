@@ -8,7 +8,7 @@
 --- @field stop_distance number 停止距离，当与目标距离小于此值时停止移动
 --- @field target_eid integer 目标实体ID
 local M = {
-    speed = 2,
+    speed = 0.5,
     stop_distance = 0.5,
     target_eid = -1
 }

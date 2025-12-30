@@ -12,19 +12,20 @@ AnimationSystem.__index = AnimationSystem
 ---@param world World
 ---@param dt number
 function AnimationSystem:update(world, dt)
-    ---@type table<integer, PositionComponent>
+    ---@type table<integer, AnimationComponent>
     local animations = world:GetComponentOfType(_G.ComponentRegistry.Animation)
     ---@type table<integer, SpriteKeyComponent>
     local sprite_keys = world:GetComponentOfType(_G.ComponentRegistry.SpriteKey)
 
     for eid, anim in pairs(animations) do
         local spriteKeyComp = sprite_keys[eid]
-        if not spriteKeyComp or not anim.playing or not anim.clipId then
+
+        if not spriteKeyComp or not anim.playing or not anim.clipSetId or not anim.clipId then
             goto continue
         end
 
-        local clip = AnimationConfigHandler.GetConfig(anim.clipSetId, anim.clipId)
-        if not clip then
+        local sheet, clip = AnimationConfigHandler.GetConfig(anim.clipSetId, anim.clipId)
+        if not sheet or not clip then
             goto continue
         end
 
@@ -45,8 +46,8 @@ function AnimationSystem:update(world, dt)
             end
         end
 
-        spriteKeyComp.sheet = clip.sheet
-        spriteKeyComp.key = clip.frames[anim.frame]
+        spriteKeyComp.sheet = sheet
+        spriteKeyComp.key = clip.frames and clip.frames[anim.frame]
 
         ::continue::
     end
