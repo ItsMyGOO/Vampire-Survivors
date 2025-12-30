@@ -12,7 +12,7 @@ local GravitySystem = {
 
 function GravitySystem:start(world)
     self.world = assert(world)
-    self._transforms = world.components[require("ecs.components.transform").__name]
+    self._transforms = world.components[require('Assets.Lua.ecs.components.position').__name]
     self._fallingBodies = world.components[require("ecs.components.falling_body").__name]
 end
 

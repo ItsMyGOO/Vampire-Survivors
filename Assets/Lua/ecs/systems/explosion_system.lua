@@ -5,7 +5,7 @@
 -- 处理爆炸伤害
 local Explosion = require("ecs.components.aoe_explosion")
 local Health = require("ecs.components.health")
-local Transform = require("ecs.components.transform")
+local Transform = require('Assets.Lua.ecs.components.position')
 
 local ExplosionSystem = {
     world = nil

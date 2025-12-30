@@ -4,33 +4,29 @@
 ---
 LuaRenderBridge = {}
 
-local Transform = require("ecs.components.transform")
-local Velocity = require("ecs.components.velocity")
-local SpriteKey = require("ecs.components.sprite_key")
-local RenderHandle = require("ecs.components.render_handler")
+local ComponentRegistry = _G.ComponentRegistry
 
 ---@param world World
 ---@return CS.LuaRenderItem[]
 function LuaRenderBridge:Collect(world)
     local list = {}
 
-    ---@type table<integer, RenderHandlerComponent>
-    local renders = world:GetComponentOfType(RenderHandle)
-    ---@type table<integer, TransformComponent>
-    local transforms = world:GetComponentOfType(Transform)
+    ---@type table<integer, AnimationComponent>
+    local animations = world:GetComponentOfType(ComponentRegistry.Animation)
+    ---@type table<integer, PositionComponent>
+    local positions = world:GetComponentOfType(ComponentRegistry.Position)
     ---@type table<integer, SpriteKeyComponent>
-    local spriteKeys = world:GetComponentOfType(SpriteKey)
+    local spriteKeys = world:GetComponentOfType(ComponentRegistry.SpriteKey)
     ---@type table<integer, VelocityComponent>
-    local velocities = world:GetComponentOfType(Velocity)
+    local velocities = world:GetComponentOfType(ComponentRegistry.Velocity)
 
-    for eid, render in pairs(renders) do
-        local trans     = transforms[eid]
-        local spriteKey = spriteKeys[eid]
+    for eid, anim in pairs(animations) do
+        local trans     = positions[eid]
         local velocity  = velocities[eid]
+        local spriteKey = spriteKeys[eid]
 
         local item      = CS.LuaRenderItem() -- default(struct)
-        item.transform  = render.transform
-        item.renderer   = render.renderer
+        item.eid        = eid
         item.pos        = CS.UnityEngine.Vector3(
             trans and trans.x or 0,
             trans and trans.y or 0,
@@ -39,7 +35,7 @@ function LuaRenderBridge:Collect(world)
         item.velocityX  = velocity and velocity.x or 0
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
-
+        
         list[#list + 1] = item
     end
 

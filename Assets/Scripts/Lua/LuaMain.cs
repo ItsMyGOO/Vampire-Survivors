@@ -9,6 +9,8 @@ namespace Lua
 
         void Awake()
         {
+            DontDestroyOnLoad(gameObject);
+            
             Env = new LuaEnv();
             Env.AddLoader(CustomLoader);
             Env.DoString("require('bootstrap')");

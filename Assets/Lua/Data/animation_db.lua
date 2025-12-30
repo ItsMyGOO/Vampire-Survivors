@@ -18,9 +18,19 @@
 AnimationDB = {
     Player1 = {
         Run = {
-            sheet = "Assets/3rdParty/Undead Survivor/Sprites/Farmer 0",
+            sheet = "Assets/3rdParty/Undead Survivor/Sprites/Farmer 0.png",
             name = "Run",
             frame_count = 6,
+            frames = nil,
+            fps = 12,
+            loop = true
+        }
+    },
+    Enemy1 = {
+        Run = {
+            sheet = "Assets/3rdParty/Undead Survivor/Sprites/Enemy 0.png",
+            name = "Run",
+            frame_count = 4,
             frames = nil,
             fps = 12,
             loop = true

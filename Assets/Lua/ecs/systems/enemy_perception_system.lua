@@ -2,36 +2,19 @@
 --- Created by echo.
 --- DateTime: 2025/12/28 17:28
 ---
-local BaseSystem = require("ecs.base_system")
-
----@class EnemyPerceptionSystem : BaseSystem
+---@class EnemyPerceptionSystem
 local EnemyPerceptionSystem = {}
 EnemyPerceptionSystem.__index = EnemyPerceptionSystem
 
-function EnemyPerceptionSystem.new()
-    local self = BaseSystem.new()
-    return setmetatable(self, EnemyPerceptionSystem)
-end
-
 ---@param world World
-function EnemyPerceptionSystem:start(world)
-    BaseSystem.start(self, world)
+---@param dt number
+function EnemyPerceptionSystem:update(world, dt)
+    ---@type table<integer, ChaseComponent>
+    local chases = world:GetComponentOfType(_G.ComponentRegistry.Chase)
 
-    -- 获取需要的组件
-    local Chase = require("ecs.components.chase")
-
-    self.chase = world:GetComponentOfType(Chase)
-end
-
-function EnemyPerceptionSystem:update(dt)
-    for eid, chase in pairs(self.chase) do
-        chase.target_eid = self.world.player_eid
+    for eid, chase in pairs(chases) do
+        chase.target_eid = world.player_eid
     end
-end
-
-function EnemyPerceptionSystem:shutdown()
-    -- 清理引用
-    self.transforms = nil
 end
 
 return EnemyPerceptionSystem

@@ -4,48 +4,26 @@
 ---
 --- 玩家输入系统
 --- 处理玩家输入并更新玩家速度组件
-local BaseSystem = require("ecs.base_system")
-
----@class PlayerInputSystem : BaseSystem
----@field input CS.UnityEngine.Input
+---@class PlayerInputSystem
 local PlayerInputSystem = {
 }
 PlayerInputSystem.__index = PlayerInputSystem
 
----@param input CS.UnityEngine.Input
-function PlayerInputSystem.new(input)
-    local self = BaseSystem.new()
-    self.input = input -- 注入输入模块
-    return setmetatable(self, PlayerInputSystem)
-end
-
 ---@param world World
-function PlayerInputSystem:start(world)
-    BaseSystem.start(self, world)
+---@param dt number
+function PlayerInputSystem:update(world, dt)
+    local input = CS.UnityEngine.Input
+    local hori = input.GetAxisRaw("Horizontal")
+    local vert = input.GetAxisRaw("Vertical")
 
-    local PlayerTag = require("ecs.components.player_tag")
-    local Velocity  = require("ecs.components.velocity")
+    local player = world.player_eid
+    ---@type table<integer, VelocityComponent>
+    local velocities = world:GetComponentOfType(_G.ComponentRegistry.Velocity)
 
-    self.players    = world:GetComponentOfType(PlayerTag)
-    self.velocities = world:GetComponentOfType(Velocity)
-end
+    local vel = velocities[player]
 
-function PlayerInputSystem:update(dt)
-    local ix = self.input.GetAxisRaw("Horizontal")
-    local iz = self.input.GetAxisRaw("Vertical")
-
-    for eid in pairs(self.players) do
-        local vel = self.velocities[eid]
-        if vel then
-            vel.x = ix * vel.speed
-            vel.z = iz * vel.speed
-        end
-    end
-end
-
-function PlayerInputSystem:shutdown()
-    self.players = nil
-    self.velocities = nil
+    vel.x = hori * vel.speed
+    vel.y = vert * vel.speed
 end
 
 return PlayerInputSystem

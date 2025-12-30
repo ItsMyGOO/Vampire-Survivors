@@ -3,45 +3,26 @@
 --- DateTime: 2025/12/21 21:46
 ---
 --- 处理实体移动的系统
---- 继承自 BaseSystem，负责根据速度组件更新实体位置
-local BaseSystem = require("ecs.base_system")
-
----@class MovementSystem : BaseSystem
+---@class MovementSystem
 local MovementSystem = {}
 MovementSystem.__index = MovementSystem
 
----@return MovementSystem
-function MovementSystem.new()
-    local self = BaseSystem.new()
-    return setmetatable(self, MovementSystem)
-end
-
 ---@param world World
-function MovementSystem:start(world)
-    BaseSystem.start(self, world)
+---@param dt number
+function MovementSystem:update(world, dt)
+    ---@type table<integer, PositionComponent>
+    local positions = world:GetComponentOfType(_G.ComponentRegistry.Position)
+    ---@type table<integer, VelocityComponent>
+    local velocities = world:GetComponentOfType(_G.ComponentRegistry.Velocity)
 
-    local Transform = require("ecs.components.transform")
-    local Velocity  = require("ecs.components.velocity")
-
-    self.transforms = world:GetComponentOfType(Transform)
-    self.velocities = world:GetComponentOfType(Velocity)
-end
-
-function MovementSystem:update(dt)
-    for eid, vel in pairs(self.velocities) do
-        local trans = self.transforms[eid]
-        if trans and vel.active ~= false then
-            trans.x = trans.x + vel.x * dt
-            trans.y = trans.y + vel.y * dt
-            trans.z = trans.z + vel.z * dt
-            trans.dirty = true
+    for eid, vel in pairs(velocities) do
+        local pos = positions[eid]
+        if pos and vel.active ~= false then
+            pos.x = pos.x + vel.x * dt
+            pos.y = pos.y + vel.y * dt
+            pos.z = pos.z + vel.z * dt
         end
     end
-end
-
-function MovementSystem:shutdown()
-    self.transforms = nil
-    self.velocities = nil
 end
 
 return MovementSystem

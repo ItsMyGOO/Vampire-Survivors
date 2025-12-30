@@ -6,7 +6,7 @@
 local function test_movement_applies_velocity()
     -- Arrange
     local World = require("ecs.world")
-    local Transform = require("ecs.components.transform")
+    local Transform = require('Assets.Lua.ecs.components.position')
     local Velocity = require("ecs.components.velocity")
 
     local world = setmetatable({}, { __index = World }) -- 模拟 world 实例

@@ -3,75 +3,53 @@
 --- DateTime: 2025/12/28 19:45
 ---
 -- AnimationSystem.lua
-local BaseSystem = require("ecs.base_system")
 local AnimationConfigHandler = require("ConfigHandler.anim_config_handler")
 
----@class AnimationSystem: BaseSystem
-AnimationSystem = {
-    ---@type table<number,AnimationComponent>?
-    animations = nil,
-    ---@type table<number,SpriteKeyComponent>?
-    sprite_key = nil,
-}
+---@class AnimationSystem
+AnimationSystem = {}
 AnimationSystem.__index = AnimationSystem
 
-function AnimationSystem.new()
-    local self = BaseSystem.new()
-    return setmetatable(self, AnimationSystem)
-end
-
 ---@param world World
-function AnimationSystem:start(world)
-    BaseSystem.start(self, world)
+---@param dt number
+function AnimationSystem:update(world, dt)
+    ---@type table<integer, PositionComponent>
+    local animations = world:GetComponentOfType(_G.ComponentRegistry.Animation)
+    ---@type table<integer, SpriteKeyComponent>
+    local sprite_keys = world:GetComponentOfType(_G.ComponentRegistry.SpriteKey)
 
-    local Animation = require("ecs.components.animation")
-    local SpriteKey = require("ecs.components.sprite_key")
+    for eid, anim in pairs(animations) do
+        local spriteKeyComp = sprite_keys[eid]
+        if not spriteKeyComp or not anim.playing or not anim.clipId then
+            goto continue
+        end
 
-    self.animations = world:GetComponentOfType(Animation)
-    self.sprite_key = world:GetComponentOfType(SpriteKey)
-end
+        local clip = AnimationConfigHandler.GetConfig(anim.clipSetId, anim.clipId)
+        if not clip then
+            goto continue
+        end
 
-function AnimationSystem:update(dt)
-    if (self.animations and self.sprite_key) then
-        for eid, anim in pairs(self.animations) do
-            local spriteKeyComp = self.sprite_key[eid]
-            if not spriteKeyComp or not anim.playing or not anim.clipId then
-                goto continue
-            end
+        anim.time = anim.time + dt
+        local frameTime = 1 / clip.fps
 
-            local clip = AnimationConfigHandler.GetConfig(anim.clipSetId, anim.clipId)
-            if not clip then
-                goto continue
-            end
+        while anim.time >= frameTime do
+            anim.time = anim.time - frameTime
+            anim.frame = anim.frame + 1
 
-            anim.time = anim.time + dt
-            local frameTime = 1 / clip.fps
-
-            while anim.time >= frameTime do
-                anim.time = anim.time - frameTime
-                anim.frame = anim.frame + 1
-
-                if anim.frame > #clip.frames then
-                    if clip.loop then
-                        anim.frame = 1
-                    else
-                        anim.frame = #clip.frames
-                        anim.playing = false
-                    end
+            if anim.frame > #clip.frames then
+                if clip.loop then
+                    anim.frame = 1
+                else
+                    anim.frame = #clip.frames
+                    anim.playing = false
                 end
             end
-
-            spriteKeyComp.sheet = clip.sheet
-            spriteKeyComp.key = clip.frames[anim.frame]
-
-            ::continue::
         end
-    end
-end
 
-function AnimationSystem:shutdown()
-    self.animations = nil
-    self.sprite_key = nil
+        spriteKeyComp.sheet = clip.sheet
+        spriteKeyComp.key = clip.frames[anim.frame]
+
+        ::continue::
+    end
 end
 
 return AnimationSystem

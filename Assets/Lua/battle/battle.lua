@@ -1,0 +1,80 @@
+﻿---
+--- Created by echo.
+--- DateTime: 2025/12/29 18:23
+---
+-- Battle.lua
+local World = require("ecs.world")
+local EnemySpawn = require("battle.enemy_spawn_system")
+local ComponentRegistry
+
+local InputSys = require("ecs.systems.player_input_system")
+local EnemyPer = require("ecs.systems.enemy_perception_system")
+local ChaseSys = require("ecs.systems.enemy_chase_system");
+local MoveSys = require("ecs.systems.movement_system")
+
+local AnimCmd = require("ecs.systems.animation_command_system")
+local AnimSys = require("ecs.systems.animation_system")
+--local EnemySpawn = require("EnemySpawnSystem")
+
+local Battle = {}
+Battle.world = nil
+
+local systems = {}
+table.insert(systems, InputSys)
+table.insert(systems, EnemyPer)
+table.insert(systems, ChaseSys)
+table.insert(systems, MoveSys)
+
+table.insert(systems, AnimCmd)
+table.insert(systems, AnimSys)
+
+function Battle.StartBattle(stageCfg)
+    ComponentRegistry = _G.ComponentRegistry
+
+    local world = World.New()
+    Battle.world = world
+
+    -- 生成玩家
+    local player = world:CreateEntity()
+    world.player_eid = player
+    
+    world:AddComponent(player, ComponentRegistry.PlayerTag)
+    world:AddComponent(player, ComponentRegistry.Position)
+    world:AddComponent(player, ComponentRegistry.Velocity)
+    world:AddComponent(player, ComponentRegistry.Animation, {
+        clipSetId = "Player1"
+    })
+    world:AddComponent(player, ComponentRegistry.SpriteKey)
+
+    world:AddComponent(player, ComponentRegistry.AnimationCommand, {
+        play_animation_name = "Run"
+    })
+
+
+    -- 生成敌人
+    for i = 1, 10 do
+        EnemySpawn.Spawn(world)
+    end
+end
+
+function Battle.Tick(dt)
+    local world = Battle.world
+    for _, system in ipairs(systems) do
+        if system.update then
+            -- 使用 xpcall 防止单个系统崩溃导致整个游戏退出
+            local ok, err = xpcall(system.update, debug.traceback,
+                system, world, dt)
+            if not ok then
+                print("❌ Lua Error in system.update:")
+                print(err)
+            end
+        end
+    end
+end
+
+function Battle.EndBattle()
+    Battle.world = nil
+    collectgarbage("collect") -- 只在切场景
+end
+
+return Battle

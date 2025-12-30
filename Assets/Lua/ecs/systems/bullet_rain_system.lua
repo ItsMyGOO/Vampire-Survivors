@@ -4,7 +4,7 @@
 ---
 -- 控制子弹雨的生成与下落
 local BulletRainDrop = require("ecs.components.bullet_rain_drop")
-local Transform = require("ecs.components.transform")
+local Transform = require('Assets.Lua.ecs.components.position')
 local LifeTime = require("ecs.components.life_time")
 
 ---

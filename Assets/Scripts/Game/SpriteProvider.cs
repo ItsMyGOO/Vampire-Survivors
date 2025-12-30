@@ -4,16 +4,16 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-public static class SpriteProvider
+public class SpriteProvider
 {
-    static readonly Dictionary<string, Dictionary<string, Sprite>> _sheetCache = new();
-    static readonly Dictionary<string, List<Action>> _loading = new();
+    readonly Dictionary<string, Dictionary<string, Sprite>> _sheetCache = new();
+    readonly Dictionary<string, List<Action>> _loading = new();
 
     /// <summary>
     /// sheet: Addressables key（如 farmer）
     /// spriteName: run_3
     /// </summary>
-    public static void Get(string sheet, string spriteName, Action<Sprite> cb)
+    public void Get(string sheet, string spriteName, Action<Sprite> cb)
     {
         // 已缓存
         if (_sheetCache.TryGetValue(sheet, out var sprites))

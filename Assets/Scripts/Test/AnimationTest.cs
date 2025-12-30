@@ -9,7 +9,7 @@ public class AnimationTest : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     private LuaEnv luaEnv;
 
-    RenderSystem renderSystem = new();
+    RenderSystem renderSystem = new(new SpriteProvider());
     LuaRenderBridgeProxy renderBridge;
     private LuaTable world;
 

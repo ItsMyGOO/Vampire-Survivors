@@ -5,7 +5,7 @@
 -- components/transform.lua
 -- 位置与 GameObject 绑定
 
---- @class TransformComponent: table
+--- @class PositionComponent: table
 --- @field x number X轴坐标
 --- @field y number Y轴坐标  
 --- @field z number Z轴坐标

@@ -5,7 +5,7 @@
 -- 加载模块
 local World = require("ecs.world")
 
-local Transform = require("ecs.components.transform")
+local Transform = require('Assets.Lua.ecs.components.position')
 local Velocity = require("ecs.components.velocity")
 
 -- 创建世界

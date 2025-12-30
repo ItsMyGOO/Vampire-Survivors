@@ -6,37 +6,37 @@
 --- 核心实体-组件存储系统
 --- 设计原则：只做容器管理，不含任何游戏逻辑
 --- @class World
---- @field private entities table 实体集合 eid -> true
 --- @field private components table 组件池：componentName -> eid -> component_data
---- @field private systems table 系统集合：systemName -> system_data
+--- @field nextEntityId integer 下一个实体ID
 --- @field eventBus EventBus? 事件总线
---- @field private schemaNames table 组件名缓存：schema -> name（避免重复查找）
 --- @field player_eid integer 玩家实体ID
 local World = {
-    ---@private
-    entities = {}, -- eid -> true
-
-    ---@private
-    components = {}, -- string -> table<integer, table>
-
-    ---@private
-    systems = {}, -- string -> table
-
-    ---@type EventBus?
+    nextEntityId = 1,
+    components = {},
     eventBus = nil,
-
-    ---@private
-    schemaNames = {},
-
-    player_eid = -1,
+    player_eid = -1
 }
+World.__index = World
+
+---
+--- 创建 World 实例
+--- @return World
+function World.New()
+    local self = {
+        nextEntityId = 1,
+        components = {},
+        eventBus = nil,
+        player = -1
+    }
+    return setmetatable(self, World)
+end
 
 ---
 --- 创建新实体
 --- @return integer entity_id 实体唯一标识符
-function World:AddEntity()
-    local eid = require("ecs.entity").Create()
-    self.entities[eid] = true
+function World:CreateEntity()
+    local eid = self.nextEntityId
+    self.nextEntityId = eid + 1
     return eid
 end
 
@@ -68,32 +68,6 @@ function World:AddComponent(eid, schema, override)
             componentName = schema,
             component = comp
         })
-    end
-end
-
---- 添加一个系统到世界
---- @param system table 必须有 start(world) 和 update(dt)
-function World:AddSystem(system)
-    table.insert(self.systems, system)
-
-    -- 如果系统有 start 方法，立即调用
-    if system.start then
-        system:start(self)
-    end
-end
-
---- 更新所有系统
---- @param dt number 增量时间（秒）
-function World:UpdateSystems(dt)
-    for _, system in ipairs(self.systems) do
-        if system.update then
-            -- 使用 xpcall 防止单个系统崩溃导致整个游戏退出
-            local ok, err = xpcall(system.update, debug.traceback, system, dt)
-            if not ok then
-                print("❌ Lua Error in system.update:")
-                print(err)
-            end
-        end
     end
 end
 
@@ -150,16 +124,12 @@ end
 --- 销毁实体（移除所有组件）
 --- @param eid integer 实体ID
 function World:DestroyEntity(eid)
-    if not self.entities[eid] then return end
-
     -- 遍历所有组件池，清理该 eid
-    for name, pool in pairs(self.components) do
+    for _, pool in pairs(self.components) do
         if pool[eid] then
             pool[eid] = nil
         end
     end
-
-    self.entities[eid] = nil
 
     if self.eventBus then
         self.eventBus:emit("entity_destroyed", { entityId = eid })
