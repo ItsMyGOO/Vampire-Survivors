@@ -14,6 +14,14 @@ function MovementSystem:update(world, dt)
     local positions = world:GetComponentOfType(_G.ComponentRegistry.Position)
     ---@type table<integer, VelocityComponent>
     local velocities = world:GetComponentOfType(_G.ComponentRegistry.Velocity)
+    ---@type table<integer, SteeringComponent>
+    local steerings = world:GetComponentOfType(_G.ComponentRegistry.Steering)
+
+    for eid, steer in pairs(steerings) do
+        local vel = velocities[eid]
+        vel.x = vel.x + steer.fx * dt;
+        vel.y = vel.y + steer.fy * dt;
+    end
 
     for eid, vel in pairs(velocities) do
         local pos = positions[eid]

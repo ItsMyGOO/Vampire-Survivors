@@ -8,9 +8,11 @@ local EnemySpawn = require("battle.enemy_spawn_system")
 local ComponentRegistry
 
 local InputSys = require("ecs.systems.player_input_system")
-local EnemyPer = require("ecs.systems.enemy_perception_system")
-local ChaseSys = require("ecs.systems.enemy_chase_system");
+--local EnemyPer = require("ecs.systems.enemy_perception_system")
+--local ChaseSys = require("ecs.systems.enemy_chase_system");
+local SteeringSys= require("ecs.systems.steering_system")
 local MoveSys = require("ecs.systems.movement_system")
+
 
 local AnimCmd = require("ecs.systems.animation_command_system")
 local AnimSys = require("ecs.systems.animation_system")
@@ -23,8 +25,9 @@ Battle.world = nil
 
 local systems = {}
 table.insert(systems, InputSys)
-table.insert(systems, EnemyPer)
-table.insert(systems, ChaseSys)
+--table.insert(systems, EnemyPer)
+--table.insert(systems, ChaseSys)
+table.insert(systems, SteeringSys)
 table.insert(systems, MoveSys)
 
 table.insert(systems, AnimCmd)

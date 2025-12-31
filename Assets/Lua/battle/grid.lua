@@ -20,13 +20,17 @@ end
 function Grid:add(eid, pos)
     local cx, cy = self:hash(pos.x, pos.y)
     self.cells[cx] = self.cells[cx] or {}
-    
-    ---@type table<integer,integer>
+
+    ---@type table<integer,PositionComponent>
     local cell = self.cells[cx][cy] or {};
     self.cells[cx][cy] = cell
-    table.insert(cell, eid)
+    cell[eid] = pos
 end
 
+---@param x number
+---@param y number
+---@param radius number
+---@return table<integer,PositionComponent>
 function Grid:query(x, y, radius)
     local result = {}
     local minX = math.floor((x - radius) / self.cellSize)
@@ -37,8 +41,8 @@ function Grid:query(x, y, radius)
     for cx = minX, maxX do
         for cy = minY, maxY do
             if self.cells[cx] and self.cells[cx][cy] then
-                for _, e in ipairs(self.cells[cx][cy]) do
-                    table.insert(result, e)
+                for eid, pos in pairs(self.cells[cx][cy]) do
+                    result[eid] = pos
                 end
             end
         end

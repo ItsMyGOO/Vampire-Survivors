@@ -6,7 +6,7 @@
 --- @field weight number
 --- @field slowingRadius number?
 local Seek = {
-    weight = 1
+    weight = 2
 }
 
 return Seek
