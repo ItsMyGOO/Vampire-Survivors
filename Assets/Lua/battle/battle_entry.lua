@@ -2,14 +2,12 @@
 --- Created by echo.
 --- DateTime: 2025/12/29 21:19
 ---
-local ComponentRegistry = require("ecs.component_registry")
-_G.ComponentRegistry = ComponentRegistry
+_G.ComponentRegistry = require("ecs.component_registry")
 
-local AnimConfigHandler = require("ConfigHandler.anim_config_handler")
-_G.AnimConfigHandler = AnimConfigHandler
+_G.AnimConfigHandler = require("ConfigHandler.anim_config_handler")
 
-local Battle = require("battle.battle")
-_G.Battle = Battle
+_G.Battle = require("battle.battle")
 
-local RenderBridge = require('Presentation/lua_render_bridge')
- _G.RenderBridge = RenderBridge
+_G.RenderBridge = require('Presentation/lua_render_bridge')
+
+_G.Grid = require("battle.grid")

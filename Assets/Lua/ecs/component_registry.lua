@@ -2,11 +2,15 @@
 --- Created by echo.
 --- DateTime: 2025/12/29 19:36
 ---
-local ComponentRegistry    = {}
+local ComponentRegistry      = {}
 
 --- transform
-ComponentRegistry.Position = require("ecs.components.position")
-ComponentRegistry.Velocity = require("ecs.components.velocity")
+ComponentRegistry.Position   = require("ecs.components.position")
+ComponentRegistry.Velocity   = require("ecs.components.velocity")
+
+ComponentRegistry.Steering   = require("ecs.components.steering")
+ComponentRegistry.Seek     = require("ecs.components.seek")
+ComponentRegistry.Separation = require("ecs.components.separation")
 
 
 --- animation

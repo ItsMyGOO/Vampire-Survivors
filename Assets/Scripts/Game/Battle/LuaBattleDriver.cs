@@ -21,7 +21,7 @@ namespace Game.Battle
 
             battle = luaEnv.Global.Get<LuaTable>("Battle");
             var start = battle.Get<LuaFunction>("StartBattle");
-            start.Call(null);
+            start.Call(battle, null);
             world = battle.Get<LuaTable>("world");
 
             renderBridge = new LuaRenderBridgeProxy(luaEnv);
@@ -31,8 +31,8 @@ namespace Game.Battle
 
         void Update()
         {
-            tick.Call(Time.deltaTime);
-            
+            tick.Call(battle, Time.deltaTime);
+
             var renderItems = renderBridge.Collect(world);
             renderSystem.Render(renderItems);
         }

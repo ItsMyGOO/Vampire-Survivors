@@ -16,6 +16,8 @@ local AnimCmd = require("ecs.systems.animation_command_system")
 local AnimSys = require("ecs.systems.animation_system")
 --local EnemySpawn = require("EnemySpawnSystem")
 
+---@class Battle
+---@field world World?
 local Battle = {}
 Battle.world = nil
 
@@ -28,16 +30,17 @@ table.insert(systems, MoveSys)
 table.insert(systems, AnimCmd)
 table.insert(systems, AnimSys)
 
-function Battle.StartBattle(stageCfg)
+function Battle:StartBattle(stageCfg)
     ComponentRegistry = _G.ComponentRegistry
 
     local world = World.New()
-    Battle.world = world
+    self.world = world
+    world.grid = _G.Grid
 
     -- 生成玩家
     local player = world:CreateEntity()
     world.player_eid = player
-    
+
     world:AddComponent(player, ComponentRegistry.PlayerTag)
     world:AddComponent(player, ComponentRegistry.Position)
     world:AddComponent(player, ComponentRegistry.Velocity)
@@ -57,8 +60,13 @@ function Battle.StartBattle(stageCfg)
     end
 end
 
-function Battle.Tick(dt)
-    local world = Battle.world
+function Battle:Tick(dt)
+    local world = self.world
+    
+    if (world and world.grid) then
+        world.grid:rebuild(world:GetComponentOfType(_G.ComponentRegistry.Position))
+    end
+
     for _, system in ipairs(systems) do
         if system.update then
             -- 使用 xpcall 防止单个系统崩溃导致整个游戏退出

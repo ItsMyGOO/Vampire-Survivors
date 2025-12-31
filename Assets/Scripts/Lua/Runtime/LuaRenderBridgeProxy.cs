@@ -4,18 +4,17 @@ namespace Lua
 {
     public class LuaRenderBridgeProxy
     {
-        LuaTable bridge;
-        LuaFunction collectFunc;
+        readonly LuaFunction _collectFunc;
 
         public LuaRenderBridgeProxy(LuaEnv env)
         {
-            bridge = env.Global.Get<LuaTable>("LuaRenderBridge");
-            collectFunc = bridge.Get<LuaFunction>("Collect");
+            var bridge = env.Global.Get<LuaTable>("RenderBridge");
+            _collectFunc = bridge.Get<LuaFunction>("Collect");
         }
 
         public LuaTable Collect(LuaTable world)
         {
-            object[] ret = collectFunc.Call(bridge, world);
+            object[] ret = _collectFunc.Call(world);
             return ret[0] as LuaTable;
         }
     }

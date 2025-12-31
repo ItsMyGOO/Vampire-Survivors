@@ -10,11 +10,13 @@
 --- @field nextEntityId integer 下一个实体ID
 --- @field eventBus EventBus? 事件总线
 --- @field player_eid integer 玩家实体ID
+--- @field grid Grid? 逻辑网格
 local World = {
     nextEntityId = 1,
     components = {},
     eventBus = nil,
-    player_eid = -1
+    player_eid = -1,
+    grid = nil
 }
 World.__index = World
 

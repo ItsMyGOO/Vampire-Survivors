@@ -2,13 +2,14 @@
 --- Created by echo.
 --- DateTime: 2025/12/29 10:55
 ---
-LuaRenderBridge = {}
+---@class LuaRenderBridge
+local LuaRenderBridge = {}
 
 local ComponentRegistry = _G.ComponentRegistry
 
 ---@param world World
 ---@return CS.LuaRenderItem[]
-function LuaRenderBridge:Collect(world)
+function LuaRenderBridge.Collect(world)
     local list = {}
 
     ---@type table<integer, AnimationComponent>
@@ -39,3 +40,5 @@ function LuaRenderBridge:Collect(world)
 
     return list
 end
+
+return LuaRenderBridge
