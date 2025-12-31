@@ -4,7 +4,7 @@
 --- @field public weight number 分离权重，控制分离力的强度
 local SeparationComponent = {
     radius = 1.2,
-    weight = 2.0
+    weight = 1
 }
 
 return SeparationComponent

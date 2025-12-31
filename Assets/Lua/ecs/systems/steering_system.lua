@@ -6,52 +6,51 @@
 local SteeringSystem = {}
 SteeringSystem.__index = SteeringSystem
 
----@param steer SteeringComponent
 ---@param seek SeekComponent
 ---@param pos PositionComponent
 ---@param target PositionComponent
-local function ApplySeek(steer, seek, pos, target)
+---@param intent MoveIntentComponent
+local function ApplySeek(seek, pos, target, intent)
     local dx = target.x - pos.x
     local dy = target.y - pos.y
     local dist = math.sqrt(dx * dx + dy * dy)
 
-    if dist < 0.001 then return end
+    if dist < seek.stop_distance then
+        intent.dirX = 0
+        intent.dirY = 0
+        return
+    end
 
     dx = dx / dist
     dy = dy / dist
 
-    -- 可选减速
-    if seek.slowingRadius and seek.slowingRadius > 0 and dist < seek.slowingRadius then
-        local scale = dist / seek.slowingRadius
-        dx = dx * scale
-        dy = dy * scale
-    end
-
-    steer.fx = steer.fx + dx * seek.weight
-    steer.fy = steer.fy + dy * seek.weight
+    intent.dirX = dx
+    intent.dirY = dy
+    intent.speed = seek.speed
 end
+
 
 ---@param selfId integer
 ---@param steering SteeringComponent
 ---@param grid Grid?
----@param saparation SeparationComponent
+---@param separation SeparationComponent
 ---@param pos PositionComponent
-local function ApplySeparation(selfId, steering, grid, saparation, pos)
+---@param intent MoveIntentComponent
+local function ApplySeparation(selfId, steering, grid, separation, pos, intent)
+    if not grid then return end
+
     local fx, fy = 0.0, 0.0
     local count = 0
 
-    if not grid then
-        return
-    end
-    local neighbors = grid:query(pos.x, pos.y, saparation.radius)
+    local neighbors = grid:query(pos.x, pos.y, separation.radius)
 
-    for eid, nPos in ipairs(neighbors) do
-        if eid ~= selfId and nPos then
+    for _, nPos in ipairs(neighbors) do
+        if nPos.eid ~= selfId then
             local dx = pos.x - nPos.x
             local dy = pos.y - nPos.y
             local distSq = dx * dx + dy * dy
 
-            if distSq > 0 and distSq < saparation.radius * saparation.radius then
+            if distSq > 0 and distSq < separation.radius * separation.radius then
                 local dist = math.sqrt(distSq)
                 fx = fx + dx / dist
                 fy = fy + dy / dist
@@ -60,50 +59,67 @@ local function ApplySeparation(selfId, steering, grid, saparation, pos)
         end
     end
 
-    if count > 0 then
-        fx = fx / count * saparation.weight
-        fy = fy / count * saparation.weight
-        steering.fx = steering.fx + fx
-        steering.fy = steering.fy + fy
+    if count == 0 then
+        steering.sepVx = 0
+        steering.sepVy = 0
+        return
     end
+
+    -- 平均方向
+    fx = fx / count
+    fy = fy / count
+
+    -- 核心：去掉前进方向分量（只保留横向）
+    local ix, iy = intent.dirX, intent.dirY
+    local dot = fx * ix + fy * iy
+    fx = fx - dot * ix
+    fy = fy - dot * iy
+
+    -- 归一化
+    local len = math.sqrt(fx * fx + fy * fy)
+    if len > 0 then
+        fx = fx / len
+        fy = fy / len
+    end
+
+    steering.sepVx = fx * separation.weight
+    steering.sepVy = fy * separation.weight
 end
 
 ---@param world World
 ---@param dt number
 function SteeringSystem:update(world, dt)
-    local ComponentRegistry = _G.ComponentRegistry
+    local C           = _G.ComponentRegistry
 
-    ---@type table<integer, SteeringComponent>
-    local steerings = world:GetComponentOfType(ComponentRegistry.Steering)
-    local seeks = world:GetComponentOfType(ComponentRegistry.Seek)
-    local separations = world:GetComponentOfType(ComponentRegistry.Separation)
-    local positions = world:GetComponentOfType(ComponentRegistry.Position)
+    local steerings   = world:GetComponentOfType(C.Steering)
+    local seeks       = world:GetComponentOfType(C.Seek)
+    local separations = world:GetComponentOfType(C.Separation)
+    local positions   = world:GetComponentOfType(C.Position)
+    local intents     = world:GetComponentOfType(C.MoveIntent)
 
-    local target = positions[world.player_eid]
+    local targetPos   = positions[world.player_eid]
+
     for eid, steer in pairs(steerings) do
-        --重置
-        steer.fx, steer.fy = 0.0, 0.0
-        -- seek
+        steer.fx, steer.fy = 0, 0
+        steer.sepFx, steer.sepFy = 0, 0
+
         local pos = positions[eid]
+
+        -- seek → 主方向
         local seek = seeks[eid]
-        ApplySeek(steer, seek, pos, target)
+        local intent = intents[eid]
+        ApplySeek(seek, pos, targetPos,intent)
 
-        -- separation
-        local separation = separations[eid]
-        ApplySeparation(eid, steer, world.grid, separation, pos)
+        -- separation → 只算分离
+        local sep = separations[eid]
+        ApplySeparation(eid, steer, world.grid, sep, pos,intent)
 
-        -- 最大force
-        local fx = steer.fx
-        local fy = steer.fy
-
-        local len = math.sqrt(fx * fx + fy * fy)
+        -- clamp 总 steering（不 clamp sep）
+        local len = math.sqrt(steer.fx * steer.fx + steer.fy * steer.fy)
         if len > steer.maxForce then
-            fx = fx / len * steer.maxForce
-            fy = fy / len * steer.maxForce
+            steer.fx = steer.fx / len * steer.maxForce
+            steer.fy = steer.fy / len * steer.maxForce
         end
-
-        steer.fx = fx
-        steer.fy = fy
     end
 end
 

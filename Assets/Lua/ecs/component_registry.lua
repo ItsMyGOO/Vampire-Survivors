@@ -11,6 +11,7 @@ ComponentRegistry.Velocity   = require("ecs.components.velocity")
 ComponentRegistry.Steering   = require("ecs.components.steering")
 ComponentRegistry.Seek     = require("ecs.components.seek")
 ComponentRegistry.Separation = require("ecs.components.separation")
+ComponentRegistry.MoveIntent     = require("ecs.components.move_intent")
 
 
 --- animation

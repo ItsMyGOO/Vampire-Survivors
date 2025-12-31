@@ -17,13 +17,13 @@ function PlayerInputSystem:update(world, dt)
     local vert = input.GetAxisRaw("Vertical")
 
     local player = world.player_eid
-    ---@type table<integer, VelocityComponent>
-    local velocities = world:GetComponentOfType(_G.ComponentRegistry.Velocity)
+    ---@type table<integer, MoveIntentComponent>
+    local intents = world:GetComponentOfType(_G.ComponentRegistry.MoveIntent)
 
-    local vel = velocities[player]
+    local intent = intents[player]
 
-    vel.x = hori * vel.speed
-    vel.y = vert * vel.speed
+    intent.dirX = hori 
+    intent.dirY = vert 
 end
 
 return PlayerInputSystem

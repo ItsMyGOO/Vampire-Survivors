@@ -27,14 +27,11 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
     world:AddComponent(eid, ComponentRegistry.Steering)
     world:AddComponent(eid, ComponentRegistry.Seek)
     world:AddComponent(eid, ComponentRegistry.Separation)
+    world:AddComponent(eid, ComponentRegistry.MoveIntent)
 
-    world:AddComponent(eid, ComponentRegistry.Animation, {
-        clipSetId = "Enemy"
-    })
+    world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
-    world:AddComponent(eid, ComponentRegistry.AnimationCommand, {
-        play_animation_name = "Run"
-    })
+    world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play_animation_name = "Run" })
 
     -- 返回给 C# 用来创建 Sprite
     return eid, enemyCfg and enemyCfg.spriteId

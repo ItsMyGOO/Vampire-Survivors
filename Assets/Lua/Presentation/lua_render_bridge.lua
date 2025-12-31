@@ -12,8 +12,6 @@ local ComponentRegistry = _G.ComponentRegistry
 function LuaRenderBridge.Collect(world)
     local list = {}
 
-    ---@type table<integer, AnimationComponent>
-    local animations = world:GetComponentOfType(ComponentRegistry.Animation)
     ---@type table<integer, PositionComponent>
     local positions = world:GetComponentOfType(ComponentRegistry.Position)
     ---@type table<integer, SpriteKeyComponent>
@@ -21,8 +19,7 @@ function LuaRenderBridge.Collect(world)
     ---@type table<integer, VelocityComponent>
     local velocities = world:GetComponentOfType(ComponentRegistry.Velocity)
 
-    for eid, anim in pairs(animations) do
-        local pos       = positions[eid]
+    for eid, pos in pairs(positions) do
         local velocity  = velocities[eid]
         local spriteKey = spriteKeys[eid]
 
@@ -34,7 +31,7 @@ function LuaRenderBridge.Collect(world)
         item.velocityX  = velocity and velocity.x or 0
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
-        
+
         list[#list + 1] = item
     end
 
