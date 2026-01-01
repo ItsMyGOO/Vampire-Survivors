@@ -60,8 +60,8 @@ local function ApplySeparation(selfId, steering, grid, separation, pos, intent)
     end
 
     if count == 0 then
-        steering.sepVx = 0
-        steering.sepVy = 0
+        steering.sepFx = 0
+        steering.sepFy = 0
         return
     end
 
@@ -82,8 +82,8 @@ local function ApplySeparation(selfId, steering, grid, separation, pos, intent)
         fy = fy / len
     end
 
-    steering.sepVx = fx * separation.weight
-    steering.sepVy = fy * separation.weight
+    steering.sepFx = fx * separation.weight
+    steering.sepFy = fy * separation.weight
 end
 
 ---@param world World

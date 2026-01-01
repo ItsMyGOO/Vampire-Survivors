@@ -28,9 +28,27 @@ function AIMovementSystem:update(world, dt)
         vel.x = vel.x + (desiredVx - vel.x) * t
         vel.y = vel.y + (desiredVy - vel.y) * t
 
-        -- 3️⃣ 分离只扰动速度（不影响朝向）
-        vel.x = vel.x + steering.sepFx * dt
-        vel.y = vel.y + steering.sepFy * dt
+        -- 3️⃣ 分离只扰动速度方向
+        local vx, vy = vel.x, vel.y
+        local speed = math.sqrt(vx * vx + vy * vy)
+        
+        if speed > 0.001 then
+            local nx, ny = vx / speed, vy / speed
+        
+            -- 加一点 separation 偏移
+            nx = nx + steering.sepFx * dt
+            ny = ny + steering.sepFy * dt
+        
+            local nlen = math.sqrt(nx * nx + ny * ny)
+            if nlen > 0 then
+                nx = nx / nlen
+                ny = ny / nlen
+            end
+        
+            vel.x = nx * speed
+            vel.y = ny * speed
+        end
+
 
         -- 4️⃣ 限速
         --local len = math.sqrt(vel.x * vel.x + vel.y * vel.y)

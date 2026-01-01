@@ -2,8 +2,8 @@
 --- @class SteeringComponent
 --- @field fx number
 --- @field fy number
---- @field sepVx number
---- @field sepVy number
+--- @field sepFx number
+--- @field sepFy number
 --- @field maxForce number
 Steering = {
     -- Separation 产生的速度修正（不是 force）
