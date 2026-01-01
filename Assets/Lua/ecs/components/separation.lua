@@ -3,7 +3,7 @@
 --- @field public radius number 分离半径，定义需要避免重叠的距离范围
 --- @field public weight number 分离权重，控制分离力的强度
 local SeparationComponent = {
-    radius = 1.2,
+    radius = 0.2,
     weight = 1
 }
 

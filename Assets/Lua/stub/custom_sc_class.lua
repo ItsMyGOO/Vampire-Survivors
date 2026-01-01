@@ -7,7 +7,7 @@
 ---@field public posX number
 ---@field public posY number
 ---@field public posZ number
----@field public velocityX number
+---@field public dirX number
 ---@field public sheet string
 ---@field public spriteKey string
 ---@overload fun(): CS.LuaRenderItem

@@ -2,60 +2,52 @@
 --- Created by echo.
 --- DateTime: 2025/12/31 20:04
 ---
---- @class AIMovementSystem
+---@class AIMovementSystem
 local AIMovementSystem = {}
 AIMovementSystem.__index = AIMovementSystem
 
 function AIMovementSystem:update(world, dt)
-    local C          = _G.ComponentRegistry
+    local C = _G.ComponentRegistry
 
     local velocities = world:GetComponentOfType(C.Velocity)
     local intents    = world:GetComponentOfType(C.MoveIntent)
     local steerings  = world:GetComponentOfType(C.Steering)
 
-    for eid, steering in pairs(steerings) do
-        local vel = velocities[eid]
-        local intent = intents[eid]
-        if not vel or not intent then goto continue end
+    for eid, vel in pairs(velocities) do
+        local intent   = intents[eid]
+        local steering = steerings[eid]
+        if not intent or not steering then goto continue end
 
-        -- 1️⃣ 基于 intent 的期望速度（seek 决定）
+        -- 1️⃣ 基于 intent 的期望速度（决定“往哪追”）
         local desiredVx = intent.dirX * intent.speed
         local desiredVy = intent.dirY * intent.speed
 
-        -- 2️⃣ 平滑逼近期望速度（解决“冲过头”）
+        -- 2️⃣ 平滑逼近（一阶响应）
         local accel = 8
         local t = 1 - math.exp(-accel * dt)
         vel.x = vel.x + (desiredVx - vel.x) * t
         vel.y = vel.y + (desiredVy - vel.y) * t
 
-        -- 3️⃣ 分离只扰动速度方向
+        -- 3️⃣ separation：只扰动速度方向，不改变朝向
         local vx, vy = vel.x, vel.y
-        local speed = math.sqrt(vx * vx + vy * vy)
-        
-        if speed > 0.001 then
+        local speedSq = vx * vx + vy * vy
+
+        if speedSq > 1e-6 then
+            local speed = math.sqrt(speedSq)
             local nx, ny = vx / speed, vy / speed
-        
-            -- 加一点 separation 偏移
-            nx = nx + steering.sepFx * dt
-            ny = ny + steering.sepFy * dt
-        
+
+            -- ⭐ 横向扰动（不乘 dt，表现为“位置修正”）
+            nx = nx + steering.sepFx
+            ny = ny + steering.sepFy
+
             local nlen = math.sqrt(nx * nx + ny * ny)
-            if nlen > 0 then
+            if nlen > 1e-6 then
                 nx = nx / nlen
                 ny = ny / nlen
+                vel.x = nx * speed
+                vel.y = ny * speed
             end
-        
-            vel.x = nx * speed
-            vel.y = ny * speed
         end
-
-
-        -- 4️⃣ 限速
-        --local len = math.sqrt(vel.x * vel.x + vel.y * vel.y)
-        --if len > vel.speed then
-        --    vel.x = vel.x / len * vel.speed
-        --    vel.y = vel.y / len * vel.speed
-        --end
 
         ::continue::
     end

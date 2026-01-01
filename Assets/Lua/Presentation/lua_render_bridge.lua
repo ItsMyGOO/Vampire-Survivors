@@ -5,32 +5,37 @@
 ---@class LuaRenderBridge
 local LuaRenderBridge = {}
 
-local ComponentRegistry = _G.ComponentRegistry
-
 ---@param world World
 ---@return CS.LuaRenderItem[]
 function LuaRenderBridge.Collect(world)
     local list = {}
+    local C = _G.ComponentRegistry
 
     ---@type table<integer, PositionComponent>
-    local positions = world:GetComponentOfType(ComponentRegistry.Position)
+    local positions = world:GetComponentOfType(C.Position)
     ---@type table<integer, SpriteKeyComponent>
-    local spriteKeys = world:GetComponentOfType(ComponentRegistry.SpriteKey)
-    ---@type table<integer, VelocityComponent>
-    local velocities = world:GetComponentOfType(ComponentRegistry.Velocity)
+    local spriteKeys = world:GetComponentOfType(C.SpriteKey)
+    ---@type table<integer, SteeringComponent>
+    local steering = world:GetComponentOfType(C.Steering)
+    ---@type table<integer, MoveIntentComponent>
+    local intents = world:GetComponentOfType(C.MoveIntent)
 
     for eid, pos in pairs(positions) do
-        local velocity  = velocities[eid]
         local spriteKey = spriteKeys[eid]
+        local steer     = steering[eid]
+        local intent    = intents[eid]
 
         local item      = CS.LuaRenderItem() -- default(struct)
         item.eid        = eid
         item.posX       = pos and pos.x or 0
         item.posY       = pos and pos.y or 0
         item.posZ       = pos and pos.z or 0
-        item.velocityX  = velocity and velocity.x or 0
+        item.dirX       = intent.dirX
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
+
+        item.fx         = steer and steer.sepFx or 0
+        item.fy         = steer and steer.sepFy or 0
 
         list[#list + 1] = item
     end

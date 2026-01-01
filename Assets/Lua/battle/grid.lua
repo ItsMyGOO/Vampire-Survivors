@@ -2,9 +2,15 @@
 --- Created by echo.
 --- DateTime: 2025/12/31 17:12
 ---
+---@class GridNeighbour
+---@field eid integer
+---@field x number
+---@field y number
+local GridNeighbour={}
+
 ---@class Grid
 ---@field cellSize number
----@field cells table<integer,table<integer,table<integer,integer>>>
+---@field cells table<integer,table<integer,table<integer,GridNeighbour>>>
 local Grid = {
     cellSize = 2,
     cells = {}
@@ -20,17 +26,15 @@ end
 function Grid:add(eid, pos)
     local cx, cy = self:hash(pos.x, pos.y)
     self.cells[cx] = self.cells[cx] or {}
+    self.cells[cx][cy] = self.cells[cx][cy] or {}
 
-    ---@type table<integer,PositionComponent>
-    local cell = self.cells[cx][cy] or {};
-    self.cells[cx][cy] = cell
-    cell[eid] = pos
+    self.cells[cx][cy][eid] = pos
 end
 
 ---@param x number
 ---@param y number
 ---@param radius number
----@return table<integer,PositionComponent>
+---@return GridNeighbour[]  -- GridNeighbor[]
 function Grid:query(x, y, radius)
     local result = {}
     local minX = math.floor((x - radius) / self.cellSize)
@@ -39,10 +43,18 @@ function Grid:query(x, y, radius)
     local maxY = math.floor((y + radius) / self.cellSize)
 
     for cx = minX, maxX do
-        for cy = minY, maxY do
-            if self.cells[cx] and self.cells[cx][cy] then
-                for eid, pos in pairs(self.cells[cx][cy]) do
-                    result[eid] = pos
+        local col = self.cells[cx]
+        if col then
+            for cy = minY, maxY do
+                local cell = col[cy]
+                if cell then
+                    for eid, pos in pairs(cell) do
+                        result[#result + 1] = {
+                            eid = eid,
+                            x   = pos.x,
+                            y   = pos.y,
+                        }
+                    end
                 end
             end
         end

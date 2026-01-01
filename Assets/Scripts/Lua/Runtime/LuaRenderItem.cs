@@ -7,7 +7,9 @@ public struct LuaRenderItem
     public float posX;
     public float posY;
     public float posZ;
-    public float velocityX;
+    public float dirX;
     public string sheet;
     public string spriteKey;
+
+    public float fx, fy;
 }

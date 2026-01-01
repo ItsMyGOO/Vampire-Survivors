@@ -41,7 +41,7 @@ public class RenderSystem
             var renderer = renderers[eid];
             var sortingOrder = -(int)(item.posY * 100);
             renderer.sortingOrder = sortingOrder;
-            renderer.flipX = item.velocityX switch
+            renderer.flipX = item.dirX switch
             {
                 > 0 => false,
                 < 0 => true,
@@ -53,6 +53,7 @@ public class RenderSystem
                 if (renderer.sprite != sprite)
                     renderer.sprite = sprite;
             });
+            Debug.DrawRay(transform.position, new Vector3(item.fx, item.fy, 0), Color.red);
         }
     }
 }
