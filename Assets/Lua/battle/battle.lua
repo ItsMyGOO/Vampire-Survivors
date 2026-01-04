@@ -13,6 +13,9 @@ local SteeringSys = require("ecs.systems.steering_system")
 local AIMoveSys = require("ecs.systems.ai_movement_system")
 local IntegrationSys = require("ecs.systems.integration_system")
 
+local VsSeekSys=require("ecs.systems.vs_seek_system")
+local VsMoveSys = require("ecs.systems.vs_movement_system")
+
 local AnimCmd = require("ecs.systems.animation_command_system")
 local AnimSys = require("ecs.systems.animation_system")
 
@@ -25,9 +28,12 @@ local systems = {}
 table.insert(systems, InputSys)
 table.insert(systems, PlayerMoveSys)
 
-table.insert(systems, SteeringSys)
-table.insert(systems, AIMoveSys)
-table.insert(systems, IntegrationSys)
+--table.insert(systems, SteeringSys)
+--table.insert(systems, AIMoveSys)
+--table.insert(systems, IntegrationSys)
+
+table.insert(systems, VsSeekSys)
+table.insert(systems, VsMoveSys)
 
 table.insert(systems, AnimCmd)
 table.insert(systems, AnimSys)
@@ -46,7 +52,7 @@ function Battle:StartBattle(stageCfg)
     world:AddComponent(player, C.PlayerTag)
     world:AddComponent(player, C.Position)
     world:AddComponent(player, C.Velocity)
-    world:AddComponent(player, C.MoveIntent)
+    world:AddComponent(player, C.MoveIntent,{speed=2})
     
     world:AddComponent(player, C.Animation, { clipSetId = "Player" })
     world:AddComponent(player, C.SpriteKey)

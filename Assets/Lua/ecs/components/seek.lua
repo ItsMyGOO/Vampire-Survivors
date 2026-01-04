@@ -8,9 +8,9 @@
 --- @field slowingRadius number?
 --- @field stop_distance number
 local Seek = {
-    speed = 1,
+    speed = 3,
     weight = 2,
-    stop_distance = 1
+    stop_distance = 0.3
 }
 
 return Seek

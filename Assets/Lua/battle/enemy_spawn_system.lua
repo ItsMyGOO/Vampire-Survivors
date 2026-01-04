@@ -21,7 +21,7 @@ end
 function EnemySpawnSystem.Spawn(world, enemyCfg)
     local eid = world:CreateEntity()
 
-    world:AddComponent(eid, ComponentRegistry.Position, RandomPos(2))
+    world:AddComponent(eid, ComponentRegistry.Position, RandomPos(10))
     world:AddComponent(eid, ComponentRegistry.Velocity)
     --world:AddComponent(eid, ComponentRegistry.Chase)
     world:AddComponent(eid, ComponentRegistry.Steering)
