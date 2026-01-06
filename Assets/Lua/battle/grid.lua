@@ -6,7 +6,7 @@
 ---@field eid integer
 ---@field x number
 ---@field y number
-local GridNeighbour={}
+local GridNeighbour = {}
 
 ---@class Grid
 ---@field cellSize number
