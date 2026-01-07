@@ -135,7 +135,7 @@ Steps.SpawnOrbit = function(ctx)
             owner  = owner,
             radius = ctx.orbitRadius,
             angle  = angle,
-            speed  = ctx.weaponDef.orbit_speed or 2,
+            angularSpeed  = ctx.weaponDef.orbit_speed or 2,
         })
 
         world:AddComponent(eid, C.Damage, {
