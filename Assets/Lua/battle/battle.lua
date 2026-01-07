@@ -9,7 +9,7 @@ local EnemySpawn = require("battle.enemy_spawn_system")
 local InputSys = require("ecs.systems.player_input_system")
 
 local VsSeekSys = require("ecs.systems.vs_seek_system")
-local VsMoveSys = require("ecs.systems.vs_movement_system")
+local MoveSys = require("ecs.systems.movement_system")
 
 local AnimCmd = require("ecs.systems.animation_command_system")
 local AnimSys = require("ecs.systems.animation_system")
@@ -23,7 +23,7 @@ local systems = {}
 table.insert(systems, InputSys)
 
 table.insert(systems, VsSeekSys)
-table.insert(systems, VsMoveSys)
+table.insert(systems, MoveSys)
 
 table.insert(systems, AnimCmd)
 table.insert(systems, AnimSys)

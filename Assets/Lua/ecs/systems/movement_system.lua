@@ -2,11 +2,11 @@
 --- Created by echo.
 --- DateTime: 2026/1/1 20:40
 ---
----@class VSMovementSystem
-local VSMovementSystem = {}
-VSMovementSystem.__index = VSMovementSystem
+---@class MovementSystem
+local MovementSystem = {}
+MovementSystem.__index = MovementSystem
 
-function VSMovementSystem:update(world, dt)
+function MovementSystem:update(world, dt)
     local C = _G.ComponentRegistry
 
     local positions = world:GetComponentOfType(C.Position)
@@ -38,5 +38,5 @@ function VSMovementSystem:update(world, dt)
 end
 
 
-return VSMovementSystem
+return MovementSystem
 
