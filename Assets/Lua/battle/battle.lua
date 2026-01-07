@@ -16,10 +16,19 @@ local AnimSys = require("ecs.systems.animation_system")
 
 ---@class Battle
 ---@field world World?
-local Battle = {}
-Battle.world = nil
+local Battle = {
+    world = nil
+}
 
-local systems = {}
+local systems = {
+    InputSys,
+    
+    VsSeekSys,
+    MoveSys,
+    
+    AnimCmd,
+    AnimSys,
+}
 table.insert(systems, InputSys)
 
 table.insert(systems, VsSeekSys)
