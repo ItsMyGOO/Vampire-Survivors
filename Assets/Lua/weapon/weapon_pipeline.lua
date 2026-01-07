@@ -8,11 +8,9 @@ local Steps = require("weapon.weapon_steps")
 local Pipeline = {}
 
 function Pipeline.Execute(ctx)
-    for _, stepName in ipairs(ctx.weapon.pipeline) do
+    for _, stepName in ipairs(ctx.weaponDef.pipeline) do
         local step = Steps[stepName]
-        if step then
-            step(ctx)
-        end
+         step(ctx)
     end
 end
 

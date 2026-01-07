@@ -6,6 +6,7 @@ return {
 
     -- 1️⃣ 发射型武器（飞刀 / 子弹）
     ProjectileKnife = {
+        type = "Projectile",
         interval = 0.6,
         base_damage = 10,
         base_speed = 12,
@@ -16,11 +17,13 @@ return {
             "CalcInterval",
             "CalcCount",
             "SelectTarget",
+            "CalcDirection",
             "EmitProjectile"
         }
     },
 
-    OrbitBlade = {
+    OrbitKnife = {
+        type = "Orbit",
         count = 2,
         radius = 1.8,
         angular_speed = 180,

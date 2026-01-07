@@ -7,6 +7,7 @@ local World                = require("ecs.world")
 
 -- components
 local ComponentRegistry    = require("ecs.component_registry")
+_G.ComponentRegistry       = ComponentRegistry
 
 -- systems
 local WeaponFireSystem     = require("ecs.systems.weapon_fire_system")
@@ -24,19 +25,19 @@ local world                = World.New()
 
 -- ---------- 创建玩家 ----------
 local player               = world:CreateEntity()
+world.player_eid= player
 world:AddComponent(player, ComponentRegistry.Position, { x = 0, y = 0 })
 world:AddComponent(player, ComponentRegistry.PlayerTag)
-world:AddComponent(player, ComponentRegistry.WeaponSlot, {
-    def = "ProjectileKnife",
-    timer = 0
-})
-
--- 再给一个 Orbit 武器
-world:AddComponent(player, ComponentRegistry.WeaponSlot, {
-    def = "OrbitKnife",
-    timer = 0
-})
-
+local slots = {
+    --{
+    --    def = "ProjectileKnife",
+    --    timer = 0
+    --},
+    {
+        def = "OrbitKnife",
+    },
+}
+world:AddComponent(player, ComponentRegistry.WeaponSlots, {slots= slots})
 print("Player EID =", player)
 
 -- ---------- 创建敌人 ----------
