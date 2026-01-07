@@ -15,14 +15,11 @@ function LuaRenderBridge.Collect(world)
     local positions = world:GetComponentOfType(C.Position)
     ---@type table<integer, SpriteKeyComponent>
     local spriteKeys = world:GetComponentOfType(C.SpriteKey)
-    ---@type table<integer, SteeringComponent>
-    local steering = world:GetComponentOfType(C.Steering)
     ---@type table<integer, MoveIntentComponent>
     local intents = world:GetComponentOfType(C.MoveIntent)
 
     for eid, pos in pairs(positions) do
         local spriteKey = spriteKeys[eid]
-        local steer     = steering[eid]
         local intent    = intents[eid]
 
         local item      = CS.LuaRenderItem() -- default(struct)
@@ -33,9 +30,6 @@ function LuaRenderBridge.Collect(world)
         item.dirX       = intent.dirX
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
-
-        item.fx         = steer and steer.sepFx or 0
-        item.fy         = steer and steer.sepFy or 0
 
         list[#list + 1] = item
     end

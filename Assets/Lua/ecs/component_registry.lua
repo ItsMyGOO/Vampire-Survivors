@@ -7,12 +7,8 @@ local ComponentRegistry      = {}
 --- transform
 ComponentRegistry.Position   = require("ecs.components.position")
 ComponentRegistry.Velocity   = require("ecs.components.velocity")
-
-ComponentRegistry.Steering   = require("ecs.components.steering")
-ComponentRegistry.Seek     = require("ecs.components.seek")
-ComponentRegistry.Separation = require("ecs.components.separation")
 ComponentRegistry.MoveIntent     = require("ecs.components.move_intent")
-
+ComponentRegistry.Seek   = require("ecs.components.seek")
 
 --- animation
 ComponentRegistry.Animation        = require("ecs.components.animation")

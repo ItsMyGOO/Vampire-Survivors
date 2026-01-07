@@ -23,10 +23,8 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
 
     world:AddComponent(eid, ComponentRegistry.Position, RandomPos(10))
     world:AddComponent(eid, ComponentRegistry.Velocity)
-    --world:AddComponent(eid, ComponentRegistry.Chase)
-    world:AddComponent(eid, ComponentRegistry.Steering)
+
     world:AddComponent(eid, ComponentRegistry.Seek)
-    world:AddComponent(eid, ComponentRegistry.Separation)
     world:AddComponent(eid, ComponentRegistry.MoveIntent)
 
     world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
