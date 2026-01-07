@@ -19,7 +19,7 @@ ComponentRegistry.AnimationCommand = require("ecs.components.animation_command")
 ComponentRegistry.PlayerTag        = require("ecs.components.player_tag")
 ComponentRegistry.EnemyTag         = require("ecs.components.enemy_tag")
 -- 一把武器一个 slot
-ComponentRegistry.WeaponSlots       = require("ecs.components.weapon_slots")
+ComponentRegistry.WeaponSlots      = require("ecs.components.weapon_slots")
 
 ComponentRegistry.Projectile       = {
     damage = 0,
@@ -33,5 +33,9 @@ ComponentRegistry.Orbit            = {
     radius = 1,
     angle = 0,
     angularSpeed = 0
+}
+
+ComponentRegistry.Damage           = {
+    value = 0
 }
 return ComponentRegistry

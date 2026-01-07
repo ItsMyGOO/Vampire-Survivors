@@ -50,10 +50,18 @@ function VSWeaponFireSystem:update(world, dt)
                 -- Orbit 只生成一次
                 if not slot.spawned then
                     local ctx = {
-                        world     = world,
-                        owner     = owner,
-                        slot      = slot,
-                        weaponDef = def,
+                        world         = world,
+                        owner         = owner,
+                        slot          = slot,
+                        weaponDef     = def,
+
+                        -- Orbit 参数（有默认值）
+                        orbitCount    = def.base_count or 1,
+                        orbitRadius   = def.base_radius or 1.5,
+                        orbitAngle    = 0,
+
+                        -- 生成结果
+                        orbitEntities = {}
                     }
 
                     Pipeline.Execute(ctx)

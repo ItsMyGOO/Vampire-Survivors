@@ -23,16 +23,18 @@ return {
     },
 
     OrbitKnife = {
-        type = "Orbit",
-        count = 2,
-        radius = 1.8,
-        angular_speed = 180,
+        type        = "Orbit",
+        base_count  = 3,
+        base_radius = 1.8,
         base_damage = 6,
+        orbit_speed = 2.5,
 
-        pipeline = {
+        pipeline    = {
             "CalcOrbitCount",
             "CalcOrbitRadius",
+            "CalcOrbitAngle",
             "SpawnOrbit"
         }
     }
+
 }

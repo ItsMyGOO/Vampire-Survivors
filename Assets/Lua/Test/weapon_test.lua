@@ -12,7 +12,7 @@ _G.ComponentRegistry       = ComponentRegistry
 -- systems
 local WeaponFireSystem     = require("ecs.systems.weapon_fire_system")
 local ProjectileMoveSystem = require("ecs.systems.projectile_move_system")
-local OrbitSystem          = require("ecs.systems.orbit_rotate_system")
+local OrbitSystem          = require("ecs.systems.orbit_system")
 
 local systems              = {
     WeaponFireSystem,
@@ -25,19 +25,19 @@ local world                = World.New()
 
 -- ---------- 创建玩家 ----------
 local player               = world:CreateEntity()
-world.player_eid= player
+world.player_eid           = player
 world:AddComponent(player, ComponentRegistry.Position, { x = 0, y = 0 })
 world:AddComponent(player, ComponentRegistry.PlayerTag)
 local slots = {
-    --{
-    --    def = "ProjectileKnife",
-    --    timer = 0
-    --},
+    {
+        def = "ProjectileKnife",
+        timer = 0
+    },
     {
         def = "OrbitKnife",
     },
 }
-world:AddComponent(player, ComponentRegistry.WeaponSlots, {slots= slots})
+world:AddComponent(player, ComponentRegistry.WeaponSlots, { slots = slots })
 print("Player EID =", player)
 
 -- ---------- 创建敌人 ----------
@@ -71,16 +71,16 @@ for frame = 1, 20 do
 
     for eid, p in pairs(proj) do
         local position = pos[eid]
-        if orbit[eid] then
-            print(string.format(
-                "[Orbit] eid=%d  pos=(%.2f, %.2f)",
-                eid, position.x, position.y
-            ))
-        elseif vel[eid] then
-            print(string.format(
-                "[Projectile] eid=%d  pos=(%.2f, %.2f) vel=(%.2f, %.2f)",
-                eid, position.x, position.y, vel[eid].vx, vel[eid].vy
-            ))
-        end
+        print(string.format(
+            "[Projectile] eid=%d  pos=(%.2f, %.2f) vel=(%.2f, %.2f)",
+            eid, position.x, position.y, vel[eid].vx, vel[eid].vy
+        ))
+    end
+    for eid, o in pairs(orbit) do
+        local position = pos[eid]
+        print(string.format(
+            "[Orbit] eid=%d  pos=(%.2f, %.2f)",
+            eid, position.x, position.y
+        ))
     end
 end
