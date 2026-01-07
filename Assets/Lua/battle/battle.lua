@@ -7,13 +7,8 @@ local World = require("ecs.world")
 local EnemySpawn = require("battle.enemy_spawn_system")
 
 local InputSys = require("ecs.systems.player_input_system")
-local PlayerMoveSys=require("ecs.systems.player_movement_system")
 
-local SteeringSys = require("ecs.systems.steering_system")
-local AIMoveSys = require("ecs.systems.ai_movement_system")
-local IntegrationSys = require("ecs.systems.integration_system")
-
-local VsSeekSys=require("ecs.systems.vs_seek_system")
+local VsSeekSys = require("ecs.systems.vs_seek_system")
 local VsMoveSys = require("ecs.systems.vs_movement_system")
 
 local AnimCmd = require("ecs.systems.animation_command_system")
@@ -26,11 +21,6 @@ Battle.world = nil
 
 local systems = {}
 table.insert(systems, InputSys)
-table.insert(systems, PlayerMoveSys)
-
---table.insert(systems, SteeringSys)
---table.insert(systems, AIMoveSys)
---table.insert(systems, IntegrationSys)
 
 table.insert(systems, VsSeekSys)
 table.insert(systems, VsMoveSys)
@@ -52,8 +42,8 @@ function Battle:StartBattle(stageCfg)
     world:AddComponent(player, C.PlayerTag)
     world:AddComponent(player, C.Position)
     world:AddComponent(player, C.Velocity)
-    world:AddComponent(player, C.MoveIntent,{speed=2})
-    
+    world:AddComponent(player, C.MoveIntent, { speed = 2 })
+
     world:AddComponent(player, C.Animation, { clipSetId = "Player" })
     world:AddComponent(player, C.SpriteKey)
     world:AddComponent(player, C.AnimationCommand, { play_animation_name = "Run" })

@@ -20,6 +20,7 @@ function VSMovementSystem:update(world, dt)
         local dx    = intent.dirX or 0
         local dy    = intent.dirY or 0
 
+        -- 归一化
         local lenSq = dx * dx + dy * dy
         if lenSq > 1e-6 then
             local invLen = 1 / math.sqrt(lenSq)
