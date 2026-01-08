@@ -97,6 +97,11 @@ Steps.EmitProjectile = function(ctx)
             owner = ctx.owner,
             lifetime = 1.5
         })
+
+        world:AddComponent(eid, C.SpriteKey, {
+            sheet = ctx.weaponDef.sheet,
+            key = ctx.weaponDef.key
+        })
     end
 end
 
@@ -132,16 +137,20 @@ Steps.SpawnOrbit = function(ctx)
         })
 
         world:AddComponent(eid, C.Orbit, {
-            owner  = owner,
-            radius = ctx.orbitRadius,
-            angle  = angle,
-            angularSpeed  = ctx.weaponDef.orbit_speed or 2,
+            owner        = owner,
+            radius       = ctx.orbitRadius,
+            angle        = angle,
+            angularSpeed = ctx.weaponDef.orbit_speed or 2,
         })
 
         world:AddComponent(eid, C.Damage, {
             value = ctx.weaponDef.base_damage or 5
         })
 
+        world:AddComponent(eid, C.SpriteKey, {
+            sheet = ctx.weaponDef.sheet,
+            key = ctx.weaponDef.key
+        })
         table.insert(ctx.orbitEntities, eid)
     end
 end

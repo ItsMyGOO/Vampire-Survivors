@@ -27,7 +27,7 @@ function LuaRenderBridge.Collect(world)
         item.posX       = pos and pos.x or 0
         item.posY       = pos and pos.y or 0
         item.posZ       = pos and pos.z or 0
-        item.dirX       = intent.dirX
+        item.dirX       = intent and intent.dirX
         item.sheet      = spriteKey.sheet
         item.spriteKey  = spriteKey.key
 

@@ -12,6 +12,8 @@ return {
         base_speed = 12,
         base_count = 1,
         range = 6,
+        sheet = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+        key = "Bullet 0",
 
         pipeline = {
             "CalcInterval",
@@ -28,6 +30,8 @@ return {
         base_radius = 1.8,
         base_damage = 6,
         orbit_speed = 2.5,
+        sheet       = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+        key         = "Bullet 2",
 
         pipeline    = {
             "CalcOrbitCount",

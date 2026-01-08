@@ -16,7 +16,12 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: a53df5d500d22fb4da16d628b3ef9b05
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 0d5e657ee5a074e4baa53d5b248a01d2
+    m_Address: Assets/3rdParty/Undead Survivor/Sprites/Props.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: a8daa991008a1de44986f236eb106f56, type: 2}
   m_SchemaSet:

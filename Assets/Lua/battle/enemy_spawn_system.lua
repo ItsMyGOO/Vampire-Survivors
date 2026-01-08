@@ -21,14 +21,16 @@ end
 function EnemySpawnSystem.Spawn(world, enemyCfg)
     local eid = world:CreateEntity()
 
+    world:AddComponent(eid, ComponentRegistry.EnemyTag)
+
     world:AddComponent(eid, ComponentRegistry.Position, RandomPos(10))
-    world:AddComponent(eid, ComponentRegistry.Velocity)
+    --world:AddComponent(eid, ComponentRegistry.Velocity)
 
-    world:AddComponent(eid, ComponentRegistry.Seek)
     world:AddComponent(eid, ComponentRegistry.MoveIntent)
+    world:AddComponent(eid, ComponentRegistry.Seek)
 
-    world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
+    world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
     world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play_animation_name = "Run" })
 
     -- 返回给 C# 用来创建 Sprite

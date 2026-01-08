@@ -17,25 +17,25 @@ namespace Game.Battle
         void Start()
         {
             luaEnv = LuaMain.Env;
-            luaEnv.DoString(@"require('Test.weapon_test')");
-            // luaEnv.DoString(@"require('battle.battle_entry')");
+            
+            luaEnv.DoString(@"require('battle.battle_entry')");
 
-            // battle = luaEnv.Global.Get<LuaTable>("Battle");
-            // var start = battle.Get<LuaFunction>("StartBattle");
-            // start.Call(battle, null);
-            // world = battle.Get<LuaTable>("world");
-            //
-            // renderBridge = new LuaRenderBridgeProxy(luaEnv);
-            //
-            // tick = battle.Get<LuaFunction>("Tick");
+            battle = luaEnv.Global.Get<LuaTable>("Battle");
+            var start = battle.Get<LuaFunction>("StartBattle");
+            start.Call(battle, null);
+            world = battle.Get<LuaTable>("world");
+            
+            renderBridge = new LuaRenderBridgeProxy(luaEnv);
+            
+            tick = battle.Get<LuaFunction>("Tick");
         }
 
         void Update()
         {
-            // tick.Call(battle, Time.deltaTime);
-            //
-            // var renderItems = renderBridge.Collect(world);
-            // renderSystem.Render(renderItems);
+            tick.Call(battle, Time.deltaTime);
+            
+            var renderItems = renderBridge.Collect(world);
+            renderSystem.Render(renderItems);
         }
     }
 }
