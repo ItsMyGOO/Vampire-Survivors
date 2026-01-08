@@ -7,11 +7,14 @@ public class RenderSystem
 {
     private const int FORWARD_OFFSET = -90;
 
-    private SpriteProvider spriteProvider;
+    private readonly SpriteProvider spriteProvider;
+    private readonly RenderObjectPool pool = new();
 
-    private Dictionary<(int sheet, int key), Sprite> spriteCache = new();
-    private Dictionary<int, Transform> transforms = new();
-    private Dictionary<int, SpriteRenderer> renderers = new();
+    private readonly Dictionary<int, Transform> transforms = new();
+    private readonly Dictionary<int, SpriteRenderer> renderers = new();
+
+    // 用于 entity diff
+    private readonly HashSet<int> aliveThisFrame = new();
 
     public RenderSystem(SpriteProvider spriteProvider)
     {
@@ -22,27 +25,28 @@ public class RenderSystem
     {
         if (items == null)
             return;
+        aliveThisFrame.Clear();
         for (int i = 1; i <= items.Length; i++)
         {
             var item = items.Get<int, LuaRenderItem>(i);
             var eid = item.eid;
+            aliveThisFrame.Add(eid);
 
             if (!transforms.TryGetValue(eid, out var transform))
             {
-                var go = new GameObject(eid.ToString());
+                var go = pool.Get(eid.ToString());
                 transform = go.transform;
-                transforms.Add(eid, transform);
-                renderers.Add(eid, go.AddComponent<SpriteRenderer>());
-            }
 
+                transforms[eid] = transform;
+                renderers[eid] = go.GetComponent<SpriteRenderer>();
+            }
 
             // Transform
             transform.position = new Vector3(item.posX, item.posY, item.posZ);
 
             // Sprite
             var renderer = renderers[eid];
-            var sortingOrder = -(int)(item.posY * 100);
-            renderer.sortingOrder = sortingOrder;
+            renderer.sortingOrder = -(int)(item.posY * 100);
 
             if ((item.flags & RenderFlags.UseFlipX) != 0)
             {
@@ -64,7 +68,74 @@ public class RenderSystem
                 if (renderer.sprite != sprite)
                     renderer.sprite = sprite;
             });
-            Debug.DrawRay(transform.position, new Vector3(item.fx, item.fy, 0), Color.red);
         }
+
+        RecycleDeadEntities();
+    }
+
+    private void RecycleDeadEntities()
+    {
+        if (transforms.Count == 0)
+            return;
+
+        // 为了避免遍历时修改集合
+        List<int> deadEids = null;
+
+        foreach (var eid in transforms.Keys)
+        {
+            if (!aliveThisFrame.Contains(eid))
+            {
+                deadEids ??= new List<int>();
+                deadEids.Add(eid);
+            }
+        }
+
+        if (deadEids == null)
+            return;
+
+        foreach (var eid in deadEids)
+        {
+            var transform = transforms[eid];
+            var go = transform.gameObject;
+
+            // 清理状态（重要）
+            var renderer = renderers[eid];
+            renderer.sprite = null;
+            renderer.flipX = false;
+            renderer.sortingOrder = 0;
+
+            transform.rotation = Quaternion.identity;
+
+            pool.Release(go);
+
+            transforms.Remove(eid);
+            renderers.Remove(eid);
+        }
+    }
+}
+
+public class RenderObjectPool
+{
+    private readonly Stack<GameObject> pool = new();
+
+    public GameObject Get(string name)
+    {
+        if (pool.Count > 0)
+        {
+            var go = pool.Pop();
+            go.name = name;
+            go.SetActive(true);
+            return go;
+        }
+
+        var newGo = new GameObject(name);
+        newGo.AddComponent<SpriteRenderer>();
+        return newGo;
+    }
+
+    public void Release(GameObject go)
+    {
+        go.SetActive(false);
+        pool.Push(go);
     }
 }

@@ -24,7 +24,6 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
     world:AddComponent(eid, ComponentRegistry.EnemyTag)
 
     world:AddComponent(eid, ComponentRegistry.Position, RandomPos(10))
-    --world:AddComponent(eid, ComponentRegistry.Velocity)
 
     world:AddComponent(eid, ComponentRegistry.MoveIntent)
     world:AddComponent(eid, ComponentRegistry.Seek)
@@ -32,6 +31,9 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
     world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
     world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play_animation_name = "Run" })
+
+    world:AddComponent(eid, ComponentRegistry.Collider)
+    world:AddComponent(eid, ComponentRegistry.Health)
 
     -- 返回给 C# 用来创建 Sprite
     return eid, enemyCfg and enemyCfg.spriteId

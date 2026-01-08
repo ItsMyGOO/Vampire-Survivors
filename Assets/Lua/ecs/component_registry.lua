@@ -19,24 +19,15 @@ ComponentRegistry.AnimationCommand = require("ecs.components.animation_command")
 --- battle
 ComponentRegistry.PlayerTag        = require("ecs.components.player_tag")
 ComponentRegistry.EnemyTag         = require("ecs.components.enemy_tag")
--- 一把武器一个 slot
+
+--
 ComponentRegistry.WeaponSlots      = require("ecs.components.weapon_slots")
+ComponentRegistry.Projectile       = require("ecs.components.projectile")
+ComponentRegistry.Orbit            = require("ecs.components.orbit")
 
-ComponentRegistry.Projectile       = {
-    damage = 0,
-    owner = -1,
-    lifetime = 2
-}
+ComponentRegistry.DamageSource     = require("ecs.components.damage_source")
+ComponentRegistry.Collider         = require("ecs.components.collider")
+ComponentRegistry.Knockback        = require("ecs.components.knockback")
+ComponentRegistry.Health           = require("ecs.components.health")
 
--- 跟随型 / 环绕型武器
-ComponentRegistry.Orbit            = {
-    owner = -1,
-    radius = 1,
-    angle = 0,
-    angularSpeed = 0
-}
-
-ComponentRegistry.Damage           = {
-    value = 0
-}
 return ComponentRegistry

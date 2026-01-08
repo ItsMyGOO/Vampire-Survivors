@@ -100,8 +100,17 @@ Steps.EmitProjectile = function(ctx)
         })
 
         world:AddComponent(eid, C.SpriteKey, {
-            sheet = ctx.weaponDef.sheet,
-            key = ctx.weaponDef.key
+            sheet = weapon.sheet,
+            key = weapon.key
+        })
+        world:AddComponent(eid, C.Collider, {
+            radius = weapon.radius or 0.5
+        })
+        world:AddComponent(eid, C.DamageSource, {
+            owner     = ctx.owner,
+            damage    = weapon.base_damage,
+            knockback = weapon.knockback or 4,
+            hitOnce   = true
         })
     end
 end
@@ -122,6 +131,7 @@ end
 Steps.SpawnOrbit = function(ctx)
     local world = ctx.world
     local owner = ctx.owner
+    local weapon = ctx.weaponDef
     local C = _G.ComponentRegistry
 
     local ownerPos = world:GetComponent(owner, C.Position)
@@ -142,17 +152,23 @@ Steps.SpawnOrbit = function(ctx)
             owner        = owner,
             radius       = ctx.orbitRadius,
             angle        = angle,
-            angularSpeed = ctx.weaponDef.orbit_speed or 2,
-        })
-
-        world:AddComponent(eid, C.Damage, {
-            value = ctx.weaponDef.base_damage or 5
+            angularSpeed = weapon.orbit_speed or 2,
         })
 
         world:AddComponent(eid, C.SpriteKey, {
-            sheet = ctx.weaponDef.sheet,
-            key = ctx.weaponDef.key
+            sheet = weapon.sheet,
+            key = weapon.key
         })
+        world:AddComponent(eid, C.Collider, {
+            radius = weapon.radius or 0.5
+        })
+        world:AddComponent(eid, C.DamageSource, {
+            owner     = ctx.owner,
+            damage    = weapon.base_damage,
+            knockback = weapon.knockback or 2,
+            hitOnce   = false -- ⭐ Orbit 持续命中
+        })
+
         table.insert(ctx.orbitEntities, eid)
     end
 end
