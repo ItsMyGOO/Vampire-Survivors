@@ -110,7 +110,7 @@ Steps.EmitProjectile = function(ctx)
             owner     = ctx.owner,
             damage    = weapon.base_damage,
             knockback = weapon.knockback or 4,
-            hitOnce   = true
+            mode   = "single"
         })
     end
 end
@@ -166,7 +166,7 @@ Steps.SpawnOrbit = function(ctx)
             owner     = ctx.owner,
             damage    = weapon.base_damage,
             knockback = weapon.knockback or 2,
-            hitOnce   = false -- ⭐ Orbit 持续命中
+            mode   = "persistent" -- ⭐ Orbit 持续命中
         })
 
         table.insert(ctx.orbitEntities, eid)
