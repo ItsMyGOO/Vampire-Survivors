@@ -91,6 +91,7 @@ Steps.EmitProjectile = function(ctx)
             vx = ctx.dirX * weapon.base_speed,
             vy = ctx.dirY * weapon.base_speed
         })
+        world:AddComponent(eid, C.Rotation)
 
         world:AddComponent(eid, C.Projectile, {
             damage = weapon.base_damage,
@@ -135,6 +136,7 @@ Steps.SpawnOrbit = function(ctx)
             x = ownerPos.x + math.cos(angle) * ctx.orbitRadius,
             y = ownerPos.y + math.sin(angle) * ctx.orbitRadius,
         })
+        world:AddComponent(eid, C.Rotation)
 
         world:AddComponent(eid, C.Orbit, {
             owner        = owner,

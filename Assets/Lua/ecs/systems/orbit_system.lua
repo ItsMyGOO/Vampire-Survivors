@@ -11,15 +11,18 @@ function VSOrbitSystem:update(world, dt)
 
     local orbits = world:GetComponentOfType(C.Orbit)
     local pos = world:GetComponentOfType(C.Position)
+    local rotation = world:GetComponentOfType(C.Rotation)
 
     for eid, orbit in pairs(orbits) do
         local ownerPos = pos[orbit.owner]
         local p = pos[eid]
-        if ownerPos and p then
-            orbit.angle = orbit.angle + orbit.angularSpeed * dt
-            p.x = ownerPos.x + math.cos(orbit.angle) * orbit.radius
-            p.y = ownerPos.y + math.sin(orbit.angle) * orbit.radius
-        end
+        local rot = rotation[eid]
+
+        orbit.angle = orbit.angle - orbit.angularSpeed * dt
+        p.x = ownerPos.x + math.cos(orbit.angle) * orbit.radius
+        p.y = ownerPos.y + math.sin(orbit.angle) * orbit.radius
+        
+        rot.rotation = orbit.angle
     end
 end
 

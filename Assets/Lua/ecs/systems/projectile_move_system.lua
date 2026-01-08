@@ -11,15 +11,17 @@ function VSProjectileMoveSystem:update(world, dt)
 
     local pos = world:GetComponentOfType(C.Position)
     local vel = world:GetComponentOfType(C.Velocity)
+    local rot = world:GetComponentOfType(C.Rotation)
     local proj = world:GetComponentOfType(C.Projectile)
 
     for eid in pairs(proj) do
         local p = pos[eid]
         local v = vel[eid]
-        if p and v then
-            p.x = p.x + v.vx * dt
-            p.y = p.y + v.vy * dt
-        end
+        local r = rot[eid]
+
+        p.x = p.x + v.vx * dt
+        p.y = p.y + v.vy * dt
+        r.rotation = math.atan(v.vy, v.vx)
     end
 end
 

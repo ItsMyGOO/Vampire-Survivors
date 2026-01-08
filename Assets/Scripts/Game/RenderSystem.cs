@@ -5,6 +5,8 @@ using XLua;
 
 public class RenderSystem
 {
+    private const int FORWARD_OFFSET = -90;
+
     private SpriteProvider spriteProvider;
 
     private Dictionary<(int sheet, int key), Sprite> spriteCache = new();
@@ -41,12 +43,21 @@ public class RenderSystem
             var renderer = renderers[eid];
             var sortingOrder = -(int)(item.posY * 100);
             renderer.sortingOrder = sortingOrder;
-            renderer.flipX = item.dirX switch
+
+            if ((item.flags & RenderFlags.UseFlipX) != 0)
             {
-                > 0 => false,
-                < 0 => true,
-                _ => renderer.flipX
-            };
+                renderer.flipX = item.dirX switch
+                {
+                    > 0 => false,
+                    < 0 => true,
+                    _ => renderer.flipX
+                };
+            }
+
+            if ((item.flags & RenderFlags.UseRotation) != 0)
+            {
+                transform.rotation = Quaternion.Euler(0, 0, item.rotation * Mathf.Rad2Deg + FORWARD_OFFSET);
+            }
 
             spriteProvider.Get(item.sheet, item.spriteKey, sprite =>
             {

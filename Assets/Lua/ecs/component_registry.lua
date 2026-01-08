@@ -7,6 +7,7 @@ local ComponentRegistry            = {}
 --- transform
 ComponentRegistry.Position         = require("ecs.components.position")
 ComponentRegistry.Velocity         = require("ecs.components.velocity")
+ComponentRegistry.Rotation         = require("ecs.components.rotation")
 ComponentRegistry.MoveIntent       = require("ecs.components.move_intent")
 ComponentRegistry.Seek             = require("ecs.components.seek")
 

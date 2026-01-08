@@ -8,7 +8,9 @@
 ---@field public posY number
 ---@field public posZ number
 ---@field public dirX number
+---@field public rotation number
 ---@field public sheet string
 ---@field public spriteKey string
+---@field public flags integer
 ---@overload fun(): CS.LuaRenderItem
 CS.LuaRenderItem = {}
