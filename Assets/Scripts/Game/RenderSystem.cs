@@ -8,7 +8,7 @@ public class RenderSystem
     private const int FORWARD_OFFSET = -90;
 
     private readonly SpriteProvider spriteProvider;
-    private readonly RenderObjectPool pool = new();
+    private readonly RenderObjectPool pool;
 
     private readonly Dictionary<int, Transform> transforms = new();
     private readonly Dictionary<int, SpriteRenderer> renderers = new();
@@ -16,9 +16,10 @@ public class RenderSystem
     // 用于 entity diff
     private readonly HashSet<int> aliveThisFrame = new();
 
-    public RenderSystem(SpriteProvider spriteProvider)
+    public RenderSystem(SpriteProvider spriteProvider, RenderObjectPool pool)
     {
         this.spriteProvider = spriteProvider;
+        this.pool = pool;
     }
 
     public void Render(LuaTable items)
