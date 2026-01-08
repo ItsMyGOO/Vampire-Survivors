@@ -166,6 +166,7 @@ Steps.SpawnOrbit = function(ctx)
             owner     = ctx.owner,
             damage    = weapon.base_damage,
             knockback = weapon.knockback or 2,
+            knockbackMode = "fromOwner", 
             mode   = "persistent" -- ⭐ Orbit 持续命中
         })
 
