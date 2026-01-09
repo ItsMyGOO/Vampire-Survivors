@@ -33,7 +33,7 @@ AnimationDB = {
             loop = true
         }
     },
-    Enemy = {
+    Zombie1 = {
         sheet = "Assets/3rdParty/Undead Survivor/Sprites/Enemy 0.png",
         Run = {
             name = "Run",
@@ -42,7 +42,37 @@ AnimationDB = {
             fps = 6,
             loop = true
         }
-    }
+    },
+    Zombie2 = {
+        sheet = "Assets/3rdParty/Undead Survivor/Sprites/Enemy 1.png",
+        Run = {
+            name = "Run",
+            frame_count = 6,
+            frames = nil,
+            fps = 9,
+            loop = true
+        }
+    },
+    Skeleton1 = {
+        sheet = "Assets/3rdParty/Undead Survivor/Sprites/Enemy 2.png",
+        Run = {
+            name = "Run",
+            frame_count = 6,
+            frames = nil,
+            fps = 9,
+            loop = true
+        }
+    },
+    Skeleton2 = {
+        sheet = "Assets/3rdParty/Undead Survivor/Sprites/Enemy 3.png",
+        Run = {
+            name = "Run",
+            frame_count = 6,
+            frames = nil,
+            fps = 9,
+            loop = true
+        }
+    },
 }
 
 return AnimationDB

@@ -2,6 +2,8 @@
 --- Created by echo.
 --- DateTime: 2026/1/9 15:13
 ---
+local EnemyConfig = require("Data.enemy_config")
+
 EnemySpawnSystem = {
     timer = 0.0,
     interval = 1.0
@@ -29,11 +31,11 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
     world:AddComponent(eid, ComponentRegistry.Seek)
 
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
-    world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = "Enemy" })
+    world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = enemyCfg.clipSetId })
     world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play_animation_name = "Run" })
 
     world:AddComponent(eid, ComponentRegistry.Collider)
-    world:AddComponent(eid, ComponentRegistry.Health)
+    world:AddComponent(eid, ComponentRegistry.Health, { value = enemyCfg.hp })
 
     -- 返回给 C# 用来创建 Sprite
     return eid, enemyCfg and enemyCfg.spriteId
@@ -50,9 +52,21 @@ function EnemySpawnSystem:update(world, dt)
 
     -- 随时间变难
     local enemyCount = math.min(1 + math.floor(world.time / 10), 5)
+    local level = 1
+    if world.time > 10 then
+        level = 2
+    end
+
+    local levelCfg = EnemyConfig["level_" .. level]
+    local keys = {}
+    for k in pairs(levelCfg) do
+        keys[#keys + 1] = k
+    end
 
     for i = 1, enemyCount do
-        EnemySpawnSystem.Spawn(world)
+        local k = keys[math.random(#keys)]
+        local enemyCfg = levelCfg[k]
+        EnemySpawnSystem.Spawn(world, enemyCfg)
     end
 end
 
