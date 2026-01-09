@@ -18,7 +18,7 @@ local M = {
     playing      = false,
 
     state        = nil,     -- 当前动画状态
-    defaultState = "run",     -- 回退用（敌人固定 run，玩家 idle/run）
+    defaultState = "Run",     -- 回退用（敌人固定 run，玩家 idle/run）
 }
 
 return M

@@ -25,7 +25,7 @@ AnimationDB = {
             fps = 9,
             loop = true
         },
-        Stand = {
+        Idle = {
             name = "Stand",
             frame_count = 4,
             frames = nil,

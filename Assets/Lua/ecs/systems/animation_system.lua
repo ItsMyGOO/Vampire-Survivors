@@ -20,7 +20,19 @@ function AnimationSystem:update(world, dt)
     for eid, anim in pairs(animations) do
         local spriteKeyComp = sprite_keys[eid]
 
-        if not spriteKeyComp or not anim.playing or not anim.clipSetId or not anim.clipId then
+        if not spriteKeyComp or not anim.clipSetId then
+            goto continue
+        end
+
+        if not anim.state then
+            anim.state = anim.defaultState
+            anim.clipId = anim.defaultState
+            anim.frame = 1
+            anim.time = 0
+            anim.playing = true
+        end
+
+        if not anim.playing or not anim.clipId then
             goto continue
         end
 
@@ -45,7 +57,6 @@ function AnimationSystem:update(world, dt)
                     anim.playing = false
                     -- ★★★ 核心：自动回退 ★★★
                     if anim.defaultState and anim.state ~= anim.defaultState then
-                        print(anim.defaultState)
                         anim.state = anim.defaultState
                         anim.clipId = anim.defaultState
                         anim.frame = 1

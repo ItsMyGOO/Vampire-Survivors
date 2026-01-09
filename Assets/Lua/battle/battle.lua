@@ -65,9 +65,12 @@ function Battle:StartBattle(stageCfg)
     world:AddComponent(player, C.Velocity)
     world:AddComponent(player, C.MoveIntent, { speed = 2 })
 
-    world:AddComponent(player, C.Animation, { clipSetId = "Player" })
+    world:AddComponent(player, C.Animation, {
+        clipSetId = "Player",
+        defaultState = "Idle"
+    })
     world:AddComponent(player, C.SpriteKey)
-    world:AddComponent(player, C.AnimationCommand, { play = "Run" })
+
     world:AddComponent(player, ComponentRegistry.WeaponSlots, {
         slots = {
             {
