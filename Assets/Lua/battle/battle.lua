@@ -19,6 +19,7 @@ local HitSys               = require("ecs.systems.attack_hit_system")
 local KnockbackSys         = require("ecs.systems.knockback_system")
 local DeathSys             = require("ecs.systems.enemy_death_system")
 -- anim
+local PlayerAnimSys        = require("ecs.systems.player_animation_system")
 local AnimCmd              = require("ecs.systems.animation_command_system")
 local AnimSys              = require("ecs.systems.animation_system")
 
@@ -45,6 +46,7 @@ local systems              = {
     KnockbackSys,
     DeathSys,
 
+    PlayerAnimSys,
     AnimCmd,
     AnimSys,
 }

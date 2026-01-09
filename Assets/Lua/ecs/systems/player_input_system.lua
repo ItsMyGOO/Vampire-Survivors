@@ -20,8 +20,8 @@ function PlayerInputSystem:update(world, dt)
 
     local intent = intents[player]
 
-    intent.dirX = input.hori 
-    intent.dirY = input.vert 
+    intent.dirX = input.hori * intent.speed
+    intent.dirY = input.vert * intent.speed
 end
 
 return PlayerInputSystem
