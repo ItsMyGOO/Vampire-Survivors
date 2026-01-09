@@ -4,7 +4,8 @@
 ---
 -- Battle.lua
 local World                = require("ecs.world")
-local EnemySpawn           = require("battle.enemy_spawn_system")
+
+local EnemySpawnSys        = require("ecs.systems.enemy_spawn_system")
 -- moving
 local InputSys             = require("ecs.systems.player_input_system")
 local VsSeekSys            = require("ecs.systems.vs_seek_system")
@@ -28,6 +29,9 @@ local Battle               = {
 }
 
 local systems              = {
+
+    EnemySpawnSys,
+
     InputSys,
 
     VsSeekSys,
@@ -75,17 +79,15 @@ function Battle:StartBattle(stageCfg)
             },
         }
     })
-
-    -- 生成敌人
-    for i = 1, 10 do
-        EnemySpawn.Spawn(world)
-    end
 end
 
 function Battle:Tick(dt)
     local world = self.world
+    if not world then return end
 
-    if (world and world.grid) then
+    world.time = world.time + dt
+
+    if world.grid then
         world.grid:rebuild(world:GetComponentOfType(_G.ComponentRegistry.Position))
     end
 

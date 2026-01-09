@@ -6,12 +6,14 @@
 --- 核心实体-组件存储系统
 --- 设计原则：只做容器管理，不含任何游戏逻辑
 --- @class World
+--- @field time number 当前时间
 --- @field private components table 组件池：componentName -> eid -> component_data
 --- @field nextEntityId integer 下一个实体ID
 --- @field eventBus EventBus? 事件总线
 --- @field player_eid integer 玩家实体ID
 --- @field grid Grid? 逻辑网格
 local World = {
+    time = 0.0,
     nextEntityId = 1,
     components = {},
     eventBus = nil,

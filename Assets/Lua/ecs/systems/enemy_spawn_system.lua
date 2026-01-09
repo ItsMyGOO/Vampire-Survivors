@@ -1,11 +1,11 @@
 ﻿---
 --- Created by echo.
---- DateTime: 2025/12/29 18:24
+--- DateTime: 2026/1/9 15:13
 ---
--- EnemySpawnSystem.lua
-local ComponentRegistry = require("ecs.component_registry")
-
-local EnemySpawnSystem = {}
+EnemySpawnSystem = {
+    timer = 0.0,
+    interval = 1.0
+}
 
 math.randomseed(os.time())
 
@@ -37,6 +37,23 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
 
     -- 返回给 C# 用来创建 Sprite
     return eid, enemyCfg and enemyCfg.spriteId
+end
+
+---@param world World
+---@param dt number
+function EnemySpawnSystem:update(world, dt)
+    self.timer = self.timer + dt
+    if self.timer < self.interval then
+        return
+    end
+    self.timer = self.timer - self.interval
+
+    -- 随时间变难
+    local enemyCount = math.min(1 + math.floor(world.time / 10), 5)
+
+    for i = 1, enemyCount do
+        EnemySpawnSystem.Spawn(world)
+    end
 end
 
 return EnemySpawnSystem
