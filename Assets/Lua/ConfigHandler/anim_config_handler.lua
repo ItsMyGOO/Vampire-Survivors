@@ -25,8 +25,12 @@ function AnimConfigHandler.GetConfig(setId, clipId)
 
     if (not clip.frames and clip.name and clip.frame_count) then
         local frames = {}
-        for i = 1, clip.frame_count do
-            frames[i] = clip.name .. " " .. i - 1
+        if clip.frame_count == 1 then
+            frames[1] = clip.name
+        else
+            for i = 1, clip.frame_count do
+                frames[i] = clip.name .. " " .. i - 1
+            end
         end
         clip.frames = frames
     end

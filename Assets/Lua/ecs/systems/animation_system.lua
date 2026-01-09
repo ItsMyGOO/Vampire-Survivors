@@ -36,18 +36,32 @@ function AnimationSystem:update(world, dt)
             anim.time = anim.time - frameTime
             anim.frame = anim.frame + 1
 
+            -- 播放到末尾
             if anim.frame > #clip.frames then
                 if clip.loop then
                     anim.frame = 1
                 else
-                    anim.frame = #clip.frames
+                    -- 一次性动画结束
                     anim.playing = false
+                    -- ★★★ 核心：自动回退 ★★★
+                    if anim.defaultState and anim.state ~= anim.defaultState then
+                        print(anim.defaultState)
+                        anim.state = anim.defaultState
+                        anim.clipId = anim.defaultState
+                        anim.frame = 1
+                        anim.time = 0
+                        anim.playing = true
+                    else
+                        anim.frame = #clip.frames
+                    end
+
+                    break
                 end
             end
         end
 
         spriteKeyComp.sheet = sheet
-        spriteKeyComp.key = clip.frames and clip.frames[anim.frame]
+        spriteKeyComp.key = clip.frames[anim.frame]
 
         ::continue::
     end

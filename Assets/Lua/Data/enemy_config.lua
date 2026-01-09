@@ -10,7 +10,7 @@ return {
         },
         enemy_2 = {
             clipSetId = "Zombie2",
-            hp = 1,
+            hp = 5,
         }
     },
     level_2 = {
@@ -20,7 +20,7 @@ return {
         },
         enemy_2 = {
             clipSetId = "Skeleton2",
-            hp = 10,
+            hp = 20,
         }
     }
 }

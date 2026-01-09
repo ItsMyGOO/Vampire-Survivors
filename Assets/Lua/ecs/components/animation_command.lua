@@ -3,11 +3,12 @@
 --- DateTime: 2025/12/28 22:43
 ---
 --- @class AnimationCommandComponent: table
---- @field play_animation_name string?
+--- @field play string?
 --- @field stop boolean?
 local M = {
-    play_animation_name = nil,
-    stop = false
+    play = nil,
+    stop = false,
+    forceRestart = false
 }
 
 return M

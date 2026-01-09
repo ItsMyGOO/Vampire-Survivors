@@ -41,6 +41,13 @@ AnimationDB = {
             frames = nil,
             fps = 6,
             loop = true
+        },
+        Hit = {
+            name = "Hit",
+            frame_count = 1,
+            frames = nil,
+            fps = 2,
+            loop = false
         }
     },
     Zombie2 = {
@@ -51,6 +58,13 @@ AnimationDB = {
             frames = nil,
             fps = 9,
             loop = true
+        },
+        Hit = {
+            name = "Hit",
+            frame_count = 1,
+            frames = nil,
+            fps = 2,
+            loop = false
         }
     },
     Skeleton1 = {
@@ -61,6 +75,13 @@ AnimationDB = {
             frames = nil,
             fps = 9,
             loop = true
+        },
+        Hit = {
+            name = "Hit",
+            frame_count = 1,
+            frames = nil,
+            fps = 2,
+            loop = false
         }
     },
     Skeleton2 = {
@@ -71,6 +92,13 @@ AnimationDB = {
             frames = nil,
             fps = 9,
             loop = true
+        },
+        Hit = {
+            name = "Hit",
+            frame_count = 1,
+            frames = nil,
+            fps = 2,
+            loop = false
         }
     },
 }

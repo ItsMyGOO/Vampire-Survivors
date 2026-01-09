@@ -4,8 +4,7 @@
 ---
 -- AnimationCommandSystem.lua
 ---@class AnimationCommandSystem
-AnimationCommandSystem = {
-}
+AnimationCommandSystem = {}
 AnimationCommandSystem.__index = AnimationCommandSystem
 
 ---@param world World
@@ -18,15 +17,22 @@ function AnimationCommandSystem:update(world, dt)
 
     for eid, command in pairs(animation_commands) do
         local anim = animations[eid]
-        if (not anim) then
+        if not anim then
             goto continue
         end
 
-        if command.play_animation_name and anim.clipId ~= command.play_animation_name then
-            anim.clipId = command.play_animation_name
-            anim.frame = 1
-            anim.time = 0
-            anim.playing = true
+        if command.play then
+            local needRestart =
+                command.forceRestart
+                or anim.state ~= command.play
+
+            if needRestart then
+                anim.state = command.play -- ★关键
+                anim.clipId = command.play
+                anim.frame = 1
+                anim.time = 0
+                anim.playing = true
+            end
         end
 
         if command.stop then
@@ -34,7 +40,6 @@ function AnimationCommandSystem:update(world, dt)
         end
 
         world:RemoveComponent(eid, _G.ComponentRegistry.AnimationCommand)
-
         ::continue::
     end
 end

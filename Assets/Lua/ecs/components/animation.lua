@@ -10,12 +10,15 @@
 --- @field time number 动画播放时间
 --- @field playing boolean 是否正在播放动画
 local M = {
-    clipSetId = nil,  -- "Player" / "EnemyA"
-    clipId    = nil,
+    clipSetId    = nil, -- "Player" / "EnemyA"
+    clipId       = nil,
 
-    frame     = 1,
-    time      = 0,
-    playing   = false,
+    frame        = 1,
+    time         = 0,
+    playing      = false,
+
+    state        = nil,     -- 当前动画状态
+    defaultState = "run",     -- 回退用（敌人固定 run，玩家 idle/run）
 }
 
 return M

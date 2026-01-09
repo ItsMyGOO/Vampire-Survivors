@@ -78,6 +78,10 @@ function AttackHitSystem:update(world, dt)
             -- 结算伤害
             -- ===============================
             hp.value = hp.value - src.damage
+            world:AddComponent(eid, C.AnimationCommand, {
+                play = "Hit",
+                forceRestart = true
+            })
 
             -- ===============================
             -- 击退

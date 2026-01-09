@@ -32,7 +32,7 @@ function EnemySpawnSystem.Spawn(world, enemyCfg)
 
     world:AddComponent(eid, ComponentRegistry.SpriteKey)
     world:AddComponent(eid, ComponentRegistry.Animation, { clipSetId = enemyCfg.clipSetId })
-    world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play_animation_name = "Run" })
+    world:AddComponent(eid, ComponentRegistry.AnimationCommand, { play = "Run" })
 
     world:AddComponent(eid, ComponentRegistry.Collider)
     world:AddComponent(eid, ComponentRegistry.Health, { value = enemyCfg.hp })
