@@ -12,9 +12,7 @@ PlayerInputSystem.__index = PlayerInputSystem
 ---@param world World
 ---@param dt number
 function PlayerInputSystem:update(world, dt)
-    local input = CS.UnityEngine.Input
-    local hori = input.GetAxisRaw("Horizontal")
-    local vert = input.GetAxisRaw("Vertical")
+    local input = _G.InputData
 
     local player = world.player_eid
     ---@type table<integer, MoveIntentComponent>
@@ -22,8 +20,8 @@ function PlayerInputSystem:update(world, dt)
 
     local intent = intents[player]
 
-    intent.dirX = hori 
-    intent.dirY = vert 
+    intent.dirX = input.hori 
+    intent.dirY = input.vert 
 end
 
 return PlayerInputSystem

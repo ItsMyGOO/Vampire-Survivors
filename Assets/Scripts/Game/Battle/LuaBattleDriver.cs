@@ -32,6 +32,11 @@ namespace Game.Battle
 
         void Update()
         {
+            float hori = Input.GetAxisRaw("Horizontal");
+            float vert = Input.GetAxisRaw("Vertical");
+            var inputData = new InputData() { hori = hori, vert = vert };
+            luaEnv.Global.Set("InputData", inputData);
+
             tick.Call(battle, Time.deltaTime);
 
             var renderItems = renderBridge.Collect(world);
