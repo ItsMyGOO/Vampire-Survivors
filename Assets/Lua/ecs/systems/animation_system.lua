@@ -24,6 +24,7 @@ function AnimationSystem:update(world, dt)
             goto continue
         end
 
+        -- default state
         if not anim.state then
             anim.state = anim.defaultState
             anim.clipId = anim.defaultState

@@ -16,7 +16,7 @@ return {
     level_2 = {
         enemy_1 = {
             clipSetId = "Skeleton1",
-            hp = 10,
+            hp = 15,
         },
         enemy_2 = {
             clipSetId = "Skeleton2",

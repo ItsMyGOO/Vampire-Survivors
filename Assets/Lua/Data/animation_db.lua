@@ -46,7 +46,7 @@ AnimationDB = {
             name = "Hit",
             frame_count = 1,
             frames = nil,
-            fps = 2,
+            fps = 6,
             loop = false
         }
     },
@@ -63,7 +63,7 @@ AnimationDB = {
             name = "Hit",
             frame_count = 1,
             frames = nil,
-            fps = 2,
+            fps = 6,
             loop = false
         }
     },
@@ -80,7 +80,7 @@ AnimationDB = {
             name = "Hit",
             frame_count = 1,
             frames = nil,
-            fps = 2,
+            fps = 6,
             loop = false
         }
     },
@@ -97,7 +97,7 @@ AnimationDB = {
             name = "Hit",
             frame_count = 1,
             frames = nil,
-            fps = 2,
+            fps = 6,
             loop = false
         }
     },
