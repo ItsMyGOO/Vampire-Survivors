@@ -9,8 +9,8 @@
 --- @field value number 当前生命值
 --- @field max number 最大生命值
 local M = {
-    value = 100,
-    max = 100
+    value = 1,
+    max = 1
 }
 
 return M

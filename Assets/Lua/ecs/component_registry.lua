@@ -30,4 +30,6 @@ ComponentRegistry.Collider         = require("ecs.components.collider")
 ComponentRegistry.Knockback        = require("ecs.components.knockback")
 ComponentRegistry.Health           = require("ecs.components.health")
 
+ComponentRegistry.Prop             = require("ecs.components.prop")
+
 return ComponentRegistry

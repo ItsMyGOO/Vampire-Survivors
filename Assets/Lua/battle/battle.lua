@@ -13,8 +13,10 @@ local MoveSys              = require("ecs.systems.movement_system")
 local WeaponFireSystem     = require("ecs.systems.weapon_fire_system")
 local ProjectileMoveSystem = require("ecs.systems.projectile_move_system")
 local OrbitSystem          = require("ecs.systems.orbit_system")
-local hitSys               = require("ecs.systems.attack_hit_system")
-local knockbackSys         = require("ecs.systems.knockback_system")
+-- battle
+local HitSys               = require("ecs.systems.attack_hit_system")
+local KnockbackSys         = require("ecs.systems.knockback_system")
+local DeathSys             = require("ecs.systems.enemy_death_system")
 -- anim
 local AnimCmd              = require("ecs.systems.animation_command_system")
 local AnimSys              = require("ecs.systems.animation_system")
@@ -34,8 +36,10 @@ local systems              = {
     WeaponFireSystem,
     ProjectileMoveSystem,
     OrbitSystem,
-    hitSys,
-    knockbackSys,
+
+    HitSys,
+    KnockbackSys,
+    DeathSys,
 
     AnimCmd,
     AnimSys,
