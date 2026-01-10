@@ -7,46 +7,84 @@ namespace ECS.Core
     {
         bool HasComponent(int entityId);
         void RemoveComponent(int entityId);
+        int GetComponentCount();
     }
 
-    public class ComponentStore<T> : IComponentStore where T : struct
-    {
-        private readonly Dictionary<int, T> _components = new Dictionary<int, T>();
+// ============================================
+// 泛型组件存储
+// ============================================
 
+    public class ComponentStore<T> : IComponentStore where T : class, new()
+    {
+        private Dictionary<int, T> components = new Dictionary<int, T>();
+
+        /// <summary>
+        /// 添加组件
+        /// </summary>
         public void Add(int entityId, T component)
         {
-            _components[entityId] = component;
+            components[entityId] = component;
         }
 
+        /// <summary>
+        /// 获取组件（直接返回引用，可修改）
+        /// </summary>
         public T Get(int entityId)
         {
-            // 使用 ref 避免拷贝
-            return _components.GetValueOrDefault(entityId);
+            if (components.TryGetValue(entityId, out T component))
+            {
+                return component;
+            }
+
+            return null;
         }
 
+        /// <summary>
+        /// 检查是否有组件
+        /// </summary>
         public bool HasComponent(int entityId)
         {
-            return _components.ContainsKey(entityId);
+            return components.ContainsKey(entityId);
         }
 
+        /// <summary>
+        /// 移除组件
+        /// </summary>
         public void Remove(int entityId)
         {
-            _components.Remove(entityId);
+            components.Remove(entityId);
         }
 
-        public IEnumerable<(int entity, T component)> GetAll()
+        /// <summary>
+        /// 获取所有组件（用于遍历）
+        /// </summary>
+        public IEnumerable<KeyValuePair<int, T>> GetAll()
         {
-            foreach (var kvp in _components)
-            {
-                yield return (kvp.Key, kvp.Value);
-            }
+            return components;
         }
 
-        public int Count => _components.Count;
+        /// <summary>
+        /// 组件数量
+        /// </summary>
+        public int Count => components.Count;
 
+        /// <summary>
+        /// 清空所有组件
+        /// </summary>
+        public void Clear()
+        {
+            components.Clear();
+        }
+
+        // IComponentStore 接口实现
         void IComponentStore.RemoveComponent(int entityId)
         {
             Remove(entityId);
+        }
+
+        int IComponentStore.GetComponentCount()
+        {
+            return Count;
         }
     }
 }
