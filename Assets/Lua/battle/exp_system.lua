@@ -3,6 +3,8 @@
 --- DateTime: 2026/1/5 17:31
 ---
 -- ExpSystem.lua
+local BuffTrigger = require("buff.buff_trigger")
+
 ExpSystem = {}
 ExpSystem.__index = ExpSystem
 
@@ -17,7 +19,7 @@ end
 
 function ExpSystem:AddExp(value)
     self.exp = self.exp + value * self.player.stats.expGain
-    if self.exp >= self.expToNext then
+    while self.exp >= self.expToNext do
         self:LevelUp()
     end
 end
@@ -28,3 +30,5 @@ function ExpSystem:LevelUp()
     self.expToNext = self.expToNext * 1.3
     self.player.buffManager:Trigger(BuffTrigger.OnLevelUp)
 end
+
+return ExpSystem
