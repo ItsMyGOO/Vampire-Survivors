@@ -17,13 +17,11 @@ namespace Battle
         private int playerId = -1;
         private RenderSystem renderSystem;
 
-        [Header("调试")]
-        public bool showDebugInfo = true;
+        [Header("调试")] public bool showDebugInfo = true;
         public KeyCode debugKey = KeyCode.F1;
-        public KeyCode renderStatsKey = KeyCode.F2;  // ⭐ 新增：查看渲染统计
+        public KeyCode renderStatsKey = KeyCode.F2; // ⭐ 新增：查看渲染统计
 
-        [Header("渲染")]
-        public Sprite fallbackSprite;  // ⭐ 占位符精灵（可在 Inspector 中设置）
+        [Header("渲染")] public Sprite fallbackSprite; // ⭐ 占位符精灵（可在 Inspector 中设置）
 
         private void Awake()
         {
@@ -33,7 +31,7 @@ namespace Battle
 
             // 创建渲染系统
             var spriteProvider = new SpriteProvider();
-            
+
             // ⭐ 设置占位符精灵
             if (fallbackSprite != null)
             {
@@ -131,14 +129,10 @@ namespace Battle
 
                 // 敌人生成
                 world.RegisterSystem(new EnemySpawnSystem());
-
+                world.RegisterSystem(new WeaponFireSystem());
                 // 移动相关
                 world.RegisterSystem(new AIMovementSystem());
                 world.RegisterSystem(new MovementSystem());
-
-                // 武器和战斗
-                world.RegisterSystem(new WeaponFireSystem());
-                world.RegisterSystem(new ProjectileMoveSystem());
                 world.RegisterSystem(new OrbitSystem());
 
                 world.RegisterSystem(new AttackHitSystem());

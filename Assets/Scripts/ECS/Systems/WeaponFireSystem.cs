@@ -123,9 +123,9 @@ namespace ECS.Systems
             ));
 
             // 旋转组件（让投射物朝向移动方向）
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            float angle = Mathf.Atan2(direction.y, direction.x) ;
             world.AddComponent(projectileId, new RotationComponent(angle));
-
+ 
             // 投射物组件
             world.AddComponent(projectileId, new ProjectileComponent(
                 speed: speed,

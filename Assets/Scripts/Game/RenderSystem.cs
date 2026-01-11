@@ -394,17 +394,17 @@ public class RenderSystem
     /// </summary>
     public void Clear()
     {
-        foreach (var eid in new List<int>(transforms.Keys))
-        {
-            try
-            {
-                RecycleSingleEntity(eid);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[RenderSystem] 清理实体 {eid} 时出错: {e.Message}");
-            }
-        }
+        // foreach (var eid in new List<int>(transforms.Keys))
+        // {
+        //     try
+        //     {
+        //         RecycleSingleEntity(eid);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Debug.LogError($"[RenderSystem] 清理实体 {eid} 时出错: {e.Message}");
+        //     }
+        // }
 
         transforms.Clear();
         renderers.Clear();
