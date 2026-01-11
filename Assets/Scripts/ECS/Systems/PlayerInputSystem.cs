@@ -13,21 +13,11 @@ namespace ECS.Systems
         {
             // 找到玩家实体
             int playerId = FindPlayer(world);
-            if (playerId == -1) return;
-
-            if (!world.HasComponent<MoveIntentComponent>(playerId))
-            {
-                world.AddComponent(playerId, new MoveIntentComponent());
-            }
-
-            var moveIntent = world.GetComponent<MoveIntentComponent>(playerId);
+            var velocity = world.GetComponent<VelocityComponent>(playerId);
 
             // 读取 WASD 输入
-            moveIntent.target_x = Input.GetAxis("Horizontal");
-            moveIntent.target_y = Input.GetAxis("Vertical");
-
-            // 从 PlayerStats 获取速度（如果有的话）
-            moveIntent.speed = 5.0f; // 默认速度
+            velocity.x = Input.GetAxisRaw("Horizontal");
+            velocity.y = Input.GetAxisRaw("Vertical");
         }
 
         private int FindPlayer(World world)

@@ -111,8 +111,8 @@ namespace Battle
         {
             playerId = world.CreateEntity();
 
-            world.AddComponent(playerId, new PositionComponent(0, 0));
-            world.AddComponent(playerId, new VelocityComponent(0, 0));
+            world.AddComponent(playerId, new PositionComponent());
+            world.AddComponent(playerId, new VelocityComponent() { speed = 2 });
             world.AddComponent(playerId, new PlayerTagComponent());
             world.AddComponent(playerId, new HealthComponent(100, 100, 1.0f));
             world.AddComponent(playerId, new ColliderComponent(0.5f));

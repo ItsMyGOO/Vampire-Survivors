@@ -22,11 +22,11 @@ namespace ECS.Systems
                 var velocity = world.GetComponent<VelocityComponent>(entity);
                 var animation = world.GetComponent<AnimationComponent>(entity);
 
-                float speed = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+                float speed = velocity.x * velocity.x + velocity.y * velocity.y;
 
                 var desireState = speed > 0.1f ? "Run" : "Idle";
 
-                if (!string.Equals(desireState, animation.State))
+                if (string.Equals(desireState, animation.State))
                     continue;
                 animation.State = desireState;
                 animation.Playing = true;

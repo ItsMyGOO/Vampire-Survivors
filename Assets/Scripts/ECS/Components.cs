@@ -36,6 +36,7 @@ namespace ECS
     {
         public float x;
         public float y;
+        public float speed = 1;
 
         public VelocityComponent()
         {

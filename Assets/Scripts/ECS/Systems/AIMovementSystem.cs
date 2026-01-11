@@ -23,13 +23,13 @@ namespace ECS.Systems
             foreach (var (entity, _) in world.GetComponents<EnemyTagComponent>())
             {
                 if (!world.HasComponent<PositionComponent>(entity) ||
-                    !world.HasComponent<MoveIntentComponent>(entity))
+                    !world.HasComponent<VelocityComponent>(entity))
                 {
                     continue;
                 }
 
                 var enemyPos = world.GetComponent<PositionComponent>(entity);
-                var moveIntent = world.GetComponent<MoveIntentComponent>(entity);
+                var vel = world.GetComponent<VelocityComponent>(entity);
 
                 // 计算朝向玩家的方向
                 float dx = playerPos.x - enemyPos.x;
@@ -38,17 +38,12 @@ namespace ECS.Systems
 
                 if (dist > 0.1f)
                 {
-                    moveIntent.target_x = dx / dist;
-                    moveIntent.target_y = dy / dist;
+                    vel.x = dx / dist;
+                    vel.y = dy / dist;
                 }
 
-                // 更新速度
-                if (world.HasComponent<VelocityComponent>(entity))
-                {
-                    var velocity = world.GetComponent<VelocityComponent>(entity);
-                    velocity.x = moveIntent.target_x * moveIntent.speed;
-                    velocity.y = moveIntent.target_y * moveIntent.speed;
-                }
+                vel.x *= vel.speed;
+                vel.y *= vel.speed;
             }
         }
 

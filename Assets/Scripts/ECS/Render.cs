@@ -14,14 +14,14 @@ namespace ECS
             foreach (var (entity, position) in world.GetComponents<PositionComponent>())
             {
                 SpriteKeyComponent spriteKey = null;
-                MoveIntentComponent intent = null;
+                VelocityComponent velocity = null;
                 RotationComponent rotation = null;
 
                 if (world.HasComponent<SpriteKeyComponent>(entity))
                     spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
 
-                if (world.HasComponent<MoveIntentComponent>(entity))
-                    intent = world.GetComponent<MoveIntentComponent>(entity);
+                if (world.HasComponent<VelocityComponent>(entity))
+                    velocity = world.GetComponent<VelocityComponent>(entity);
 
                 if (world.HasComponent<RotationComponent>(entity))
                     rotation = world.GetComponent<RotationComponent>(entity);
@@ -36,9 +36,9 @@ namespace ECS
 
                 RenderFlags flags = RenderFlags.None;
 
-                if (intent != null)
+                if (velocity != null)
                 {
-                    item.dirX = intent.target_x;
+                    item.dirX = velocity.x;
                     flags |= RenderFlags.UseFlipX;
                 }
 

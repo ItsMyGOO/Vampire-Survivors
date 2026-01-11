@@ -45,7 +45,7 @@ namespace ECS.Systems
             world.AddComponent(enemyId, new EnemyTagComponent());
 
             world.AddComponent(enemyId, new PositionComponent(spawnPos.x, spawnPos.y));
-            world.AddComponent(enemyId, new VelocityComponent());
+            world.AddComponent(enemyId, new VelocityComponent(){speed = 0.5f});
             world.AddComponent(enemyId, new MoveIntentComponent());
 
             world.AddComponent(enemyId, new HealthComponent(50, 50));
