@@ -1,6 +1,8 @@
-﻿using ECS;
+﻿using ConfigHandler;
+using ECS;
 using ECS.Core;
 using ECS.Systems;
+using Lua;
 using UnityEngine;
 
 namespace Battle
@@ -13,6 +15,8 @@ namespace Battle
     {
         private World world;
         private int playerId = -1;
+
+        RenderSystem RenderSystem = new RenderSystem(new SpriteProvider(), new RenderObjectPool());
 
         [Header("调试")] public bool showDebugInfo = true;
         public KeyCode debugKey = KeyCode.F1;
@@ -27,6 +31,9 @@ namespace Battle
 
         private void Start()
         {
+            var animDb = AnimationConfigLoader.LoadAll(LuaMain.Env);
+            AnimationConfigDB.Initialize(animDb);
+
             InitializeSystems();
             InitializeGame();
 
@@ -38,6 +45,8 @@ namespace Battle
             // 更新 ECS World
             world.Update(Time.deltaTime);
 
+            var list = Render.Collect(world);
+            RenderSystem.Render(list);
             // 调试信息
             if (showDebugInfo && Input.GetKeyDown(debugKey))
             {
@@ -57,33 +66,32 @@ namespace Battle
         {
             // 输入系统
             world.RegisterSystem(new PlayerInputSystem());
-
+            // 敌人生成
+            world.RegisterSystem(new EnemySpawnSystem());
             // 移动相关
-            world.RegisterSystem(new MovementSystem());
             world.RegisterSystem(new AIMovementSystem());
+            world.RegisterSystem(new MovementSystem());
 
             // 武器和战斗
             world.RegisterSystem(new WeaponFireSystem());
             world.RegisterSystem(new ProjectileMoveSystem());
             world.RegisterSystem(new OrbitSystem());
-            world.RegisterSystem(new AttackHitSystem());
 
-            // 敌人
-            world.RegisterSystem(new EnemySpawnSystem());
+            world.RegisterSystem(new AttackHitSystem());
+            world.RegisterSystem(new KnockBackSystem());
             world.RegisterSystem(new EnemyDeathSystem());
 
             // 特效
-            world.RegisterSystem(new ExplosionSystem());
-            world.RegisterSystem(new KnockBackSystem());
-            world.RegisterSystem(new GravitySystem());
+            // world.RegisterSystem(new ExplosionSystem());
+            // world.RegisterSystem(new GravitySystem());
 
             // 动画
             world.RegisterSystem(new PlayerAnimationSystem());
-            world.RegisterSystem(new AnimationSystem());
             world.RegisterSystem(new AnimationCommandSystem());
+            world.RegisterSystem(new AnimationSystem());
 
             // 生命周期
-            world.RegisterSystem(new LifeTimeSystem());
+            // world.RegisterSystem(new LifeTimeSystem());
 
             Debug.Log("所有系统已注册");
         }
@@ -94,7 +102,6 @@ namespace Battle
         private void InitializeGame()
         {
             CreatePlayer();
-            CreateInitialKnife();
         }
 
         /// <summary>
@@ -109,8 +116,12 @@ namespace Battle
             world.AddComponent(playerId, new PlayerTagComponent());
             world.AddComponent(playerId, new HealthComponent(100, 100, 1.0f));
             world.AddComponent(playerId, new ColliderComponent(0.5f));
-            world.AddComponent(playerId, new SpriteKeyComponent("player_idle"));
-            world.AddComponent(playerId, new AnimationComponent("idle", 1.0f, true));
+            world.AddComponent(playerId, new SpriteKeyComponent());
+            world.AddComponent(playerId, new AnimationComponent()
+            {
+                ClipSetId = "Player",
+                DefaultState = "Idle"
+            });
 
             // 武器槽
             var weaponSlots = new WeaponSlotsComponent();
@@ -118,22 +129,6 @@ namespace Battle
             world.AddComponent(playerId, weaponSlots);
 
             Debug.Log($"玩家已创建 - 实体ID: {playerId}");
-        }
-
-        /// <summary>
-        /// 创建初始刀（轨道武器）
-        /// </summary>
-        private void CreateInitialKnife()
-        {
-            int knifeId = world.CreateEntity();
-
-            world.AddComponent(knifeId, new PositionComponent(0, 0));
-            world.AddComponent(knifeId, new OrbitComponent(playerId, 2.0f, 3.0f, 0f));
-            world.AddComponent(knifeId, new DamageSourceComponent(20f, playerId));
-            world.AddComponent(knifeId, new ColliderComponent(0.5f));
-            world.AddComponent(knifeId, new SpriteKeyComponent("knife"));
-
-            Debug.Log($"初始刀已创建 - 实体ID: {knifeId}");
         }
 
         /// <summary>

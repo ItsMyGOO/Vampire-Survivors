@@ -4,10 +4,8 @@ namespace Lua
 {
     [CSharpCallLua]
     public delegate int IntBinaryOp(int a, int b);
-
+    
     [CSharpCallLua]
-    public delegate void LuaTick(float dt);
+    public delegate object[] GetAnimConfigDelegate(string setId, string clipId);
 
-    [CSharpCallLua]
-    public delegate bool Condition();
 }

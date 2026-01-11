@@ -24,14 +24,15 @@ namespace ECS.Systems
 
                 float speed = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 
-                if (speed > 0.1f)
-                {
-                    animation.current = "run";
-                }
-                else
-                {
-                    animation.current = "idle";
-                }
+                var desireState = speed > 0.1f ? "Run" : "Idle";
+
+                if (!string.Equals(desireState, animation.State))
+                    continue;
+                animation.State = desireState;
+                animation.Playing = true;
+                animation.ClipId = animation.State;
+                animation.Frame = 1;
+                animation.Time = 0f;
             }
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using ECS;
 using XLua;
 
 [LuaCallCSharp]
@@ -16,12 +17,4 @@ public struct LuaRenderItem
     public float fx, fy;
 
     public RenderFlags flags;
-}
-
-[Flags]
-public enum RenderFlags : byte
-{
-    None = 0,
-    UseFlipX = 1 << 0,
-    UseRotation = 1 << 1,
 }

@@ -23,7 +23,7 @@ namespace ECS.Systems
 
                 for (int i = 0; i < spawnCount; i++)
                 {
-                    SpawnEnemy(world, "slime");
+                    SpawnEnemy(world, "Zombie");
                 }
 
                 spawnTimer = 0f;
@@ -42,14 +42,21 @@ namespace ECS.Systems
             // 在屏幕边缘随机位置生成
             Vector2 spawnPos = GetRandomSpawnPosition();
 
-            // 添加组件（使用 slime 的配置）
-            world.AddComponent(enemyId, new PositionComponent(spawnPos.x, spawnPos.y));
-            world.AddComponent(enemyId, new VelocityComponent(0, 0));
             world.AddComponent(enemyId, new EnemyTagComponent());
+
+            world.AddComponent(enemyId, new PositionComponent(spawnPos.x, spawnPos.y));
+            world.AddComponent(enemyId, new VelocityComponent());
+            world.AddComponent(enemyId, new MoveIntentComponent());
+
             world.AddComponent(enemyId, new HealthComponent(50, 50));
             world.AddComponent(enemyId, new ColliderComponent(0.5f));
-            world.AddComponent(enemyId, new SpriteKeyComponent("slime"));
-            world.AddComponent(enemyId, new MoveIntentComponent(0, 0, 2.0f));
+
+            world.AddComponent(enemyId, new SpriteKeyComponent());
+            world.AddComponent(enemyId, new AnimationComponent()
+            {
+                ClipSetId = "Zombie1",
+                DefaultState = "Run"
+            });
         }
 
         private Vector2 GetRandomSpawnPosition()

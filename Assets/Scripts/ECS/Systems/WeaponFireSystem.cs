@@ -68,7 +68,11 @@ namespace ECS.Systems
             world.AddComponent(projectileId, new ProjectileComponent(15f, 1, 5.0f));
             world.AddComponent(projectileId, new DamageSourceComponent(20f * weapon.level, ownerId));
             world.AddComponent(projectileId, new ColliderComponent(0.3f));
-            world.AddComponent(projectileId, new SpriteKeyComponent("projectile"));
+            world.AddComponent(projectileId, new SpriteKeyComponent()
+            {
+                sheet =  "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+                key = "Bullet 0"
+            });
             world.AddComponent(projectileId, new LifeTimeComponent(5.0f));
         }
 

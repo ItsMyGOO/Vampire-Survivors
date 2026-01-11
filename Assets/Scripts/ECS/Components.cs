@@ -98,6 +98,7 @@ namespace ECS
     [Serializable]
     public class SpriteKeyComponent
     {
+        public string sheet;
         public string key;
 
         public SpriteKeyComponent()
@@ -116,23 +117,22 @@ namespace ECS
     [Serializable]
     public class AnimationComponent
     {
-        public string current;
-        public float speed;
-        public bool loop;
-        public float time; // 动画播放时间
+        public string ClipSetId;
+        public string ClipId;
+        public int Frame;
+        public float Time;
+        public bool Playing;
+
+        public string State;
+        public string DefaultState;
 
         public AnimationComponent()
         {
-            speed = 1.0f;
-            loop = true;
         }
 
-        public AnimationComponent(string current, float speed = 1.0f, bool loop = true)
+        public AnimationComponent(string defaultState)
         {
-            this.current = current;
-            this.speed = speed;
-            this.loop = loop;
-            this.time = 0f;
+            this.DefaultState = defaultState;
         }
     }
 
