@@ -3,7 +3,7 @@ using ECS;
 using XLua;
 
 [LuaCallCSharp]
-public struct LuaRenderItem
+public class LuaRenderItem
 {
     public int eid;
 

@@ -16,21 +16,21 @@ namespace ECS.Systems
                 if (!world.HasComponent<PositionComponent>(entity)) continue;
 
                 // 更新旋转角度
-                orbit.current_angle += orbit.angular_speed * deltaTime;
+                orbit.currentAngle += orbit.angularSpeed * deltaTime;
 
                 // 获取中心位置
-                if (!world.HasComponent<PositionComponent>(orbit.center_entity))
+                if (!world.HasComponent<PositionComponent>(orbit.centerEntity))
                 {
                     world.DestroyEntity(entity);
                     continue;
                 }
 
-                var centerPos = world.GetComponent<PositionComponent>(orbit.center_entity);
+                var centerPos = world.GetComponent<PositionComponent>(orbit.centerEntity);
                 var position = world.GetComponent<PositionComponent>(entity);
 
                 // 计算轨道位置
-                position.x = centerPos.x + Mathf.Cos(orbit.current_angle) * orbit.radius;
-                position.y = centerPos.y + Mathf.Sin(orbit.current_angle) * orbit.radius;
+                position.x = centerPos.x + Mathf.Cos(orbit.angularSpeed) * orbit.radius;
+                position.y = centerPos.y + Mathf.Sin(orbit.angularSpeed) * orbit.radius;
             }
         }
     }

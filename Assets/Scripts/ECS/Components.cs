@@ -130,11 +130,6 @@ namespace ECS
         public AnimationComponent()
         {
         }
-
-        public AnimationComponent(string defaultState)
-        {
-            this.DefaultState = defaultState;
-        }
     }
 
     /// <summary>
@@ -269,6 +264,7 @@ namespace ECS
             public int level;
             public float cooldown;
             public float fire_rate;
+            public bool orbitSpawned;
 
             public WeaponData()
             {
@@ -321,21 +317,13 @@ namespace ECS
     [Serializable]
     public class OrbitComponent
     {
-        public int center_entity;
+        public int centerEntity;
         public float radius;
-        public float angular_speed;
-        public float current_angle;
+        public float angularSpeed;
+        public float currentAngle;
 
         public OrbitComponent()
         {
-        }
-
-        public OrbitComponent(int centerEntity, float radius, float angularSpeed, float currentAngle = 0f)
-        {
-            this.center_entity = centerEntity;
-            this.radius = radius;
-            this.angular_speed = angularSpeed;
-            this.current_angle = currentAngle;
         }
     }
 
@@ -474,29 +462,6 @@ namespace ECS
 // ============================================
 // AI 组件
 // ============================================
-
-    /// <summary>
-    /// 移动意图组件
-    /// </summary>
-    [Serializable]
-    public class MoveIntentComponent
-    {
-        public float target_x;
-        public float target_y;
-        public float speed;
-
-        public MoveIntentComponent()
-        {
-        }
-
-        public MoveIntentComponent(float targetX, float targetY, float speed)
-        {
-            this.target_x = targetX;
-            this.target_y = targetY;
-            this.speed = speed;
-        }
-    }
-
     /// <summary>
     /// 转向行为组件
     /// </summary>
