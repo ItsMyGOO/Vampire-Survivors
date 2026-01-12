@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ConfigHandler;
 using ECS.Core;
 
 namespace ECS.Systems
@@ -46,13 +47,17 @@ namespace ECS.Systems
 
             int gemId = world.CreateEntity();
 
+            // 位置
             world.AddComponent(gemId, new PositionComponent(enemyPos.x, enemyPos.y));
-            world.AddComponent(gemId, new PropComponent("exp_gem", 5));
-            world.AddComponent(gemId, new ColliderComponent(0.3f));
+
+            var prop = DropItemConfigDB.Instance.Get("exp_small");
+            // 可拾取组件（使用新的系统）
+            world.AddComponent(gemId, new PickupableComponent("exp", prop.exp, true));
+            // 精灵
             world.AddComponent(gemId, new SpriteKeyComponent()
             {
-                sheet = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
-                key = "Exp 0"
+                sheet = prop.sheet,
+                key = prop.key
             });
         }
     }

@@ -495,4 +495,127 @@ namespace ECS
             this.strength = strength;
         }
     }
+
+// ============================================
+// 拾取相关
+// ============================================
+
+    /// <summary>
+    /// 拾取范围组件
+    /// </summary>
+    [Serializable]
+    public class PickupRangeComponent
+    {
+        public float radius;
+
+        public PickupRangeComponent()
+        {
+            radius = 1.0f;
+        }
+
+        public PickupRangeComponent(float radius)
+        {
+            this.radius = radius;
+        }
+    }
+
+
+    /// <summary>
+    /// 可拾取组件
+    /// </summary>
+    [Serializable]
+    public class PickupableComponent
+    {
+        public string item_type; // "exp", "coin", "health", "magnet"
+        public float value;
+        public bool auto_pickup; // 是否自动拾取
+
+        public PickupableComponent()
+        {
+            auto_pickup = true;
+        }
+
+        public PickupableComponent(string itemType, float value, bool autoPickup = true)
+        {
+            this.item_type = itemType;
+            this.value = value;
+            this.auto_pickup = autoPickup;
+        }
+    }
+
+
+    /// <summary>
+    /// 磁铁组件 - 吸引物品
+    /// </summary>
+    [Serializable]
+    public class MagnetComponent
+    {
+        public float radius;
+        public float strength;
+        public bool active;
+
+        public MagnetComponent()
+        {
+            radius = 5.0f;
+            strength = 10.0f;
+            active = true;
+        }
+
+        public MagnetComponent(float radius, float strength)
+        {
+            this.radius = radius;
+            this.strength = strength;
+            this.active = true;
+        }
+    }
+
+
+    /// <summary>
+    /// 经验组件
+    /// </summary>
+    [Serializable]
+    public class ExperienceComponent
+    {
+        public int level;
+        public float current_exp;
+        public float exp_to_next_level;
+        public float exp_multiplier; // 经验倍率
+
+        public ExperienceComponent()
+        {
+            level = 1;
+            current_exp = 0f;
+            exp_to_next_level = 100f;
+            exp_multiplier = 1.0f;
+        }
+
+        public ExperienceComponent(int level, float expToNextLevel)
+        {
+            this.level = level;
+            this.current_exp = 0f;
+            this.exp_to_next_level = expToNextLevel;
+            this.exp_multiplier = 1.0f;
+        }
+    }
+
+
+    /// <summary>
+    /// 升级事件组件
+    /// </summary>
+    [Serializable]
+    public class LevelUpEventComponent
+    {
+        public int new_level;
+        public bool processed;
+
+        public LevelUpEventComponent()
+        {
+        }
+
+        public LevelUpEventComponent(int newLevel)
+        {
+            this.new_level = newLevel;
+            this.processed = false;
+        }
+    }
 }

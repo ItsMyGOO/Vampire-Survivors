@@ -47,11 +47,5 @@ namespace ConfigHandler
         public string key;
         public int exp;
         public float pickupRadius;
-
-        // 属性访问器
-        public string Sheet => sheet;
-        public string Key => key;
-        public int Exp => exp;
-        public float PickupRadius => pickupRadius;
     }
 }

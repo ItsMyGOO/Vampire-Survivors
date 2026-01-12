@@ -15,13 +15,11 @@ namespace Battle
         private int playerId = -1;
         private RenderSystem renderSystem;
 
-        [Header("调试")] 
-        public bool showDebugInfo = true;
+        [Header("调试")] public bool showDebugInfo = true;
         public KeyCode debugKey = KeyCode.F1;
         public KeyCode renderStatsKey = KeyCode.F2;
 
-        [Header("渲染")] 
-        public Sprite fallbackSprite;
+        [Header("渲染")] public Sprite fallbackSprite;
 
         private void Awake()
         {
@@ -141,14 +139,22 @@ namespace Battle
             try
             {
                 world.RegisterSystem(new PlayerInputSystem());
+                world.RegisterSystem(new MagnetSystem());
+                world.RegisterSystem(new PickupSystem());
+                world.RegisterSystem(new ExperienceSystem());
+
                 world.RegisterSystem(new EnemySpawnSystem());
-                world.RegisterSystem(new WeaponFireSystem());
+
                 world.RegisterSystem(new AIMovementSystem());
                 world.RegisterSystem(new MovementSystem());
+
+                world.RegisterSystem(new WeaponFireSystem());
                 world.RegisterSystem(new OrbitSystem());
+
                 world.RegisterSystem(new AttackHitSystem());
                 world.RegisterSystem(new KnockBackSystem());
                 world.RegisterSystem(new EnemyDeathSystem());
+
                 world.RegisterSystem(new PlayerAnimationSystem());
                 world.RegisterSystem(new AnimationCommandSystem());
                 world.RegisterSystem(new AnimationSystem());
@@ -176,12 +182,18 @@ namespace Battle
         private void CreatePlayer()
         {
             playerId = world.CreateEntity();
-
+            world.AddComponent(playerId, new PlayerTagComponent());
+            
             world.AddComponent(playerId, new PositionComponent());
             world.AddComponent(playerId, new VelocityComponent() { speed = 2 });
-            world.AddComponent(playerId, new PlayerTagComponent());
+
             world.AddComponent(playerId, new HealthComponent(100, 100, 1.0f));
             world.AddComponent(playerId, new ColliderComponent(0.5f));
+
+            world.AddComponent(playerId, new PickupRangeComponent(1.0f));
+            world.AddComponent(playerId, new ExperienceComponent(1, 100f));
+            world.AddComponent(playerId, new MagnetComponent(5.0f, 10.0f));
+
             world.AddComponent(playerId, new SpriteKeyComponent());
             world.AddComponent(playerId, new AnimationComponent()
             {
