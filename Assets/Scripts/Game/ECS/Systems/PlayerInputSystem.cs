@@ -16,8 +16,8 @@ namespace ECS.Systems
             var velocity = world.GetComponent<VelocityComponent>(playerId);
 
             // 读取 WASD 输入
-            velocity.x = Input.GetAxisRaw("Horizontal");
-            velocity.y = Input.GetAxisRaw("Vertical");
+            velocity.x = Input.GetAxisRaw("Horizontal") * velocity.speed;
+            velocity.y = Input.GetAxisRaw("Vertical") * velocity.speed;
         }
 
         private int FindPlayer(World world)
