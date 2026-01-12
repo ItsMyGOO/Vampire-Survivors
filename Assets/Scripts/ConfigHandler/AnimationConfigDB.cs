@@ -1,29 +1,14 @@
-﻿using System.Collections.Generic;
-using XLua;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ConfigHandler
 {
-    public sealed class AnimationConfigDB
+    // =========================
+    // Animation Config DB
+    // =========================
+    public sealed class AnimationConfigDB : SingletonConfigDB<AnimationConfigDB, string, AnimationSetDef>
     {
-        static AnimationConfigDB _instance;
-        public static AnimationConfigDB Instance => _instance;
-
-        public static void Initialize(AnimationConfigDB db)
-        {
-            _instance = db;
-        }
-
-        readonly Dictionary<string, AnimationSetDef> _sets = new();
-
-        internal void AddSet(string setId, AnimationSetDef set)
-        {
-            _sets[setId] = set;
-        }
-
-        public bool TryGetSet(string setId, out AnimationSetDef set)
-        {
-            return _sets.TryGetValue(setId, out set);
-        }
+        public const string ConfigFileName = "animation_config.json";
 
         public bool TryGetClip(
             string setId,
@@ -32,15 +17,12 @@ namespace ConfigHandler
             out AnimationClipDef clip)
         {
             clip = null;
-            if (!_sets.TryGetValue(setId, out set))
+            if (!TryGet(setId, out set))
                 return false;
 
             return set.Clips.TryGetValue(clipId, out clip);
         }
 
-        /// <summary>
-        /// ECS / Render 直接用的接口
-        /// </summary>
         public bool TryGetFrame(
             string setId,
             string clipId,
@@ -61,62 +43,48 @@ namespace ConfigHandler
             key = clip.Frames[frameIndex];
             return true;
         }
-    }
 
-    public static class AnimationConfigLoader
-    {
-        public static AnimationConfigDB LoadAll(LuaEnv env)
+        public static AnimationConfigDB Load(string fileName = ConfigFileName)
         {
-            var table =
-                env.DoString("return require 'Data.animation_db'")[0] as LuaTable;
+            var configData = JsonConfigLoader.Load<Dictionary<string, AnimationSetData>>(fileName);
+            if (configData == null)
+                return null;
 
             var db = new AnimationConfigDB();
 
-            foreach (var setKey in table.GetKeys())
+            foreach (var kvp in configData)
             {
-                string setId = setKey.ToString();
-                var setTable = table.Get<object, LuaTable>(setKey);
+                var setId = kvp.Key;
+                var setData = kvp.Value;
 
                 var setDef = new AnimationSetDef
                 {
-                    Sheet = setTable.Get<string>("sheet")
+                    Sheet = setData.sheet
                 };
 
-                foreach (var clipKey in setTable.GetKeys())
+                foreach (var clipKvp in setData.clips)
                 {
-                    string clipId = clipKey.ToString();
-                    if (clipId == "sheet")
-                        continue;
+                    var clipId = clipKvp.Key;
+                    var clipData = clipKvp.Value;
 
-                    var clipTable = setTable.Get<object, LuaTable>(clipKey);
-                    var clipDef = BuildClip(clipTable);
+                    var clipDef = new AnimationClipDef
+                    {
+                        Name = clipData.name,
+                        Fps = clipData.fps,
+                        Loop = clipData.loop,
+                        Frames = BuildFrames(clipData.name, clipData.frameCount)
+                    };
 
                     setDef.Clips.Add(clipId, clipDef);
                 }
 
-                db.AddSet(setId, setDef);
+                db.Add(setId, setDef);
             }
 
             return db;
         }
 
-        static AnimationClipDef BuildClip(LuaTable table)
-        {
-            string name = table.Get<string>("name");
-            int frameCount = table.Get<int>("frame_count");
-            float fps = table.Get<float>("fps");
-            bool loop = table.Get<bool>("loop");
-
-            return new AnimationClipDef
-            {
-                Name = name,
-                Fps = fps,
-                Loop = loop,
-                Frames = BuildFrames(name, frameCount)
-            };
-        }
-
-        static string[] BuildFrames(string name, int frameCount)
+        private static string[] BuildFrames(string name, int frameCount)
         {
             var frames = new string[frameCount];
 
@@ -134,6 +102,28 @@ namespace ConfigHandler
         }
     }
 
+    // =========================
+    // JSON Data Classes
+    // =========================
+    [Serializable]
+    public class AnimationSetData
+    {
+        public string sheet;
+        public Dictionary<string, AnimationClipData> clips;
+    }
+
+    [Serializable]
+    public class AnimationClipData
+    {
+        public string name;
+        public int frameCount;
+        public float fps;
+        public bool loop;
+    }
+
+    // =========================
+    // Runtime Definitions
+    // =========================
     public sealed class AnimationSetDef
     {
         public string Sheet;

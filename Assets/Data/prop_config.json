@@ -1,0 +1,22 @@
+﻿{
+  "items": {
+    "exp_small": {
+      "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+      "key": "Exp 0",
+      "exp": 1,
+      "pickupRadius": 1.5
+    },
+    "exp_big": {
+      "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+      "key": "Exp 1",
+      "exp": 5,
+      "pickupRadius": 2.0
+    },
+    "coin": {
+      "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+      "key": "Coin 0",
+      "exp": 0,
+      "pickupRadius": 1.2
+    }
+  }
+}

@@ -1,0 +1,87 @@
+﻿{
+  "Player": {
+    "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Farmer 0.png",
+    "clips": {
+      "Run": {
+        "name": "Run",
+        "frameCount": 6,
+        "fps": 9.0,
+        "loop": true
+      },
+      "Idle": {
+        "name": "Stand",
+        "frameCount": 4,
+        "fps": 6.0,
+        "loop": true
+      }
+    }
+  },
+  "Zombie1": {
+    "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Enemy 0.png",
+    "clips": {
+      "Run": {
+        "name": "Run",
+        "frameCount": 4,
+        "fps": 6.0,
+        "loop": true
+      },
+      "Hit": {
+        "name": "Hit",
+        "frameCount": 1,
+        "fps": 6.0,
+        "loop": false
+      }
+    }
+  },
+  "Zombie2": {
+    "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Enemy 1.png",
+    "clips": {
+      "Run": {
+        "name": "Run",
+        "frameCount": 6,
+        "fps": 9.0,
+        "loop": true
+      },
+      "Hit": {
+        "name": "Hit",
+        "frameCount": 1,
+        "fps": 6.0,
+        "loop": false
+      }
+    }
+  },
+  "Skeleton1": {
+    "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Enemy 2.png",
+    "clips": {
+      "Run": {
+        "name": "Run",
+        "frameCount": 6,
+        "fps": 9.0,
+        "loop": true
+      },
+      "Hit": {
+        "name": "Hit",
+        "frameCount": 1,
+        "fps": 6.0,
+        "loop": false
+      }
+    }
+  },
+  "Skeleton2": {
+    "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Enemy 3.png",
+    "clips": {
+      "Run": {
+        "name": "Run",
+        "frameCount": 6,
+        "fps": 9.0,
+        "loop": true
+      },
+      "Hit": {
+        "name": "Hit",
+        "frameCount": 1,
+        "fps": 6.0,
+        "loop": false
+      }
+    }
+  }
+}

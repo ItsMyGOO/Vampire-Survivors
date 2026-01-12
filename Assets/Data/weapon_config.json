@@ -1,0 +1,25 @@
+﻿{
+  "weapons": {
+    "ProjectileKnife": {
+      "type": "Projectile",
+      "interval": 0.6,
+      "baseDamage": 10.0,
+      "baseSpeed": 12.0,
+      "baseCount": 1,
+      "range": 6.0,
+      "knockback": 3.0,
+      "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+      "key": "Bullet 0"
+    },
+    "OrbitKnife": {
+      "type": "Orbit",
+      "baseCount": 3,
+      "baseRadius": 1.8,
+      "baseDamage": 6.0,
+      "orbitSpeed": 2.5,
+      "knockback": 2.0,
+      "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+      "key": "Bullet 2"
+    }
+  }
+}
