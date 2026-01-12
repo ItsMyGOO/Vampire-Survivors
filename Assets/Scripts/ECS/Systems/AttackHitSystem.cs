@@ -1,19 +1,22 @@
 ﻿using System.Collections.Generic;
 using ECS.Core;
+using UnityEngine;
 
 namespace ECS.Systems
 {
-    /// <summary>
-    /// 攻击命中系统
-    /// 职责: 检测投射物与敌人的碰撞，应用伤害
-    /// </summary>
     public class AttackHitSystem : SystemBase
     {
+        private const float KNOCKBACK_DURATION = 0.15f;
+
         public override void Update(World world, float deltaTime)
         {
-            // 收集所有投射物
-            var projectiles =
-                new List<(int entity, PositionComponent pos, ColliderComponent col, DamageSourceComponent dmg)>();
+            var projectiles = new List<(
+                int entity,
+                PositionComponent pos,
+                ColliderComponent col,
+                DamageSourceComponent dmg,
+                VelocityComponent vel
+                )>();
 
             foreach (var (entity, damageSource) in world.GetComponents<DamageSourceComponent>())
             {
@@ -22,28 +25,26 @@ namespace ECS.Systems
                 {
                     var pos = world.GetComponent<PositionComponent>(entity);
                     var col = world.GetComponent<ColliderComponent>(entity);
-                    projectiles.Add((entity, pos, col, damageSource));
+                    var vel = world.GetComponent<VelocityComponent>(entity);
+
+                    projectiles.Add((entity, pos, col, damageSource, vel));
                 }
             }
 
-            // 遍历所有敌人
             foreach (var (enemyId, _) in world.GetComponents<EnemyTagComponent>())
             {
                 if (!world.HasComponent<PositionComponent>(enemyId) ||
                     !world.HasComponent<ColliderComponent>(enemyId))
-                {
                     continue;
-                }
 
                 var enemyPos = world.GetComponent<PositionComponent>(enemyId);
                 var enemyCol = world.GetComponent<ColliderComponent>(enemyId);
 
-                // 检查与所有投射物的碰撞
                 foreach (var proj in projectiles)
                 {
                     if (CheckCollision(proj.pos, proj.col, enemyPos, enemyCol))
                     {
-                        ApplyDamage(world, proj.entity, enemyId, proj.dmg.damage);
+                        ApplyHit(world, proj, enemyId, enemyPos);
                     }
                 }
             }
@@ -60,26 +61,79 @@ namespace ECS.Systems
             return distSq <= radiusSum * radiusSum;
         }
 
-        private void ApplyDamage(World world, int projectileId, int enemyId, float damage)
+        private void ApplyHit(World world,
+            (int entity, PositionComponent pos, ColliderComponent col, DamageSourceComponent dmg, VelocityComponent vel)
+                proj,
+            int enemyId, PositionComponent enemyPos)
         {
-            // 应用伤害
+            // 1. 应用伤害
             if (world.HasComponent<HealthComponent>(enemyId))
             {
                 var health = world.GetComponent<HealthComponent>(enemyId);
-                health.current -= damage;
+                health.current -= proj.dmg.damage;
             }
 
-            // 处理穿透
-            if (world.HasComponent<ProjectileComponent>(projectileId))
+            // 2. 添加击退组件（如果武器有击退值）
+            if (proj.dmg.knockBack > 0.001f)
             {
-                var projectile = world.GetComponent<ProjectileComponent>(projectileId);
+                if (!world.HasComponent<KnockBackComponent>(enemyId))
+                {
+                    Vector2 knockbackDir = CalculateKnockbackDirection(proj.pos, proj.vel, enemyPos);
+
+                    world.AddComponent(enemyId, new KnockBackComponent()
+                    {
+                        forceX = knockbackDir.x * proj.dmg.knockBack,
+                        forceY = knockbackDir.y * proj.dmg.knockBack,
+                        time = KNOCKBACK_DURATION
+                    });
+                }
+                else
+                {
+                    var knockback = world.GetComponent<KnockBackComponent>(enemyId);
+                    Vector2 knockbackDir = CalculateKnockbackDirection(proj.pos, proj.vel, enemyPos);
+
+                    knockback.forceX += knockbackDir.x * proj.dmg.knockBack;
+                    knockback.forceY += knockbackDir.y * proj.dmg.knockBack;
+                    knockback.time = KNOCKBACK_DURATION;
+                }
+            }
+
+            // 3. 处理投射物穿透
+            if (world.HasComponent<ProjectileComponent>(proj.entity))
+            {
+                var projectile = world.GetComponent<ProjectileComponent>(proj.entity);
                 projectile.hit_count++;
 
                 if (projectile.hit_count >= projectile.pierce)
                 {
-                    world.DestroyEntity(projectileId);
+                    world.DestroyEntity(proj.entity);
                 }
             }
+        }
+
+        private Vector2 CalculateKnockbackDirection(PositionComponent projPos, VelocityComponent projVel,
+            PositionComponent enemyPos)
+        {
+            if (projVel != null)
+            {
+                float velMagnitude = Mathf.Sqrt(projVel.x * projVel.x + projVel.y * projVel.y);
+
+                if (velMagnitude > 0.001f)
+                {
+                    return new Vector2(projVel.x / velMagnitude, projVel.y / velMagnitude);
+                }
+            }
+
+            float dx = enemyPos.x - projPos.x;
+            float dy = enemyPos.y - projPos.y;
+            float dist = Mathf.Sqrt(dx * dx + dy * dy);
+
+            if (dist > 0.001f)
+            {
+                return new Vector2(dx / dist, dy / dist);
+            }
+
+            return Vector2.right;
         }
     }
 }

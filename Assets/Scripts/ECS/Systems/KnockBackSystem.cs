@@ -4,8 +4,9 @@ using ECS.Core;
 namespace ECS.Systems
 {
     /// <summary>
-    /// 击退系统
-    /// 职责: 处理击退效果
+    /// 击退系统 - 直接修改位置版本
+    /// 参考 Lua 实现：pos.x += forceX * dt
+    /// 优势：不会影响 AI 的速度计算和朝向
     /// </summary>
     public class KnockBackSystem : SystemBase
     {
@@ -13,24 +14,29 @@ namespace ECS.Systems
         {
             var toRemove = new List<int>();
 
-            foreach (var (entity, knockBack) in world.GetComponents<KnockBackComponent>())
+            foreach (var (entity, knockback) in world.GetComponents<KnockBackComponent>())
             {
-                knockBack.timer += deltaTime;
-
-                if (knockBack.timer >= knockBack.duration)
+                // 检查是否有位置组件
+                if (!world.HasComponent<PositionComponent>(entity))
                 {
                     toRemove.Add(entity);
                     continue;
                 }
 
-                if (!world.HasComponent<VelocityComponent>(entity)) continue;
+                var position = world.GetComponent<PositionComponent>(entity);
 
-                var velocity = world.GetComponent<VelocityComponent>(entity);
+                // 直接修改位置（不修改速度）
+                position.x += knockback.forceX * deltaTime;
+                position.y += knockback.forceY * deltaTime;
 
-                // 应用击退力
-                float t = 1.0f - (knockBack.timer / knockBack.duration);
-                velocity.x = knockBack.direction_x * knockBack.force * t;
-                velocity.y = knockBack.direction_y * knockBack.force * t;
+                // 更新剩余时间
+                knockback.time -= deltaTime;
+
+                // 检查是否结束
+                if (knockback.time <= 0)
+                {
+                    toRemove.Add(entity);
+                }
             }
 
             // 移除已完成的击退

@@ -135,7 +135,12 @@ namespace ECS.Systems
 
             // 伤害来源组件
             float damage = weaponDef.BaseDamage * level;
-            world.AddComponent(projectileId, new DamageSourceComponent(damage, ownerId));
+            float knockBack = weaponDef.Knockback;
+            world.AddComponent(projectileId, new DamageSourceComponent()
+            {
+                damage = damage,
+                knockBack = knockBack
+            });
 
             // 碰撞体组件
             world.AddComponent(projectileId, new ColliderComponent(0.3f));
@@ -174,7 +179,11 @@ namespace ECS.Systems
 
             // 伤害来源组件
             float damage = weaponDef.BaseDamage * level;
-            world.AddComponent(orbitId, new DamageSourceComponent(damage, ownerId));
+            world.AddComponent(orbitId, new DamageSourceComponent()
+            {
+                damage = damage,
+                knockBack = weaponDef.Knockback
+            });
 
             // 碰撞体组件
             world.AddComponent(orbitId, new ColliderComponent(0.4f));

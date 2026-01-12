@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace ECS
 {
@@ -165,18 +166,10 @@ namespace ECS
     public class DamageSourceComponent
     {
         public float damage;
-        public int owner_id;
-        public string damage_type; // "physical", "fire", "ice", etc.
+        public float knockBack;
 
         public DamageSourceComponent()
         {
-        }
-
-        public DamageSourceComponent(float damage, int ownerId, string damageType = "physical")
-        {
-            this.damage = damage;
-            this.owner_id = ownerId;
-            this.damage_type = damageType;
         }
     }
 
@@ -227,23 +220,11 @@ namespace ECS
     [Serializable]
     public class KnockBackComponent
     {
-        public float force;
-        public float duration;
-        public float direction_x;
-        public float direction_y;
-        public float timer;
+        public float forceX, forceY;
+        public float time;
 
         public KnockBackComponent()
         {
-        }
-
-        public KnockBackComponent(float force, float duration, float dirX, float dirY)
-        {
-            this.force = force;
-            this.duration = duration;
-            this.direction_x = dirX;
-            this.direction_y = dirY;
-            this.timer = 0f;
         }
     }
 

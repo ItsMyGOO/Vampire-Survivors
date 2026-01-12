@@ -4,7 +4,7 @@
 ---
 return {
 
-    -- 1️⃣ 发射型武器（飞刀 / 子弹）
+    -- 发射型武器（飞刀 / 子弹）
     ProjectileKnife = {
         type = "Projectile",
         interval = 0.6,
@@ -12,6 +12,7 @@ return {
         base_speed = 12,
         base_count = 1,
         range = 6,
+        knockback = 3,  -- 击退力度
         sheet = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
         key = "Bullet 0",
 
@@ -30,6 +31,7 @@ return {
         base_radius = 1.8,
         base_damage = 6,
         orbit_speed = 2.5,
+        knockback   = 2,  -- 击退力度
         sheet       = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
         key         = "Bullet 2",
 
