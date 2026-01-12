@@ -50,7 +50,6 @@ namespace ECS.Systems
             world.AddComponent(gemId, new PropComponent("exp_gem", 5));
             world.AddComponent(gemId, new ColliderComponent(0.3f));
             world.AddComponent(gemId, new SpriteKeyComponent("exp_gem"));
-            world.AddComponent(gemId, new FallingBodyComponent(-9.8f, 0.5f, 5.0f));
         }
     }
 }
