@@ -75,7 +75,7 @@ namespace ConfigHandler
             foreach (var setKey in table.GetKeys())
             {
                 string setId = setKey.ToString();
-                var setTable = table.Get<LuaTable>(setKey);
+                var setTable = table.Get<object, LuaTable>(setKey);
 
                 var setDef = new AnimationSetDef
                 {
@@ -88,7 +88,7 @@ namespace ConfigHandler
                     if (clipId == "sheet")
                         continue;
 
-                    var clipTable = setTable.Get<LuaTable>(clipKey);
+                    var clipTable = setTable.Get<object, LuaTable>(clipKey);
                     var clipDef = BuildClip(clipTable);
 
                     setDef.Clips.Add(clipId, clipDef);
