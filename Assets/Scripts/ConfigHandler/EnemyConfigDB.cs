@@ -94,14 +94,14 @@ namespace ConfigHandler
                     continue;
 
                 int levelId = int.Parse(levelStr.Substring(6));
-                var levelTable = table.Get<LuaTable>(levelKey);
+                var levelTable = table.Get<object, LuaTable>(levelKey);
 
                 var enemies = new Dictionary<string, EnemyDef>();
 
                 foreach (var enemyKey in levelTable.GetKeys())
                 {
                     string enemyId = enemyKey.ToString();
-                    var enemyTable = levelTable.Get<LuaTable>(enemyKey);
+                    var enemyTable = levelTable.Get<object, LuaTable>(enemyKey);
 
                     var enemyDef = BuildEnemyDef(enemyTable);
                     enemies[enemyId] = enemyDef;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using XLua;
-using System.Collections.Generic;
 
 namespace ConfigHandler
 {

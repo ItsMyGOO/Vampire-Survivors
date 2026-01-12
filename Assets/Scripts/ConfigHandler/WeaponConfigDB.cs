@@ -72,7 +72,7 @@ namespace ConfigHandler
             foreach (var weaponKey in table.GetKeys())
             {
                 string weaponId = weaponKey.ToString();
-                var weaponTable = table.Get<LuaTable>(weaponKey);
+                var weaponTable = table.Get<object, LuaTable>(weaponKey);
 
                 var weaponDef = BuildWeaponDef(weaponTable);
                 db.AddWeapon(weaponId, weaponDef);
@@ -127,7 +127,7 @@ namespace ConfigHandler
     public enum WeaponType
     {
         Projectile, // 投射型（发射子弹）
-        Orbit       // 轨道型（围绕旋转）
+        Orbit // 轨道型（围绕旋转）
     }
 
     /// <summary>
@@ -137,21 +137,21 @@ namespace ConfigHandler
     {
         // 通用属性
         public WeaponType Type;
-        public string Sheet;        // 精灵图集路径
-        public string Key;          // 精灵键名
+        public string Sheet; // 精灵图集路径
+        public string Key; // 精灵键名
 
         // 投射型武器属性
-        public float Interval;      // 发射间隔
-        public float BaseDamage;    // 基础伤害
-        public float BaseSpeed;     // 投射物速度
-        public int BaseCount;       // 基础数量
-        public float Range;         // 射程
+        public float Interval; // 发射间隔
+        public float BaseDamage; // 基础伤害
+        public float BaseSpeed; // 投射物速度
+        public int BaseCount; // 基础数量
+        public float Range; // 射程
 
         // 轨道型武器属性
-        public float BaseRadius;    // 轨道半径
-        public float OrbitSpeed;    // 旋转速度（角速度）
+        public float BaseRadius; // 轨道半径
+        public float OrbitSpeed; // 旋转速度（角速度）
 
         // ⭐ 击退属性（所有武器类型通用）
-        public float Knockback;     // 击退力度
+        public float Knockback; // 击退力度
     }
 }
