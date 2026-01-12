@@ -1,4 +1,5 @@
-﻿using ConfigHandler;
+﻿using Cinemachine;
+using ConfigHandler;
 using ECS;
 using ECS.Core;
 using ECS.Systems;
@@ -22,6 +23,8 @@ namespace Battle
 
         [Header("渲染")] public Sprite fallbackSprite;
 
+        public CinemachineVirtualCamera cinemachine;
+
         private void Awake()
         {
             world = new World();
@@ -39,7 +42,8 @@ namespace Battle
                 Debug.LogWarning("未设置 fallbackSprite，加载失败的精灵将显示为空");
             }
 
-            renderSystem = new RenderSyncSystem(new RenderSystem(spriteProvider, new RenderObjectPool()));
+            renderSystem = new RenderSyncSystem(
+                new RenderSystem(spriteProvider, new RenderObjectPool(), cinemachine));
         }
 
         private void Start()
@@ -199,6 +203,16 @@ namespace Battle
             world.AddComponent(playerId, new HealthComponent(100, 100, 1.0f));
             world.AddComponent(playerId, new ColliderComponent(0.5f));
 
+
+            world.AddComponent(playerId, new WeaponSlotsComponent()
+            {
+                weapons =
+                {
+                    new WeaponSlotsComponent.WeaponData("ProjectileKnife", 1, 1.0f),
+                    new WeaponSlotsComponent.WeaponData("OrbitKnife", 1, 1.0f)
+                }
+            });
+
             world.AddComponent(playerId, new PickupRangeComponent(1.0f));
             world.AddComponent(playerId, new ExperienceComponent(1, 100f));
             world.AddComponent(playerId, new MagnetComponent(5.0f, 10.0f));
@@ -209,15 +223,7 @@ namespace Battle
                 ClipSetName = "Player",
                 DefaultAnim = "Idle"
             });
-
-            world.AddComponent(playerId, new WeaponSlotsComponent()
-            {
-                weapons =
-                {
-                    new WeaponSlotsComponent.WeaponData("ProjectileKnife", 1, 1.0f),
-                    new WeaponSlotsComponent.WeaponData("OrbitKnife", 1, 1.0f)
-                }
-            });
+            world.AddComponent(playerId, new CameraFollowComponent());
 
             playerIdProperty.Value = playerId;
             Debug.Log($"玩家已创建 - 实体ID: {playerId}");

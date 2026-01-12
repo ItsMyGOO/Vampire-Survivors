@@ -35,12 +35,16 @@ namespace ECS
                 if (world.HasComponent<SpriteKeyComponent>(entity))
                     spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
 
+                bool isCameraFollow =
+                    world.HasComponent<CameraFollowComponent>(entity);
+                
                 renderSystem.RenderEntity(
                     entity,
                     position,
                     velocity,
                     rotation,
-                    spriteKey
+                    spriteKey,
+                    isCameraFollow
                 );
             }
 

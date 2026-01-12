@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cinemachine;
 using ECS;
 using UnityEngine;
 
@@ -25,10 +26,14 @@ public class RenderSystem
     private int totalRenderedThisFrame;
     private int totalErrorsThisFrame;
 
-    public RenderSystem(SpriteProvider spriteProvider, RenderObjectPool pool)
+    private readonly CinemachineVirtualCamera vcam;
+    private int currentCameraTarget = -1;
+
+    public RenderSystem(SpriteProvider spriteProvider, RenderObjectPool pool, CinemachineVirtualCamera vcam)
     {
         this.spriteProvider = spriteProvider;
         this.pool = pool;
+        this.vcam = vcam;
     }
 
     // =========================================================
@@ -45,11 +50,30 @@ public class RenderSystem
     public void EndFrame()
     {
         RecycleDeadEntities();
+        UpdateCameraFollow();
 
         if (totalErrorsThisFrame > 0)
         {
             Debug.LogWarning(
                 $"[RenderSystem] 本帧渲染 {totalRenderedThisFrame} 个实体，错误 {totalErrorsThisFrame}");
+        }
+    }
+
+    private void UpdateCameraFollow()
+    {
+        if (vcam == null)
+            return;
+
+        if (currentCameraTarget < 0)
+            return;
+
+        if (!transforms.TryGetValue(currentCameraTarget, out var transform))
+            return;
+
+        if (vcam.Follow != transform)
+        {
+            vcam.Follow = transform;
+            vcam.LookAt = transform;
         }
     }
 
@@ -62,7 +86,8 @@ public class RenderSystem
         PositionComponent position,
         VelocityComponent velocity,
         RotationComponent rotation,
-        SpriteKeyComponent spriteKey)
+        SpriteKeyComponent spriteKey,
+        bool isCameraFollowTarget)
     {
         aliveThisFrame.Add(eid);
         totalRenderedThisFrame++;
@@ -77,6 +102,12 @@ public class RenderSystem
             UpdateTransform(transform, position, rotation);
             UpdateRenderer(renderers[eid], position, velocity, spriteKey, eid);
 
+            // ⭐ 只记录，不立刻绑定
+            if (isCameraFollowTarget)
+            {
+                TryMarkCameraTarget(eid);
+            }
+
             entityErrorCount.Remove(eid);
         }
         catch (Exception e)
@@ -84,6 +115,15 @@ public class RenderSystem
             HandleRenderError(eid, "RenderEntity", e);
         }
     }
+
+    private void TryMarkCameraTarget(int eid)
+    {
+        if (currentCameraTarget == eid)
+            return;
+
+        currentCameraTarget = eid;
+    }
+
 
     // =========================================================
     // 创建 / 更新

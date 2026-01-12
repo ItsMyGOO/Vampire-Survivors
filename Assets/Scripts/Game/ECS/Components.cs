@@ -618,4 +618,9 @@ namespace ECS
             this.processed = false;
         }
     }
+
+    public class CameraFollowComponent
+    {
+        
+    }
 }

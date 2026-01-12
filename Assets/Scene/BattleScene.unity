@@ -287,8 +287,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebugInfo: 1
   debugKey: 282
-  renderStatsKey: 283
   fallbackSprite: {fileID: 0}
+  cinemachine: {fileID: 1076109755}
 --- !u!1 &1076109754
 GameObject:
   m_ObjectHideFlags: 0
