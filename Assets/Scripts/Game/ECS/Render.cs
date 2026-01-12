@@ -1,24 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using ECS.Core;
+﻿using ECS.Core;
 
 namespace ECS
 {
-    public class Render
+    /// <summary>
+    /// Render 同步系统
+    /// 只负责：把 ECS 状态推给 RenderSystem
+    /// </summary>
+    public class RenderSyncSystem 
     {
-        public static List<LuaRenderItem> Collect(World world)
-        {
-            var list = new List<LuaRenderItem>(256);
+        private readonly RenderSystem renderSystem;
 
-            // 等价于 Lua: for eid, pos in pairs(positions) do
+        public RenderSyncSystem(RenderSystem renderSystem)
+        {
+            this.renderSystem = renderSystem;
+        }
+
+        public void Update(World world)
+        {
+            renderSystem.BeginFrame();
+
+            // 以 Position 作为 render 主键（等价你之前的 Collect）
             foreach (var (entity, position) in world.GetComponents<PositionComponent>())
             {
-                SpriteKeyComponent spriteKey = null;
                 VelocityComponent velocity = null;
                 RotationComponent rotation = null;
-
-                if (world.HasComponent<SpriteKeyComponent>(entity))
-                    spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
+                SpriteKeyComponent spriteKey = null;
 
                 if (world.HasComponent<VelocityComponent>(entity))
                     velocity = world.GetComponent<VelocityComponent>(entity);
@@ -26,48 +32,19 @@ namespace ECS
                 if (world.HasComponent<RotationComponent>(entity))
                     rotation = world.GetComponent<RotationComponent>(entity);
 
-                // RenderItem 是 struct：局部变量，安全
-                var item = new LuaRenderItem
-                {
-                    eid = entity,
-                    posX = position.x,
-                    posY = position.y,
-                };
+                if (world.HasComponent<SpriteKeyComponent>(entity))
+                    spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
 
-                RenderFlags flags = RenderFlags.None;
-
-                if (velocity != null)
-                {
-                    item.dirX = velocity.x;
-                    flags |= RenderFlags.UseFlipX;
-                }
-
-                if (rotation != null)
-                {
-                    item.rotation = rotation.angle;
-                    flags |= RenderFlags.UseRotation;
-                }
-
-                item.flags = flags;
-
-                if (spriteKey != null)
-                {
-                    item.sheet = spriteKey.sheet;
-                    item.spriteKey = spriteKey.key;
-                }
-
-                list.Add(item);
+                renderSystem.RenderEntity(
+                    entity,
+                    position,
+                    velocity,
+                    rotation,
+                    spriteKey
+                );
             }
 
-            return list;
+            renderSystem.EndFrame();
         }
-    }
-    
-    [Flags]
-    public enum RenderFlags : byte
-    {
-        None = 0,
-        UseFlipX = 1 << 0,
-        UseRotation = 1 << 1,
     }
 }

@@ -3,6 +3,7 @@ using ECS;
 using ECS.Core;
 using ECS.Systems;
 using Game.Battle;
+using UniRx;
 using UnityEngine;
 
 namespace Battle
@@ -13,12 +14,11 @@ namespace Battle
     public class ECSGameManager : MonoBehaviour
     {
         private World world;
-        private int playerId = -1;
-        private RenderSystem renderSystem;
+        private IntReactiveProperty playerIdProperty = new(-1);
+        private RenderSyncSystem renderSystem;
 
         [Header("调试")] public bool showDebugInfo = true;
         public KeyCode debugKey = KeyCode.F1;
-        public KeyCode renderStatsKey = KeyCode.F2;
 
         [Header("渲染")] public Sprite fallbackSprite;
 
@@ -39,16 +39,26 @@ namespace Battle
                 Debug.LogWarning("未设置 fallbackSprite，加载失败的精灵将显示为空");
             }
 
-            renderSystem = new RenderSystem(spriteProvider, new RenderObjectPool());
+            renderSystem = new RenderSyncSystem(new RenderSystem(spriteProvider, new RenderObjectPool()));
         }
 
         private void Start()
         {
+            playerIdProperty
+                .DistinctUntilChanged()
+                .Subscribe(Bind)
+                .AddTo(this);
+
             LoadConfigurations();
             InitializeSystems();
             InitializeGame();
 
             Debug.Log($"游戏初始化完成 - 实体数: {world.EntityCount}, 系统数: {world.SystemCount}");
+        }
+
+        void Bind(int playerId)
+        {
+            PlayerContext.Instance.Initialize(world, playerId);
         }
 
         private void Update()
@@ -57,8 +67,7 @@ namespace Battle
             {
                 world.Update(Time.deltaTime);
 
-                var renderItems = Render.Collect(world);
-                renderSystem.Render(renderItems);
+                renderSystem.Update(world);
             }
             catch (System.Exception e)
             {
@@ -71,7 +80,6 @@ namespace Battle
         private void OnDestroy()
         {
             world?.Clear();
-            renderSystem?.Clear();
         }
 
         /// <summary>
@@ -95,7 +103,7 @@ namespace Battle
                 }
 
                 // 方式2: 显式指定文件名（更清晰）
-                var enemyDb = EnemyConfigDB.Load(EnemyConfigDB.ConfigFileName);
+                var enemyDb = EnemyConfigDB.Load();
                 if (enemyDb != null)
                 {
                     EnemyConfigDB.Initialize(enemyDb);
@@ -106,7 +114,7 @@ namespace Battle
                 }
 
                 // 方式3: 自定义文件名（特殊需求）
-                var weaponDb = WeaponConfigDB.Load("weapon_config.json");
+                var weaponDb = WeaponConfigDB.Load();
                 if (weaponDb != null)
                 {
                     WeaponConfigDB.Initialize(weaponDb);
@@ -173,7 +181,6 @@ namespace Battle
             try
             {
                 CreatePlayer();
-                PlayerContext.Instance.Initialize(world, playerId);
             }
             catch (System.Exception e)
             {
@@ -183,7 +190,7 @@ namespace Battle
 
         private void CreatePlayer()
         {
-            playerId = world.CreateEntity();
+            var playerId = world.CreateEntity();
             world.AddComponent(playerId, new PlayerTagComponent());
 
             world.AddComponent(playerId, new PositionComponent());
@@ -212,6 +219,7 @@ namespace Battle
                 }
             });
 
+            playerIdProperty.Value = playerId;
             Debug.Log($"玩家已创建 - 实体ID: {playerId}");
         }
 
@@ -221,15 +229,10 @@ namespace Battle
             {
                 world.DebugPrint();
             }
-
-            if (showDebugInfo && Input.GetKeyDown(renderStatsKey))
-            {
-                renderSystem.PrintStats();
-            }
         }
 
         public World GetWorld() => world;
-        public int GetPlayerId() => playerId;
+        public int GetPlayerId() => playerIdProperty.Value;
 
         [ContextMenu("重新加载配置")]
         public void ReloadConfigurations()
