@@ -7,7 +7,8 @@ namespace ConfigHandler
     // =========================
     // Weapon Config DB
     // =========================
-    public sealed class WeaponConfigDB : SingletonConfigDB<WeaponConfigDB, string, WeaponDef>
+    public sealed class WeaponConfigDB
+        : SingletonConfigDB<WeaponConfigDB, string, WeaponDef>
     {
         public const string ConfigFileName = "weapon_config.json";
 
@@ -24,18 +25,14 @@ namespace ConfigHandler
 
             var db = new WeaponConfigDB();
 
-            foreach (var kvp in wrapper.weapons)
+            foreach (var (weaponId, weaponDef) in wrapper.weapons)
             {
-                var weaponId = kvp.Key;
-                var weaponDef = kvp.Value;
-
-                // 解析武器类型
-                weaponDef.ParsedType = weaponDef.type == "Projectile" 
-                    ? WeaponType.Projectile 
-                    : WeaponType.Orbit;
-
+                weaponDef.ParseAndValidate();
                 db.Add(weaponId, weaponDef);
-                Debug.Log($"加载武器配置: {weaponId} (类型: {weaponDef.ParsedType}, 击退: {weaponDef.knockback})");
+
+                Debug.Log(
+                    $"加载武器配置: {weaponId} (类型: {weaponDef.Type}, 击退: {weaponDef.knockback})"
+                );
             }
 
             return db;
@@ -52,40 +49,81 @@ namespace ConfigHandler
     }
 
     // =========================
-    // Weapon Definition
+    // Weapon Definition（仅公共字段）
     // =========================
     [Serializable]
     public class WeaponDef
     {
-        // JSON 字段
+        // ---------- JSON 字段 ----------
         public string type;
-        public float interval;
+
         public float baseDamage;
-        public float baseSpeed;
         public int baseCount;
-        public float range;
-        public float baseRadius;
-        public float orbitSpeed;
         public float knockback;
+
         public string sheet;
         public string key;
 
-        // 运行时字段
-        [NonSerialized]
-        public WeaponType ParsedType;
+        // 子配置
+        public ProjectileConfig projectile;
+        public OrbitConfig orbit;
 
-        // 属性访问器
-        public WeaponType Type => ParsedType;
-        public string Sheet => sheet;
-        public string Key => key;
-        public float Interval => interval;
-        public float BaseDamage => baseDamage;
-        public float BaseSpeed => baseSpeed;
-        public int BaseCount => baseCount;
-        public float Range => range;
-        public float BaseRadius => baseRadius;
-        public float OrbitSpeed => orbitSpeed;
-        public float Knockback => knockback;
+        // ---------- 运行时 ----------
+        [NonSerialized]
+        private WeaponType parsedType;
+
+        public WeaponType Type => parsedType;
+
+        // ---------- 解析 & 校验 ----------
+        public void ParseAndValidate()
+        {
+            parsedType = type switch
+            {
+                "Projectile" => WeaponType.Projectile,
+                "Orbit" => WeaponType.Orbit,
+                _ => throw new Exception($"未知 WeaponType: {type}")
+            };
+
+            switch (parsedType)
+            {
+                case WeaponType.Projectile:
+                    if (projectile == null)
+                        throw new Exception("Projectile 武器缺少 projectile 配置");
+
+                    if (orbit != null)
+                        Debug.LogWarning("Projectile 武器不应包含 orbit 配置");
+                    break;
+
+                case WeaponType.Orbit:
+                    if (orbit == null)
+                        throw new Exception("Orbit 武器缺少 orbit 配置");
+
+                    if (projectile != null)
+                        Debug.LogWarning("Orbit 武器不应包含 projectile 配置");
+                    break;
+            }
+        }
+    }
+
+    // =========================
+    // Projectile 子配置
+    // =========================
+    [Serializable]
+    public class ProjectileConfig
+    {
+        public float interval;
+        public float baseSpeed;
+        public float range;
+    }
+
+    // =========================
+    // Orbit 子配置
+    // =========================
+    [Serializable]
+    public class OrbitConfig
+    {
+        public float radius;
+        public float orbitSpeed;
     }
 
     // =========================

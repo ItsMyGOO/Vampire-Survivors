@@ -64,7 +64,7 @@ namespace ECS.Systems
                 return;
 
             // 重置冷却
-            weapon.cooldown = weaponDef.Interval;
+            weapon.cooldown = weaponDef.projectile.interval;
 
             // 选择目标（最近的敌人）
             int targetId = FindNearestEnemy(world, ownerPos);
@@ -73,7 +73,7 @@ namespace ECS.Systems
             Vector2 direction = CalculateDirection(world, ownerPos, targetId);
 
             // 发射投射物
-            int count = Mathf.RoundToInt(weaponDef.BaseCount * weapon.level);
+            int count = Mathf.RoundToInt(weaponDef.baseCount * weapon.level);
             for (int i = 0; i < count; i++)
             {
                 CreateProjectile(world, ownerId, ownerPos, direction, weaponDef, weapon.level);
@@ -94,7 +94,7 @@ namespace ECS.Systems
             weapon.orbitSpawned = true;
 
             // 生成轨道武器
-            int count = Mathf.RoundToInt(weaponDef.BaseCount * weapon.level);
+            int count = Mathf.RoundToInt(weaponDef.baseCount * weapon.level);
             float angleStep = 360f / count;
 
             for (int i = 0; i < count; i++)
@@ -116,7 +116,7 @@ namespace ECS.Systems
             world.AddComponent(projectileId, new PositionComponent(ownerPos.x, ownerPos.y));
 
             // 速度组件
-            float speed = weaponDef.BaseSpeed;
+            float speed = weaponDef.projectile.baseSpeed;
             world.AddComponent(projectileId, new VelocityComponent(
                 direction.x * speed, 
                 direction.y * speed
@@ -130,12 +130,12 @@ namespace ECS.Systems
             world.AddComponent(projectileId, new ProjectileComponent(
                 speed: speed,
                 pierce: 1,  // 默认穿透1个敌人
-                lifetime: weaponDef.Range / speed  // 根据射程计算生命周期
+                lifetime: weaponDef.projectile.range / speed  // 根据射程计算生命周期
             ));
 
             // 伤害来源组件
-            float damage = weaponDef.BaseDamage * level;
-            float knockBack = weaponDef.Knockback;
+            float damage = weaponDef.baseDamage * level;
+            float knockBack = weaponDef.knockback;
             world.AddComponent(projectileId, new DamageSourceComponent()
             {
                 damage = damage,
@@ -148,12 +148,12 @@ namespace ECS.Systems
             // 精灵组件
             world.AddComponent(projectileId, new SpriteKeyComponent 
             { 
-                sheet = weaponDef.Sheet,
-                key = weaponDef.Key 
+                sheet = weaponDef.sheet,
+                key = weaponDef.key 
             });
 
             // 生命周期组件
-            world.AddComponent(projectileId, new LifeTimeComponent(weaponDef.Range / speed));
+            world.AddComponent(projectileId, new LifeTimeComponent(weaponDef.projectile.range / speed));
         }
 
         /// <summary>
@@ -172,17 +172,17 @@ namespace ECS.Systems
             world.AddComponent(orbitId, new OrbitComponent
             {
                 centerEntity = ownerId,
-                radius = weaponDef.BaseRadius * Mathf.Sqrt(level), // 半径随等级增长
-                angularSpeed = weaponDef.OrbitSpeed,
+                radius = weaponDef.orbit.radius * Mathf.Sqrt(level), // 半径随等级增长
+                angularSpeed = weaponDef.orbit.orbitSpeed,
                 currentAngle = startAngle
             });
 
             // 伤害来源组件
-            float damage = weaponDef.BaseDamage * level;
+            float damage = weaponDef.baseDamage * level;
             world.AddComponent(orbitId, new DamageSourceComponent()
             {
                 damage = damage,
-                knockBack = weaponDef.Knockback
+                knockBack = weaponDef.knockback
             });
 
             // 碰撞体组件
@@ -191,8 +191,8 @@ namespace ECS.Systems
             // 精灵组件
             world.AddComponent(orbitId, new SpriteKeyComponent 
             { 
-                sheet = weaponDef.Sheet,
-                key = weaponDef.Key 
+                sheet = weaponDef.sheet,
+                key = weaponDef.key 
             });
 
             // 旋转组件（让武器旋转）
