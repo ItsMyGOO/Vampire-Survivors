@@ -2,6 +2,7 @@
 using ECS;
 using ECS.Core;
 using ECS.Systems;
+using Game.Battle;
 using UnityEngine;
 
 namespace Battle
@@ -172,6 +173,7 @@ namespace Battle
             try
             {
                 CreatePlayer();
+                PlayerContext.Instance.Initialize(world, playerId);
             }
             catch (System.Exception e)
             {
@@ -183,7 +185,7 @@ namespace Battle
         {
             playerId = world.CreateEntity();
             world.AddComponent(playerId, new PlayerTagComponent());
-            
+
             world.AddComponent(playerId, new PositionComponent());
             world.AddComponent(playerId, new VelocityComponent() { speed = 2 });
 
@@ -201,12 +203,14 @@ namespace Battle
                 DefaultAnim = "Idle"
             });
 
-            var weaponSlots = new WeaponSlotsComponent();
-            weaponSlots.weapons.Add(new WeaponSlotsComponent.WeaponData(
-                "ProjectileKnife", 1, 1.0f));
-            weaponSlots.weapons.Add(new WeaponSlotsComponent.WeaponData(
-                "OrbitKnife", 1, 1.0f));
-            world.AddComponent(playerId, weaponSlots);
+            world.AddComponent(playerId, new WeaponSlotsComponent()
+            {
+                weapons =
+                {
+                    new WeaponSlotsComponent.WeaponData("ProjectileKnife", 1, 1.0f),
+                    new WeaponSlotsComponent.WeaponData("OrbitKnife", 1, 1.0f)
+                }
+            });
 
             Debug.Log($"玩家已创建 - 实体ID: {playerId}");
         }

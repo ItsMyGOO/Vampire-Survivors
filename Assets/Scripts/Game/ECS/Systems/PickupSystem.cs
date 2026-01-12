@@ -67,7 +67,7 @@ namespace ECS.Systems
                         var exp = world.GetComponent<ExperienceComponent>(playerId);
                         exp.current_exp += pickupable.value * exp.exp_multiplier;
                         
-                        Debug.Log($"Picked up {pickupable.value} EXP. Current: {exp.current_exp}/{exp.exp_to_next_level}");
+                        // Debug.Log($"Picked up {pickupable.value} EXP. Current: {exp.current_exp}/{exp.exp_to_next_level}");
                     }
                     break;
 
