@@ -49,7 +49,11 @@ namespace ECS.Systems
             world.AddComponent(gemId, new PositionComponent(enemyPos.x, enemyPos.y));
             world.AddComponent(gemId, new PropComponent("exp_gem", 5));
             world.AddComponent(gemId, new ColliderComponent(0.3f));
-            world.AddComponent(gemId, new SpriteKeyComponent("exp_gem"));
+            world.AddComponent(gemId, new SpriteKeyComponent()
+            {
+                sheet = "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+                key = "Exp 0"
+            });
         }
     }
 }

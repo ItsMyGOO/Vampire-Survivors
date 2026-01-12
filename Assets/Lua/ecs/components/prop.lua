@@ -1,8 +1,0 @@
-﻿---
---- Created by echo.
---- DateTime: 2026/1/9 15:08
----
-local Prop = {
-    exp = 1
-}
-return Prop
