@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace ConfigHandler
+namespace Framework.Config
 {
     /// <summary>
     /// JSON 配置加载器
@@ -20,7 +20,7 @@ namespace ConfigHandler
             try
             {
                 string path = Path.Combine(ConfigBasePath, fileName);
-                
+
                 if (!File.Exists(path))
                 {
                     Debug.LogError($"配置文件不存在: {path}");

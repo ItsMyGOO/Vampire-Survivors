@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ConfigHandler
+namespace Framework.Config
 {
     /// <summary>
     /// 配置数据库接口
