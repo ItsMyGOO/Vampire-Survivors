@@ -114,8 +114,8 @@ namespace ECS.Systems
             // 动画组件
             world.AddComponent(enemyId, new AnimationComponent
             {
-                ClipSetId = enemyDef.ClipSetId,
-                DefaultState = "Run"
+                ClipSetName = enemyDef.ClipSetId,
+                DefaultAnim = "Run"
             });
             // 精灵键组件（使用动画系统）
             world.AddComponent(enemyId, new SpriteKeyComponent());

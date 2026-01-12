@@ -26,11 +26,10 @@ namespace ECS.Systems
 
                 var desireState = speed > 0.1f ? "Run" : "Idle";
 
-                if (string.Equals(desireState, animation.State))
+                if (string.Equals(desireState, animation.AnimName))
                     continue;
-                animation.State = desireState;
                 animation.Playing = true;
-                animation.ClipId = animation.State;
+                animation.AnimName = desireState;
                 animation.Frame = 1;
                 animation.Time = 0f;
             }

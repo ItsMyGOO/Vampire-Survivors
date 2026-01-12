@@ -78,25 +78,32 @@ namespace ECS.Systems
             {
                 if (!world.HasComponent<KnockBackComponent>(enemyId))
                 {
-                    Vector2 knockbackDir = CalculateKnockbackDirection(proj.pos, proj.vel, enemyPos);
+                    Vector2 knockBackDir = CalculateKnockBackDirection(proj.pos, proj.vel, enemyPos);
 
                     world.AddComponent(enemyId, new KnockBackComponent()
                     {
-                        forceX = knockbackDir.x * proj.dmg.knockBack,
-                        forceY = knockbackDir.y * proj.dmg.knockBack,
+                        forceX = knockBackDir.x * proj.dmg.knockBack,
+                        forceY = knockBackDir.y * proj.dmg.knockBack,
                         time = KNOCKBACK_DURATION
                     });
                 }
                 else
                 {
-                    var knockback = world.GetComponent<KnockBackComponent>(enemyId);
-                    Vector2 knockbackDir = CalculateKnockbackDirection(proj.pos, proj.vel, enemyPos);
+                    var knockBack = world.GetComponent<KnockBackComponent>(enemyId);
+                    Vector2 knockBackDir = CalculateKnockBackDirection(proj.pos, proj.vel, enemyPos);
 
-                    knockback.forceX += knockbackDir.x * proj.dmg.knockBack;
-                    knockback.forceY += knockbackDir.y * proj.dmg.knockBack;
-                    knockback.time = KNOCKBACK_DURATION;
+                    knockBack.forceX += knockBackDir.x * proj.dmg.knockBack;
+                    knockBack.forceY += knockBackDir.y * proj.dmg.knockBack;
+                    knockBack.time = KNOCKBACK_DURATION;
                 }
             }
+            
+            // 添加hit动画
+            world.AddComponent(enemyId, new AnimationCommandComponent()
+            {
+                command = "play",
+                anim_name = "Hit"
+            });
 
             // 3. 处理投射物穿透
             if (world.HasComponent<ProjectileComponent>(proj.entity))
@@ -111,7 +118,7 @@ namespace ECS.Systems
             }
         }
 
-        private Vector2 CalculateKnockbackDirection(PositionComponent projPos, VelocityComponent projVel,
+        private Vector2 CalculateKnockBackDirection(PositionComponent projPos, VelocityComponent projVel,
             PositionComponent enemyPos)
         {
             if (projVel != null)

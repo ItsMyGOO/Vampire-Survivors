@@ -119,14 +119,13 @@ namespace ECS
     [Serializable]
     public class AnimationComponent
     {
-        public string ClipSetId;
-        public string ClipId;
+        public string ClipSetName;
+        public string AnimName;
         public int Frame;
         public float Time;
         public bool Playing;
 
-        public string State;
-        public string DefaultState;
+        public string DefaultAnim;
 
         public AnimationComponent()
         {

@@ -189,8 +189,8 @@ namespace Battle
             world.AddComponent(playerId, new SpriteKeyComponent());
             world.AddComponent(playerId, new AnimationComponent()
             {
-                ClipSetId = "Player",
-                DefaultState = "Idle"
+                ClipSetName = "Player",
+                DefaultAnim = "Idle"
             });
 
             // 武器槽

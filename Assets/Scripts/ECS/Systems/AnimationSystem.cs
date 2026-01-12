@@ -21,26 +21,25 @@ namespace ECS.Systems
                     continue;
                 var spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
 
-                if (string.IsNullOrEmpty(anim.ClipSetId))
+                if (string.IsNullOrEmpty(anim.ClipSetName))
                     continue;
 
                 // ---------- default state 初始化 ----------
-                if (string.IsNullOrEmpty(anim.State))
+                if (string.IsNullOrEmpty(anim.AnimName))
                 {
-                    anim.State = anim.DefaultState;
-                    anim.ClipId = anim.DefaultState;
+                    anim.AnimName = anim.DefaultAnim;
                     anim.Frame = 1;
                     anim.Time = 0f;
                     anim.Playing = true;
                 }
 
-                if (!anim.Playing || string.IsNullOrEmpty(anim.ClipId))
+                if (!anim.Playing || string.IsNullOrEmpty(anim.AnimName))
                     continue;
 
                 // ---------- 取动画配置 ----------
                 if (!animDb.TryGetClip(
-                        anim.ClipSetId,
-                        anim.ClipId,
+                        anim.ClipSetName,
+                        anim.AnimName,
                         out var sheet,
                         out var clip))
                 {
@@ -69,11 +68,10 @@ namespace ECS.Systems
                             anim.Playing = false;
 
                             // ★★★ 自动回退到 defaultState ★★★
-                            if (!string.IsNullOrEmpty(anim.DefaultState) &&
-                                anim.State != anim.DefaultState)
+                            if (!string.IsNullOrEmpty(anim.DefaultAnim) &&
+                                anim.AnimName != anim.DefaultAnim)
                             {
-                                anim.State = anim.DefaultState;
-                                anim.ClipId = anim.DefaultState;
+                                anim.AnimName = anim.DefaultAnim;
                                 anim.Frame = 1;
                                 anim.Time = 0f;
                                 anim.Playing = true;
