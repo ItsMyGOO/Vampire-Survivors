@@ -11,11 +11,20 @@ namespace Game.Battle
         public readonly BoolReactiveProperty IsInitialized = new(false);
 
         public Exp Exp { get; private set; }
+        public int PlayerEntity { get; set; } = -1;
+        public World World { get; set; }
 
-        public void Initialize()
+        public void Initialize(World world, int playerEntity)
         {
             Exp = new Exp();
+            World = world;
+            PlayerEntity = playerEntity;
             IsInitialized.Value = true;
+        }
+
+        public void SetPlayerEntity(int entity)
+        {
+            PlayerEntity = entity;
         }
     }
 
@@ -30,7 +39,7 @@ namespace Game.Battle
         {
             level = new(1);
             current_exp = new(0f);
-            exp_to_next_level = new(100);
+            exp_to_next_level = new(10);
             exp_multiplier = 1.0f;
         }
     }

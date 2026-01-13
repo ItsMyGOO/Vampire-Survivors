@@ -49,7 +49,10 @@ namespace Battle
 
         private void Start()
         {
-            InitPlayerData();
+            playerIdProperty
+                .DistinctUntilChanged()
+                .Subscribe(Bind)
+                .AddTo(this);
 
             LoadConfigurations();
             InitializeSystems();
@@ -58,9 +61,9 @@ namespace Battle
             Debug.Log($"游戏初始化完成 - 实体数: {world.EntityCount}, 系统数: {world.SystemCount}");
         }
 
-        void InitPlayerData()
+         void Bind(int playerId)
         {
-            PlayerContext.Instance.Initialize();
+            PlayerContext.Instance.Initialize(world, playerId);
             ExpSystem.Instance.Init(LuaMain.Env,  PlayerContext.Instance);
             world.RegisterService(ExpSystem.Instance);
         }
@@ -83,6 +86,7 @@ namespace Battle
 
         private void OnDestroy()
         {
+            ExpSystem.Instance.Dispose();
             world?.Clear();
         }
 
