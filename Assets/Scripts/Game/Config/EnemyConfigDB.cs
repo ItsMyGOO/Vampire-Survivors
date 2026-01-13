@@ -27,7 +27,12 @@ namespace ConfigHandler
             return enemies[randomKey];
         }
 
-        public static EnemyConfigDB Load(string fileName = ConfigFileName)
+        public static EnemyConfigDB Load()
+        {
+            return CustomLoad(ConfigFileName);
+        }
+
+        public static EnemyConfigDB CustomLoad(string fileName)
         {
             var wrapper = JsonConfigLoader.Load<EnemyConfigRoot>(fileName);
             if (wrapper == null || wrapper.levels == null)
@@ -46,7 +51,7 @@ namespace ConfigHandler
                 {
                     var enemyId = enemyKvp.Key;
                     var enemyDef = enemyKvp.Value;
-                    
+
                     Debug.Log($"  - {enemyId}: HP={enemyDef.hp}, ClipSet={enemyDef.clipSetId}");
                 }
 

@@ -53,7 +53,7 @@ namespace Game.Battle
             {
                 // 加载Lua升级系统
                 object[] ret = luaEnv.DoString(@"
-                    local UpgradeSystem = require('Game.upgrade_system')
+                    local UpgradeSystem = require('system.upgrade_system')
                     UpgradeSystem:Init()
                     return UpgradeSystem
                 ", "ExpSystem_InitUpgrade");

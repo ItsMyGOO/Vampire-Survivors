@@ -11,7 +11,12 @@ namespace ConfigHandler
     {
         public const string ConfigFileName = "prop_config.json";
 
-        public static DropItemConfigDB Load(string fileName = ConfigFileName)
+        public static DropItemConfigDB Load()
+        {
+            return CustomLoad(ConfigFileName);
+        }
+
+        public static DropItemConfigDB CustomLoad(string fileName)
         {
             var wrapper = JsonConfigLoader.Load<DropItemConfigRoot>(fileName);
             if (wrapper == null || wrapper.items == null)

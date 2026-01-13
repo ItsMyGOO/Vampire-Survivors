@@ -12,14 +12,19 @@ namespace ConfigHandler
         : SingletonConfigDB<WeaponConfigDB, string, WeaponConfig>
     {
         public const string BattleConfigFile = "weapon_battle_config.json";
-        public const string ViewConfigFile   = "weapon_view_config.json";
+        public const string ViewConfigFile = "weapon_view_config.json";
 
-        public static WeaponConfigDB Load(
-            string battleFile = BattleConfigFile,
-            string viewFile   = ViewConfigFile)
+        public static WeaponConfigDB Load()
+        {
+            return CustomLoad(BattleConfigFile, ViewConfigFile);
+        }
+
+        public static WeaponConfigDB CustomLoad(
+            string battleFile,
+            string viewFile)
         {
             var battleRoot = JsonConfigLoader.Load<WeaponBattleConfig>(battleFile);
-            var viewRoot   = JsonConfigLoader.Load<WeaponViewConfigRoot>(viewFile);
+            var viewRoot = JsonConfigLoader.Load<WeaponViewConfigRoot>(viewFile);
 
             if (battleRoot?.weapons == null)
                 throw new Exception("[WeaponConfigDB] WeaponBattleConfig 加载失败");
@@ -40,7 +45,7 @@ namespace ConfigHandler
                 db.Add(weaponId, new WeaponConfig
                 {
                     battle = battleDef,
-                    view   = viewDef
+                    view = viewDef
                 });
 
                 Debug.Log($"[WeaponConfigDB] Loaded weapon: {weaponId}");
@@ -48,6 +53,7 @@ namespace ConfigHandler
 
             return db;
         }
+
 
         // -------- 快捷访问 --------
 
@@ -58,6 +64,7 @@ namespace ConfigHandler
                 battle = cfg.battle;
                 return true;
             }
+
             battle = null;
             return false;
         }
@@ -69,6 +76,7 @@ namespace ConfigHandler
                 view = cfg.view;
                 return true;
             }
+
             view = null;
             return false;
         }

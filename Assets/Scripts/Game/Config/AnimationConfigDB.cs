@@ -45,7 +45,12 @@ namespace ConfigHandler
             return true;
         }
 
-        public static AnimationConfigDB Load(string fileName = ConfigFileName)
+        public static AnimationConfigDB Load()
+        {
+            return CustomLoad(ConfigFileName);
+        }
+
+        public static AnimationConfigDB CustomLoad(string fileName)
         {
             var configData = JsonConfigLoader.Load<Dictionary<string, AnimationSetData>>(fileName);
             if (configData == null)
@@ -84,6 +89,7 @@ namespace ConfigHandler
 
             return db;
         }
+
 
         private static string[] BuildFrames(string name, int frameCount)
         {

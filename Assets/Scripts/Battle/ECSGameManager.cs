@@ -99,49 +99,10 @@ namespace Battle
             {
                 Debug.Log("========== 开始加载配置 ==========");
 
-                // 方式1: 使用默认文件名（推荐）
-                var animDb = AnimationConfigDB.Load();
-                if (animDb != null)
-                {
-                    AnimationConfigDB.Initialize(animDb);
-                }
-                else
-                {
-                    Debug.LogError("✗ 动画配置加载失败");
-                }
-
-                // 方式2: 显式指定文件名（更清晰）
-                var enemyDb = EnemyConfigDB.Load();
-                if (enemyDb != null)
-                {
-                    EnemyConfigDB.Initialize(enemyDb);
-                }
-                else
-                {
-                    Debug.LogError("✗ 敌人配置加载失败");
-                }
-
-                // 方式3: 自定义文件名（特殊需求）
-                var weaponDb = WeaponConfigDB.Load();
-                if (weaponDb != null)
-                {
-                    WeaponConfigDB.Initialize(weaponDb);
-                }
-                else
-                {
-                    Debug.LogError("✗ 武器配置加载失败");
-                }
-
-                // 加载掉落物配置
-                var dropItemDb = DropItemConfigDB.Load();
-                if (dropItemDb != null)
-                {
-                    DropItemConfigDB.Initialize(dropItemDb);
-                }
-                else
-                {
-                    Debug.LogError("✗ 掉落物配置加载失败");
-                }
+                ConfigLoader.Load(AnimationConfigDB.Load, AnimationConfigDB.Initialize, "动画配置");
+                ConfigLoader.Load(EnemyConfigDB.Load, EnemyConfigDB.Initialize, "敌人配置");
+                ConfigLoader.Load(WeaponConfigDB.Load, WeaponConfigDB.Initialize, "武器配置");
+                ConfigLoader.Load(DropItemConfigDB.Load, DropItemConfigDB.Initialize, "掉落物配置");
 
                 Debug.Log("========== 配置加载完成 ==========");
             }
