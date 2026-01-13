@@ -330,6 +330,8 @@ namespace Game.Battle
 
         public void Dispose()
         {
+            applyUpgradeFunc = null;
+            rollOptionsFunc = null;
             luaUpgradeSystem?.Dispose();
             luaUpgradeSystem = null;
         }
