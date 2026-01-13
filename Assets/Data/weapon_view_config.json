@@ -1,0 +1,23 @@
+﻿{
+  "weapons": {
+    "ProjectileKnife": {
+      "name": "飞刀",
+      "icon": "icon_knife",
+      "sprite": {
+        "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+        "key": "Bullet 0"
+      },
+      "description": "向最近的敌人投掷飞刀"
+    },
+
+    "OrbitKnife": {
+      "name": "环绕刀刃",
+      "icon": "icon_orbit_knife",
+      "sprite": {
+        "sheet": "Assets/3rdParty/Undead Survivor/Sprites/Props.png",
+        "key": "Bullet 2"
+      },
+      "description": "刀刃环绕自身持续造成伤害"
+    }
+  }
+}
