@@ -62,15 +62,9 @@ namespace ECS.Systems
                 case "exp":
                 case "exp_gem":
                     // 添加经验
-                    if (world.HasComponent<ExperienceComponent>(playerId))
-                    {
-                        var exp = world.GetComponent<ExperienceComponent>(playerId);
-                        exp.current_exp += pickupable.value * exp.exp_multiplier;
-                        
-                        // Debug.Log($"Picked up {pickupable.value} EXP. Current: {exp.current_exp}/{exp.exp_to_next_level}");
-                    }
+                    if (world.TryGetService<IExpReceiver>(out var exp))
+                        exp.AddExp(pickupable.value);
                     break;
-
                 case "health":
                     // 恢复生命值
                     if (world.HasComponent<HealthComponent>(playerId))
@@ -78,6 +72,7 @@ namespace ECS.Systems
                         var health = world.GetComponent<HealthComponent>(playerId);
                         health.current = Mathf.Min(health.current + pickupable.value, health.max);
                     }
+
                     break;
 
                 case "coin":
@@ -91,6 +86,7 @@ namespace ECS.Systems
                     {
                         world.AddComponent(playerId, new MagnetComponent(8.0f, 15.0f));
                     }
+
                     // 添加持续时间（需要 buff 系统）
                     break;
             }
@@ -108,6 +104,7 @@ namespace ECS.Systems
             {
                 return entity;
             }
+
             return -1;
         }
     }

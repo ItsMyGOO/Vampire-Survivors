@@ -142,6 +142,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expBar: {fileID: 1227346687}
   levelText: {fileID: 542059351}
+--- !u!224 &339624642 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1603202747592564080, guid: 274ecafd2a62cf64e8df80ab9ff8088a, type: 3}
+  m_PrefabInstance: {fileID: 1120913323}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &382140339
 GameObject:
   m_ObjectHideFlags: 3
@@ -270,7 +275,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 339624642}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &697889920
@@ -367,7 +373,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 697889919}
     m_Modifications:
     - target: {fileID: 1603202747592564080, guid: 274ecafd2a62cf64e8df80ab9ff8088a, type: 3}
       propertyPath: m_Pivot.x
@@ -703,5 +709,4 @@ SceneRoots:
   - {fileID: 1233038386}
   - {fileID: 1991793434}
   - {fileID: 697889919}
-  - {fileID: 1120913323}
   - {fileID: 1076109756}

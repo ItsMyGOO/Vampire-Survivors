@@ -55,14 +55,6 @@ namespace ECS.Systems
                         velocity.x = dirX * speed;
                         velocity.y = dirY * speed;
                         velocity.speed = 1.0f;
-
-                        // 禁用道具的重力效果（如果有）
-                        if (world.HasComponent<FallingBodyComponent>(itemId))
-                        {
-                            var fallingBody = world.GetComponent<FallingBodyComponent>(itemId);
-                            fallingBody.gravity = 0f;
-                            fallingBody.velocity_y = 0f;
-                        }
                     }
                 }
             }

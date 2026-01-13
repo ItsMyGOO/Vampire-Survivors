@@ -4,6 +4,7 @@ using ECS;
 using ECS.Core;
 using ECS.Systems;
 using Game.Battle;
+using Lua;
 using UniRx;
 using UnityEngine;
 
@@ -48,10 +49,7 @@ namespace Battle
 
         private void Start()
         {
-            playerIdProperty
-                .DistinctUntilChanged()
-                .Subscribe(Bind)
-                .AddTo(this);
+            InitPlayerData();
 
             LoadConfigurations();
             InitializeSystems();
@@ -60,9 +58,11 @@ namespace Battle
             Debug.Log($"游戏初始化完成 - 实体数: {world.EntityCount}, 系统数: {world.SystemCount}");
         }
 
-        void Bind(int playerId)
+        void InitPlayerData()
         {
-            PlayerContext.Instance.Initialize(world, playerId);
+            PlayerContext.Instance.Initialize();
+            ExpSystem.Instance.Init(LuaMain.Env,  PlayerContext.Instance);
+            world.RegisterService(ExpSystem.Instance);
         }
 
         private void Update()
@@ -154,7 +154,6 @@ namespace Battle
                 world.RegisterSystem(new PlayerInputSystem());
                 world.RegisterSystem(new MagnetSystem());
                 world.RegisterSystem(new PickupSystem());
-                world.RegisterSystem(new ExperienceSystem());
 
                 world.RegisterSystem(new EnemySpawnSystem());
 
@@ -214,7 +213,6 @@ namespace Battle
             });
 
             world.AddComponent(playerId, new PickupRangeComponent(1.0f));
-            world.AddComponent(playerId, new ExperienceComponent(1, 100f));
             world.AddComponent(playerId, new MagnetComponent(5.0f, 10.0f));
 
             world.AddComponent(playerId, new SpriteKeyComponent());

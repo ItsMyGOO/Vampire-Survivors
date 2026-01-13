@@ -373,30 +373,6 @@ namespace ECS
         }
     }
 
-    /// <summary>
-    /// 掉落物体组件
-    /// </summary>
-    [Serializable]
-    public class FallingBodyComponent
-    {
-        public float gravity;
-        public float bounce;
-        public float velocity_y;
-
-        public FallingBodyComponent()
-        {
-            gravity = -9.8f;
-            bounce = 0.5f;
-        }
-
-        public FallingBodyComponent(float gravity = -9.8f, float bounce = 0.5f, float initialVelocityY = 0f)
-        {
-            this.gravity = gravity;
-            this.bounce = bounce;
-            this.velocity_y = initialVelocityY;
-        }
-    }
-
 // ============================================
 // 标签组件
 // ============================================
@@ -527,7 +503,7 @@ namespace ECS
     public class PickupableComponent
     {
         public string item_type; // "exp", "coin", "health", "magnet"
-        public float value;
+        public int value;
         public bool auto_pickup; // 是否自动拾取
 
         public PickupableComponent()
@@ -535,7 +511,7 @@ namespace ECS
             auto_pickup = true;
         }
 
-        public PickupableComponent(string itemType, float value, bool autoPickup = true)
+        public PickupableComponent(string itemType, int value, bool autoPickup = true)
         {
             this.item_type = itemType;
             this.value = value;
@@ -566,56 +542,6 @@ namespace ECS
             this.radius = radius;
             this.strength = strength;
             this.active = true;
-        }
-    }
-
-
-    /// <summary>
-    /// 经验组件
-    /// </summary>
-    [Serializable]
-    public class ExperienceComponent
-    {
-        public int level;
-        public float current_exp;
-        public float exp_to_next_level;
-        public float exp_multiplier; // 经验倍率
-
-        public ExperienceComponent()
-        {
-            level = 1;
-            current_exp = 0f;
-            exp_to_next_level = 100f;
-            exp_multiplier = 1.0f;
-        }
-
-        public ExperienceComponent(int level, float expToNextLevel)
-        {
-            this.level = level;
-            this.current_exp = 0f;
-            this.exp_to_next_level = expToNextLevel;
-            this.exp_multiplier = 1.0f;
-        }
-    }
-
-
-    /// <summary>
-    /// 升级事件组件
-    /// </summary>
-    [Serializable]
-    public class LevelUpEventComponent
-    {
-        public int new_level;
-        public bool processed;
-
-        public LevelUpEventComponent()
-        {
-        }
-
-        public LevelUpEventComponent(int newLevel)
-        {
-            this.new_level = newLevel;
-            this.processed = false;
         }
     }
 

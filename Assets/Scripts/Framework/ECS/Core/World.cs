@@ -28,6 +28,29 @@ namespace ECS.Core
         public int EntityCount => activeEntities.Count;
         public int SystemCount => systems.Count;
 
+        private Dictionary<Type, object> services = new();
+
+        public void RegisterService<T>(T service) where T : class
+        {
+            services[typeof(T)] = service;
+        }
+
+        public bool TryGetService<T>(out T service) where T : class
+        {
+            foreach (var obj in services.Values)
+            {
+                if (obj is T t)
+                {
+                    service = t;
+                    return true;
+                }
+            }
+
+            service = null;
+            return false;
+        }
+
+
         // ============================================
         // 实体管理
         // ============================================
