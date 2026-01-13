@@ -21,11 +21,6 @@ namespace Game.Battle
             PlayerEntity = playerEntity;
             IsInitialized.Value = true;
         }
-
-        public void SetPlayerEntity(int entity)
-        {
-            PlayerEntity = entity;
-        }
     }
 
     public class Exp
