@@ -216,14 +216,15 @@ namespace ECS.Core
             // 更新所有系统
             foreach (var system in systems)
             {
-                try
-                {
-                    system.Update(this, deltaTime);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"系统 {system.GetType().Name} 更新时出错: {e.Message}\n{e.StackTrace}");
-                }
+                system.Update(this, deltaTime);
+                // try
+                // {
+                //     system.Update(this, deltaTime);
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.LogError($"系统 {system.GetType().Name} 更新时出错: {e.Message}\n{e.StackTrace}");
+                // }
             }
 
             // 处理延迟销毁的实体

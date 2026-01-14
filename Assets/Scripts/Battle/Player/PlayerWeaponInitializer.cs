@@ -1,10 +1,13 @@
 ﻿using ECS.Core;
 using ConfigHandler;
 using ECS;
-using Game.Battle;
 
 namespace Battle
 {
+    /// <summary>
+    /// 玩家武器运行时数据初始化
+    /// 只负责创建 RuntimeStats，不做数值计算
+    /// </summary>
     public static class PlayerWeaponInitializer
     {
         public static void Initialize(World world, int playerId)
@@ -12,36 +15,25 @@ namespace Battle
             if (!world.TryGetComponent(playerId, out WeaponSlotsComponent slots))
                 return;
 
-            var runtimeStats = new WeaponRuntimeStatsComponent();
+            // 如果已经存在，避免重复初始化
+            if (world.HasComponent<WeaponRuntimeStatsComponent>(playerId))
+                return;
 
-            foreach (var w in slots.weapons)
+            var statsComponent = new WeaponRuntimeStatsComponent();
+
+            foreach (var weapon in slots.weapons)
             {
-                if (!WeaponConfigDB.Instance.Data.TryGetValue(w.weapon_type, out var cfg))
+                if (!WeaponConfigDB.Instance.Data.TryGetValue(
+                        weapon.weapon_type,
+                        out var cfg))
                     continue;
 
-                var stats = runtimeStats.GetOrCreateStats(w.weapon_type);
-                var battle = cfg.battle;
-
-                stats.level = w.level;
-                stats.damage = battle.baseStats.damage;
-                stats.projectileCount = battle.baseStats.count;
-                stats.knockback = battle.baseStats.knockback;
-
-                if (battle.Type == WeaponType.Projectile)
-                {
-                    stats.fireRate = battle.projectile.interval;
-                    stats.projectileSpeed = battle.projectile.speed;
-                    stats.projectileRange = battle.projectile.range;
-                }
-                else
-                {
-                    stats.orbitRadius = battle.orbit.radius;
-                    stats.orbitSpeed = battle.orbit.speed;
-                    stats.orbitCount = battle.baseStats.count;
-                }
+                // 只创建运行时状态 + 设置等级
+                var stats = statsComponent.GetOrCreate(weapon.weapon_type);
+                stats.level = weapon.level;
             }
 
-            world.AddComponent(playerId, runtimeStats);
+            world.AddComponent(playerId, statsComponent);
         }
     }
 }

@@ -76,10 +76,10 @@ namespace Battle
                 {
                     // 清除旧的轨道武器
                     DestroyOrbitWeapons(world, playerEntity, weaponId);
-                    
+
                     // 重置生成标志,让系统重新生成
                     weaponData.orbitSpawned = false;
-                    
+
                     Debug.Log($"[WeaponUpgradeManager] 轨道武器 {weaponId} 升级,将重新生成");
                 }
             }
@@ -96,7 +96,7 @@ namespace Battle
         {
             // 查找所有属于这个武器的轨道实体
             var entitiesToDestroy = new System.Collections.Generic.List<int>();
-            
+
             foreach (var (entity, orbit) in world.GetComponents<OrbitComponent>())
             {
                 if (orbit.centerEntity == playerEntity)
@@ -106,12 +106,12 @@ namespace Battle
                     entitiesToDestroy.Add(entity);
                 }
             }
-            
+
             foreach (var entity in entitiesToDestroy)
             {
                 world.DestroyEntity(entity);
             }
-            
+
             Debug.Log($"[WeaponUpgradeManager] 清除了 {entitiesToDestroy.Count} 个轨道武器实体");
         }
 
@@ -147,8 +147,8 @@ namespace Battle
                 weapon_type = weaponId,
                 level = 1,
                 cooldown = 0f,
-                fire_rate = weaponConfig.battle.Type == WeaponType.Projectile 
-                    ? weaponConfig.battle.projectile.interval 
+                fire_rate = weaponConfig.battle.Type == WeaponType.Projectile
+                    ? weaponConfig.battle.projectile.interval
                     : 1.0f,
                 orbitSpawned = false
             };
@@ -170,39 +170,30 @@ namespace Battle
         }
 
         /// <summary>
-        /// 初始化武器的基础属性
+        /// 初始化武器运行时状态
+        /// 只设置 level，不写任何基础数值
         /// </summary>
         private void InitializeWeaponStats(
             WeaponRuntimeStatsComponent runtimeStats,
             string weaponId,
             WeaponConfig weaponConfig)
         {
-            var stats = runtimeStats.GetOrCreateStats(weaponId);
-            var battle = weaponConfig.battle;
+            var stats = runtimeStats.GetOrCreate(weaponId);
 
+            // 初始等级
             stats.level = 1;
-            stats.damage = battle.baseStats.damage;
-            stats.projectileCount = battle.baseStats.count;
-            stats.knockback = battle.baseStats.knockback;
 
-            if (battle.Type == WeaponType.Projectile)
-            {
-                stats.fireRate = battle.projectile.interval;
-                stats.projectileSpeed = battle.projectile.speed;
-                stats.projectileRange = battle.projectile.range;
-            }
-            else if (battle.Type == WeaponType.Orbit)
-            {
-                stats.orbitRadius = battle.orbit.radius;
-                stats.orbitSpeed = battle.orbit.speed;
-                stats.orbitCount = battle.baseStats.count;
-            }
+            // 清空所有修正（防止重复初始化）
+            stats.ResetModifiers();
 
-            Debug.Log($"[WeaponUpgradeManager] 初始化武器 {weaponId} 属性 - 伤害:{stats.damage}, 数量:{stats.projectileCount}");
+#if UNITY_EDITOR
+            Debug.Log($"[WeaponUpgradeManager] 初始化武器 {weaponId} RuntimeStats (level=1)");
+#endif
         }
 
+
         /// <summary>
-        /// 应用升级规则
+        /// 应用升级规则（只修改 RuntimeStats）
         /// </summary>
         private void ApplyUpgradeRules(
             WeaponRuntimeStatsComponent runtimeStats,
@@ -211,21 +202,24 @@ namespace Battle
             int fromLevel,
             int toLevel)
         {
-            var stats = runtimeStats.GetOrCreateStats(weaponId);
+            var stats = runtimeStats.GetOrCreate(weaponId);
+
             stats.level = toLevel;
 
             foreach (var rule in upgradeRule.rules)
             {
-                // 检查是否需要在这个等级应用规则
                 if (!ShouldApplyRule(rule, fromLevel, toLevel))
                     continue;
 
                 ApplySingleRule(stats, rule);
             }
 
-            Debug.Log($"[WeaponUpgradeManager] 武器 {weaponId} 升级后属性 - " +
-                     $"伤害:{stats.GetFinalDamage()}, 数量:{stats.GetFinalProjectileCount()}");
+#if UNITY_EDITOR
+            Debug.Log(
+                $"[WeaponUpgradeManager] 武器 {weaponId} 升级到 Lv.{toLevel}");
+#endif
         }
+
 
         /// <summary>
         /// 判断是否应该应用某个规则
@@ -241,9 +235,11 @@ namespace Battle
         }
 
         /// <summary>
-        /// 应用单个规则到武器属性
+        /// 应用单个升级规则到 RuntimeStats
         /// </summary>
-        private void ApplySingleRule(WeaponRuntimeStatsComponent.WeaponStats stats, StatUpgradeRule rule)
+        private void ApplySingleRule(
+            WeaponRuntimeStats stats,
+            StatUpgradeRule rule)
         {
             switch (rule.stat)
             {
@@ -251,44 +247,69 @@ namespace Battle
                     if (rule.op == "Add")
                     {
                         stats.damageAdd += rule.value;
-                        Debug.Log($"[WeaponUpgradeManager] Damage +{rule.value}, 当前总伤害: {stats.GetFinalDamage()}");
                     }
                     else if (rule.op == "Mul")
                     {
-                        stats.damageMultiply *= rule.value;
-                        Debug.Log($"[WeaponUpgradeManager] Damage x{rule.value}, 当前总伤害: {stats.GetFinalDamage()}");
+                        stats.damageMul *= rule.value;
                     }
+
                     break;
 
                 case "Count":
                     if (rule.op == "Add")
                     {
                         stats.countAdd += (int)rule.value;
-                        Debug.Log($"[WeaponUpgradeManager] Count +{rule.value}, 当前数量: {stats.GetFinalProjectileCount()}");
                     }
+
                     break;
 
                 case "Cooldown":
                     if (rule.op == "Mul")
                     {
-                        stats.fireRateMultiply *= rule.value;
-                        Debug.Log($"[WeaponUpgradeManager] FireRate x{rule.value}, 当前间隔: {stats.GetFinalFireRate()}");
+                        stats.fireRateMul *= rule.value;
                     }
+
                     break;
 
                 case "Radius":
                     if (rule.op == "Add")
                     {
-                        stats.radiusAdd += rule.value;
-                        Debug.Log($"[WeaponUpgradeManager] Radius +{rule.value}, 当前半径: {stats.GetFinalOrbitRadius()}");
+                        stats.orbitRadiusAdd += rule.value;
                     }
+
+                    break;
+
+                case "Speed":
+                    if (rule.op == "Add")
+                    {
+                        stats.speedAdd += rule.value;
+                    }
+
+                    break;
+
+                case "Range":
+                    if (rule.op == "Add")
+                    {
+                        stats.rangeAdd += rule.value;
+                    }
+
+                    break;
+
+                case "Knockback":
+                    if (rule.op == "Add")
+                    {
+                        stats.knockbackAdd += rule.value;
+                    }
+
                     break;
 
                 default:
-                    Debug.LogWarning($"[WeaponUpgradeManager] 未知的升级属性: {rule.stat}");
+                    Debug.LogWarning(
+                        $"[WeaponUpgradeManager] 未知升级属性: {rule.stat}");
                     break;
             }
         }
+
 
         /// <summary>
         /// 获取武器当前等级
@@ -329,15 +350,15 @@ namespace Battle
         /// <summary>
         /// 获取武器运行时属性
         /// </summary>
-        public bool TryGetWeaponStats(World world, int playerEntity, string weaponId, 
-            out WeaponRuntimeStatsComponent.WeaponStats stats)
+        public bool TryGetWeaponStats(World world, int playerEntity, string weaponId,
+            out WeaponRuntimeStats stats)
         {
             stats = null;
-            
-            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var runtimeStats))
+
+            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var statsComponent))
                 return false;
 
-            return runtimeStats.TryGetStats(weaponId, out stats);
+            return statsComponent.TryGetRuntime(weaponId, out stats);
         }
     }
 }
