@@ -18,8 +18,6 @@ namespace Battle
         private IntReactiveProperty playerId = new(-1);
 
         public CinemachineVirtualCamera vCam;
-
-        private List<IDisposable> disposables = new List<IDisposable>();
         
         private void Awake()
         {
@@ -42,7 +40,7 @@ namespace Battle
             playerId.Value = pid;
 
             UpgradeBootstrap.Initialize(world, pid);
-
+    
             PlayerWeaponInitializer.Initialize(world, pid);
 
             gameObject.AddComponent<ECSGameDebugController>()
@@ -57,11 +55,6 @@ namespace Battle
 
         private void OnDestroy()
         {
-            foreach (var disposable in disposables)
-            {
-                disposable.Dispose();
-            }
-            
             world?.Clear();
         }
 

@@ -1,4 +1,6 @@
-﻿using ConfigHandler;
+﻿using System;
+using System.Collections.Generic;
+using ConfigHandler;
 using ECS.Core;
 using Game.Battle;
 using Lua;
@@ -22,8 +24,13 @@ namespace Battle
                 PassiveUpgradePoolConfigDB.Instance);
 
             UpgradeApplyService.Initialize(weaponUpgradeManager);
+            
+            var expData = ExpSystem.Instance.CreateExpData();
+            PlayerContext.Instance.BindExpData(expData);
 
             ExpSystem.Instance.Init(LuaMain.Env, PlayerContext.Instance, upgradeService);
+            LuaMain.Register(ExpSystem.Instance);
+            
             world.RegisterService(ExpSystem.Instance);
         }
     }

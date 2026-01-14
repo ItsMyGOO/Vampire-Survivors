@@ -16,23 +16,23 @@ namespace UI.Panel
             Observable.EveryUpdate()
                 .Where(_ =>
                     PlayerContext.Instance != null &&
-                    PlayerContext.Instance.Exp != null)
+                    PlayerContext.Instance.ExpData != null)
                 .Take(1)
-                .Subscribe(_ => Bind(PlayerContext.Instance.Exp))
+                .Subscribe(_ => Bind(PlayerContext.Instance.ExpData))
                 .AddTo(this);
         }
 
-        void Bind(Exp exp)
+        void Bind(ExpData expData)
         {
             // 等级显示
-            exp.level
+            expData.level
                 .Subscribe(lv => { levelText.text = $"Lv.{lv}"; })
                 .AddTo(this);
 
             // 经验条：current / nextLevel
             Observable.CombineLatest(
-                    exp.current_exp,
-                    exp.exp_to_next_level,
+                    expData.current_exp,
+                    expData.exp_to_next_level,
                     (cur, max) => max > 0f ? cur / max : 0f)
                 .Subscribe(v => { expBar.value = Mathf.Clamp01(v); })
                 .AddTo(this);

@@ -1,13 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using Battle;
-using ECS;
 using ECS.Core;
+using UniRx;
 using UnityEngine;
 using XLua;
 
 namespace Game.Battle
 {
+    public class ExpData
+    {
+        public IntReactiveProperty level;
+        public FloatReactiveProperty current_exp;
+        public FloatReactiveProperty exp_to_next_level;
+        public float exp_multiplier; // 经验倍率
+
+        public ExpData()
+        {
+            level = new(1);
+            current_exp = new(0f);
+            exp_to_next_level = new(10);
+            exp_multiplier = 1.0f;
+        }
+    }
+
     /// <summary>
     /// 经验 & 升级系统（重构后）
     /// 只负责：经验 → 升级 → 请求 UpgradeService
@@ -19,31 +35,38 @@ namespace Game.Battle
         private const float BASE_EXP = 10f;
         private const float EXP_GROWTH_RATE = 1.15f;
 
-        private Exp exp;
+        private ExpData _expData;
         private World world;
         private int playerEntity;
 
         private LuaEnv luaEnv;
         private LuaTable luaUpgradeFlow;
-        private Action<LuaTable> luaOnUpgradeOptions;
+        private LuaFunction luaOnUpgradeOptions;
 
         private UpgradeService upgradeService;
-        
+
         // 测试模式开关
-        [System.NonSerialized]
-        public bool testMode = true; // 设为 true 启用自动随机升级测试
+        [System.NonSerialized] public bool testMode = true; // 设为 true 启用自动随机升级测试
 
         /// <summary>
         /// 升级选项可用事件（UI / Lua 监听）
         /// </summary>
         public event Action<List<UpgradeOption>> OnUpgradeOptionsReady;
 
-        public void Init(LuaEnv luaEnv, PlayerContext ctx, UpgradeService upgradeService)
+        public ExpData CreateExpData()
+        {
+            _expData = new ExpData();
+            return _expData;
+        }
+
+        public void Init(
+            LuaEnv luaEnv,
+            PlayerContext ctx,
+            UpgradeService upgradeService)
         {
             this.luaEnv = luaEnv;
             this.upgradeService = upgradeService;
-            
-            exp = ctx.Exp;
+
             world = ctx.World;
             playerEntity = ctx.PlayerEntity;
 
@@ -59,7 +82,7 @@ namespace Game.Battle
 
             luaUpgradeFlow = ret[0] as LuaTable;
             luaOnUpgradeOptions =
-                luaUpgradeFlow.Get<Action<LuaTable>>("OnUpgradeOptions");
+                luaUpgradeFlow.Get<LuaFunction>("OnUpgradeOptions");
         }
         // =========================
         // Exp
@@ -67,21 +90,21 @@ namespace Game.Battle
 
         public void AddExp(int value)
         {
-            exp.current_exp.Value += value * exp.exp_multiplier;
+            _expData.current_exp.Value += value * _expData.exp_multiplier;
 
-            while (exp.current_exp.Value >= exp.exp_to_next_level.Value)
+            while (_expData.current_exp.Value >= _expData.exp_to_next_level.Value)
                 LevelUp();
         }
 
         private void LevelUp()
         {
-            exp.current_exp.Value -= exp.exp_to_next_level.Value;
-            exp.level.Value++;
+            _expData.current_exp.Value -= _expData.exp_to_next_level.Value;
+            _expData.level.Value++;
 
-            exp.exp_to_next_level.Value =
-                CalculateExpForLevel(exp.level.Value + 1);
+            _expData.exp_to_next_level.Value =
+                CalculateExpForLevel(_expData.level.Value + 1);
 
-            Debug.Log($"[ExpSystem] ========== Level Up → {exp.level.Value} ==========");
+            Debug.Log($"[ExpSystem] ========== Level Up → {_expData.level.Value} ==========");
 
             RollUpgradeOptions();
         }
@@ -94,7 +117,7 @@ namespace Game.Battle
         {
             var options = upgradeService.RollOptions(
                 optionCount: 3,
-                playerLevel: exp.level.Value
+                playerLevel: _expData.level.Value
             );
 
             if (options == null || options.Count == 0)
@@ -127,7 +150,7 @@ namespace Game.Battle
         {
             // 优先选择武器类型的选项
             var weaponOptions = options.FindAll(opt => opt.type == UpgradeOptionType.Weapon);
-            
+
             UpgradeOption selected;
             if (weaponOptions.Count > 0)
             {
@@ -165,7 +188,7 @@ namespace Game.Battle
             }
 
             Debug.Log($"[ExpSystem] 应用升级选项: {option.type} - {option.name} (ID: {option.id})");
-            
+
             try
             {
                 UpgradeApplyService.Apply(option);
@@ -188,7 +211,13 @@ namespace Game.Battle
 
         public void Dispose()
         {
+            luaOnUpgradeOptions?.Dispose();
             OnUpgradeOptionsReady = null;
+
+            luaUpgradeFlow?.Dispose();
+            luaUpgradeFlow = null;
+
+            luaEnv = null;
         }
 
         // =========================
@@ -210,10 +239,10 @@ namespace Game.Battle
         public void PrintStatus()
         {
             Debug.Log($"[ExpSystem] 当前状态:");
-            Debug.Log($"  等级: {exp.level.Value}");
-            Debug.Log($"  当前经验: {exp.current_exp.Value:F1}");
-            Debug.Log($"  升级所需: {exp.exp_to_next_level.Value:F1}");
-            
+            Debug.Log($"  等级: {_expData.level.Value}");
+            Debug.Log($"  当前经验: {_expData.current_exp.Value:F1}");
+            Debug.Log($"  升级所需: {_expData.exp_to_next_level.Value:F1}");
+
             var upgradeState = PlayerContext.Instance.UpgradeState;
             Debug.Log($"  拥有武器数: {upgradeState.weapons.Count}");
             foreach (var weapon in upgradeState.weapons)

@@ -1,4 +1,6 @@
-﻿using XLua;
+﻿using System;
+using System.Collections.Generic;
+using XLua;
 using UnityEngine;
 
 namespace Lua
@@ -6,6 +8,12 @@ namespace Lua
     public class LuaMain : MonoBehaviour
     {
         public static LuaEnv Env { get; private set; }
+        private static List<IDisposable> disposables = new List<IDisposable>();
+
+        public static void Register(IDisposable disposable)
+        {
+            disposables.Add(disposable);
+        }
 
         void Awake()
         {
@@ -32,8 +40,13 @@ namespace Lua
             Env.Tick();
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
+            foreach (var disposable in disposables)
+            {
+                disposable.Dispose();
+            }
+            
             Env.Dispose();
             Env = null;
         }
