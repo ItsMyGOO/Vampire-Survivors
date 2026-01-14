@@ -291,10 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6c822e2c59948fd937c2a05887ae3c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugInfo: 1
-  debugKey: 282
-  fallbackSprite: {fileID: 0}
-  cinemachine: {fileID: 1076109755}
+  camera: {fileID: 1076109755}
 --- !u!1 &1076109754
 GameObject:
   m_ObjectHideFlags: 0
