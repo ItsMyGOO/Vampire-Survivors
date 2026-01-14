@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ConfigHandler;
+using Game.Battle;
 
 namespace Battle
 {
@@ -21,6 +22,14 @@ namespace Battle
             WeaponUpgradePoolConfigDB = weaponUpgradePoolConfigDB;
             WeaponUpgradeRuleConfigDB = weaponUpgradeRuleConfigDB;
             PassiveUpgradePoolConfigDB = passiveUpgradePoolConfigDB;
+        }
+
+        public List<UpgradeOption> RollOptions(
+            int optionCount,
+            int playerLevel)
+        {
+            var upgradeState = PlayerContext.Instance.UpgradeState;
+            return RollOptions(optionCount, playerLevel, upgradeState.weapons, upgradeState.passives);
         }
 
         public List<UpgradeOption> RollOptions(
@@ -73,7 +82,8 @@ namespace Battle
                 {
                     id = weaponId,
                     type = UpgradeOptionType.Weapon,
-                    weight = def.weight
+                    weight = def.weight,
+                    currentLevel = owned ? level : 0
                 });
             }
         }
@@ -101,7 +111,8 @@ namespace Battle
                 {
                     id = passiveId,
                     type = UpgradeOptionType.Passive,
-                    weight = def.weight
+                    weight = def.weight,
+                    currentLevel = level
                 });
             }
         }
@@ -153,28 +164,34 @@ namespace Battle
                 case UpgradeOptionType.Weapon:
                 {
                     var view = WeaponConfigDB.Instance.Get(c.id).view;
+                    int nextLevel = c.currentLevel + 1;
 
                     return new UpgradeOption
                     {
                         id = c.id,
                         type = c.type,
                         name = view.name,
-                        description = view.description,
-                        icon = view.icon
+                        description = c.currentLevel == 0 
+                            ? view.description 
+                            : $"{view.description} (Lv.{c.currentLevel} → Lv.{nextLevel})",
+                        icon = view.icon,
+                        nextLevel = nextLevel
                     };
                 }
 
                 case UpgradeOptionType.Passive:
                 {
                     var def = PassiveUpgradePoolConfigDB.Instance.Get(c.id);
+                    int nextLevel = c.currentLevel + 1;
 
                     return new UpgradeOption
                     {
                         id = c.id,
                         type = c.type,
                         name = def.attribute.ToString(),
-                        description = $"+{def.valuePerLevel} {def.attribute}",
-                        icon = $"icon_{def.attribute.ToString().ToLower()}"
+                        description = $"+{def.valuePerLevel} {def.attribute} (Lv.{nextLevel})",
+                        icon = $"icon_{def.attribute.ToString().ToLower()}",
+                        nextLevel = nextLevel
                     };
                 }
 
@@ -192,6 +209,7 @@ namespace Battle
             public string id;
             public UpgradeOptionType type;
             public int weight;
+            public int currentLevel;
         }
     }
 

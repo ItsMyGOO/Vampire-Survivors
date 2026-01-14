@@ -113,6 +113,32 @@ namespace ECS.Core
         }
 
         /// <summary>
+        /// 尝试获取组件（安全版本）
+        /// </summary>
+        public bool TryGetComponent<T>(int entityId, out T component) where T : class, new()
+        {
+            component = null;
+            
+            if (!activeEntities.Contains(entityId))
+            {
+                return false;
+            }
+
+            if (!componentStores.TryGetValue(typeof(T), out var store))
+            {
+                return false;
+            }
+
+            if (!store.HasComponent(entityId))
+            {
+                return false;
+            }
+
+            component = ((ComponentStore<T>)store).Get(entityId);
+            return component != null;
+        }
+
+        /// <summary>
         /// 检查实体是否有某组件
         /// </summary>
         public bool HasComponent<T>(int entityId) where T : class, new()

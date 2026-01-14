@@ -16,14 +16,16 @@ namespace ConfigHandler
 
         public static WeaponUpgradeRuleConfigDB CustomLoad(string fileName)
         {
-            var wrapper = JsonConfigLoader.Load<WeaponUpgradeRuleConfigRoot>(fileName);
-            if (wrapper == null || wrapper.items == null)
+            var root = JsonConfigLoader.Load<WeaponUpgradeRuleConfigRoot>(fileName);
+            if (root == null || root.weapons == null)
                 return null;
 
             var db = new WeaponUpgradeRuleConfigDB();
-            foreach (var kvp in wrapper.items)
+            foreach (var kvp in root.weapons)
             {
-                db.Add(kvp.Key, kvp.Value);
+                var def = kvp.Value;
+                def.weaponId = kvp.Key;
+                db.Add(kvp.Key, def);
             }
             return db;
         }
@@ -32,7 +34,7 @@ namespace ConfigHandler
     [Serializable]
     public class WeaponUpgradeRuleConfigRoot
     {
-        public Dictionary<string, WeaponUpgradeRuleDef> items;
+        public Dictionary<string, WeaponUpgradeRuleDef> weapons;
     }
 
     [Serializable]
@@ -40,6 +42,15 @@ namespace ConfigHandler
     {
         public string weaponId;
         public int maxLevel;
+        public List<StatUpgradeRule> rules;
     }
 
+    [Serializable]
+    public class StatUpgradeRule
+    {
+        public string stat;    // "Damage", "Count", "Cooldown", "Radius"
+        public string op;      // "Add", "Mul"
+        public float value;    // 修改值
+        public int every;      // 每隔多少级触发（0或不设置表示每级都触发）
+    }
 }

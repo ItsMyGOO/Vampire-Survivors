@@ -7,7 +7,7 @@ namespace ConfigHandler
     public sealed class PassiveUpgradePoolConfigDB
         : SingletonConfigDB<PassiveUpgradePoolConfigDB, string, PassiveUpgradePoolDef>
     {
-        public const string ConfigFileName = "passive_upgrade_pool_config.json";
+        public const string ConfigFileName = "PassiveUpgradePoolConfig.json";
 
         public static PassiveUpgradePoolConfigDB Load()
         {
@@ -18,7 +18,10 @@ namespace ConfigHandler
         {
             var root = JsonConfigLoader.Load<PassiveUpgradePoolConfigRoot>(fileName);
             if (root == null || root.passives == null)
+            {
+                UnityEngine.Debug.LogError($"[PassiveUpgradePoolConfigDB] 加载失败: {fileName}");
                 return null;
+            }
 
             var db = new PassiveUpgradePoolConfigDB();
 
@@ -27,6 +30,7 @@ namespace ConfigHandler
                 db.Add(kv.Key, kv.Value);
             }
 
+            UnityEngine.Debug.Log($"[PassiveUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个被动技能配置");
             return db;
         }
     }

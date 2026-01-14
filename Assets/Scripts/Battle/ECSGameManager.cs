@@ -10,37 +10,34 @@ using UnityEngine;
 
 namespace Battle
 {
-    /// <summary>
-    /// ECS 游戏管理器 - Unity MonoBehaviour 驱动
-    /// </summary>
     public class ECSGameManager : MonoBehaviour
     {
         private World world;
         private IntReactiveProperty playerIdProperty = new(-1);
         private RenderSyncSystem renderSystem;
+        private WeaponUpgradeManager weaponUpgradeManager;
 
-        [Header("调试")] public bool showDebugInfo = true;
+        [Header("调试")] 
+        public bool showDebugInfo = true;
         public KeyCode debugKey = KeyCode.F1;
+        
+        [Header("测试")]
+        public KeyCode addExpKey = KeyCode.E;
+        public float testExpAmount = 20f;
 
-        [Header("渲染")] public Sprite fallbackSprite;
-
+        [Header("渲染")] 
+        public Sprite fallbackSprite;
         public CinemachineVirtualCamera cinemachine;
 
         private void Awake()
         {
             world = new World();
-            Debug.Log("ECS World 已创建");
+            Debug.Log("ECS World created");
 
             var spriteProvider = new SpriteProvider();
-
             if (fallbackSprite != null)
             {
                 spriteProvider.SetFallbackSprite(fallbackSprite);
-                Debug.Log("已设置渲染占位符精灵");
-            }
-            else
-            {
-                Debug.LogWarning("未设置 fallbackSprite，加载失败的精灵将显示为空");
             }
 
             renderSystem = new RenderSyncSystem(
@@ -49,29 +46,38 @@ namespace Battle
 
         private void Start()
         {
-            playerIdProperty
-                .DistinctUntilChanged()
-                .Subscribe(Bind)
-                .AddTo(this);
-
+            playerIdProperty.DistinctUntilChanged().Subscribe(Bind).AddTo(this);
             LoadConfigurations();
             InitializeSystems();
             InitializeGame();
-
-            Debug.Log($"游戏初始化完成 - 实体数: {world.EntityCount}, 系统数: {world.SystemCount}");
+            Debug.Log("Game initialized");
         }
 
         void Bind(int playerId)
         {
             PlayerContext.Instance.Initialize(world, playerId);
 
+            weaponUpgradeManager = new WeaponUpgradeManager(
+                WeaponUpgradeRuleConfigDB.Instance,
+                WeaponConfigDB.Instance
+            );
+            PlayerContext.Instance.WeaponUpgradeManager = weaponUpgradeManager;
+
             var upgradeService = new UpgradeService(
                 WeaponUpgradePoolConfigDB.Instance,
                 WeaponUpgradeRuleConfigDB.Instance,
                 PassiveUpgradePoolConfigDB.Instance
             );
+            
+            UpgradeApplyService.Initialize(weaponUpgradeManager);
             ExpSystem.Instance.Init(LuaMain.Env, PlayerContext.Instance, upgradeService);
+            ExpSystem.Instance.testMode = true;
             world.RegisterService(ExpSystem.Instance);
+            
+            InitializePlayerWeapons(playerId);
+            
+            Debug.Log("Weapon upgrade system initialized");
+            Debug.Log("Press E to add exp, S to print status");
         }
 
         private void Update()
@@ -79,15 +85,15 @@ namespace Battle
             try
             {
                 world.Update(Time.deltaTime);
-
                 renderSystem.Update(world);
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"游戏更新出错: {e.Message}\n{e.StackTrace}");
+                Debug.LogError("Update error: " + e.Message);
             }
 
             HandleDebugInput();
+            HandleTestInput();
         }
 
         private void OnDestroy()
@@ -96,25 +102,21 @@ namespace Battle
             world?.Clear();
         }
 
-        /// <summary>
-        /// 加载所有配置
-        /// </summary>
         private void LoadConfigurations()
         {
             try
             {
-                Debug.Log("========== 开始加载配置 ==========");
-
-                ConfigLoader.Load(AnimationConfigDB.Load, AnimationConfigDB.Initialize, "动画配置");
-                ConfigLoader.Load(EnemyConfigDB.Load, EnemyConfigDB.Initialize, "敌人配置");
-                ConfigLoader.Load(WeaponConfigDB.Load, WeaponConfigDB.Initialize, "武器配置");
-                ConfigLoader.Load(DropItemConfigDB.Load, DropItemConfigDB.Initialize, "掉落物配置");
-
-                Debug.Log("========== 配置加载完成 ==========");
+                ConfigLoader.Load(AnimationConfigDB.Load, AnimationConfigDB.Initialize, "Animation");
+                ConfigLoader.Load(EnemyConfigDB.Load, EnemyConfigDB.Initialize, "Enemy");
+                ConfigLoader.Load(WeaponConfigDB.Load, WeaponConfigDB.Initialize, "Weapon");
+                ConfigLoader.Load(DropItemConfigDB.Load, DropItemConfigDB.Initialize, "DropItem");
+                ConfigLoader.Load(WeaponUpgradeRuleConfigDB.Load, WeaponUpgradeRuleConfigDB.Initialize, "WeaponUpgradeRule");
+                ConfigLoader.Load(WeaponUpgradePoolConfigDB.Load, WeaponUpgradePoolConfigDB.Initialize, "WeaponUpgradePool");
+                ConfigLoader.Load(PassiveUpgradePoolConfigDB.Load, PassiveUpgradePoolConfigDB.Initialize, "PassiveUpgradePool");
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"配置加载失败: {e.Message}\n{e.StackTrace}");
+                Debug.LogError("Config load error: " + e.Message);
             }
         }
 
@@ -125,28 +127,21 @@ namespace Battle
                 world.RegisterSystem(new PlayerInputSystem());
                 world.RegisterSystem(new MagnetSystem());
                 world.RegisterSystem(new PickupSystem());
-
                 world.RegisterSystem(new EnemySpawnSystem());
-
                 world.RegisterSystem(new AIMovementSystem());
                 world.RegisterSystem(new MovementSystem());
-
                 world.RegisterSystem(new WeaponFireSystem());
                 world.RegisterSystem(new OrbitSystem());
-
                 world.RegisterSystem(new AttackHitSystem());
                 world.RegisterSystem(new KnockBackSystem());
                 world.RegisterSystem(new EnemyDeathSystem());
-
                 world.RegisterSystem(new PlayerAnimationSystem());
                 world.RegisterSystem(new AnimationCommandSystem());
                 world.RegisterSystem(new AnimationSystem());
-
-                Debug.Log("所有系统已注册");
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"系统注册失败: {e.Message}\n{e.StackTrace}");
+                Debug.LogError("System init error: " + e.Message);
             }
         }
 
@@ -158,7 +153,7 @@ namespace Battle
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"游戏初始化失败: {e.Message}\n{e.StackTrace}");
+                Debug.LogError("Game init error: " + e.Message);
             }
         }
 
@@ -166,13 +161,10 @@ namespace Battle
         {
             var playerId = world.CreateEntity();
             world.AddComponent(playerId, new PlayerTagComponent());
-
             world.AddComponent(playerId, new PositionComponent());
             world.AddComponent(playerId, new VelocityComponent() { speed = 2 });
-
             world.AddComponent(playerId, new HealthComponent(100, 100, 1.0f));
             world.AddComponent(playerId, new ColliderComponent(0.5f));
-
 
             world.AddComponent(playerId, new WeaponSlotsComponent()
             {
@@ -185,7 +177,6 @@ namespace Battle
 
             world.AddComponent(playerId, new PickupRangeComponent(1.0f));
             world.AddComponent(playerId, new MagnetComponent(5.0f, 10.0f));
-
             world.AddComponent(playerId, new SpriteKeyComponent());
             world.AddComponent(playerId, new AnimationComponent()
             {
@@ -195,7 +186,49 @@ namespace Battle
             world.AddComponent(playerId, new CameraFollowComponent());
 
             playerIdProperty.Value = playerId;
-            Debug.Log($"玩家已创建 - 实体ID: {playerId}");
+            Debug.Log("Player created");
+        }
+
+        private void InitializePlayerWeapons(int playerId)
+        {
+            if (!world.TryGetComponent<WeaponSlotsComponent>(playerId, out var weaponSlots))
+                return;
+
+            var runtimeStats = new WeaponRuntimeStatsComponent();
+            
+            foreach (var weaponData in weaponSlots.weapons)
+            {
+                var weaponId = weaponData.weapon_type;
+                
+                if (!WeaponConfigDB.Instance.Data.TryGetValue(weaponId, out var weaponConfig))
+                    continue;
+
+                var stats = runtimeStats.GetOrCreateStats(weaponId);
+                var battle = weaponConfig.battle;
+
+                stats.level = weaponData.level;
+                stats.damage = battle.baseStats.damage;
+                stats.projectileCount = battle.baseStats.count;
+                stats.knockback = battle.baseStats.knockback;
+
+                if (battle.Type == WeaponType.Projectile)
+                {
+                    stats.fireRate = battle.projectile.interval;
+                    stats.projectileSpeed = battle.projectile.speed;
+                    stats.projectileRange = battle.projectile.range;
+                }
+                else if (battle.Type == WeaponType.Orbit)
+                {
+                    stats.orbitRadius = battle.orbit.radius;
+                    stats.orbitSpeed = battle.orbit.speed;
+                    stats.orbitCount = battle.baseStats.count;
+                }
+                
+                PlayerContext.Instance.UpgradeState.weapons[weaponId] = weaponData.level;
+            }
+
+            world.AddComponent(playerId, runtimeStats);
+            Debug.Log("Player weapons initialized");
         }
 
         private void HandleDebugInput()
@@ -206,15 +239,70 @@ namespace Battle
             }
         }
 
+        private void HandleTestInput()
+        {
+            if (Input.GetKeyDown(addExpKey))
+            {
+                ExpSystem.Instance.AddExpForTest(testExpAmount);
+            }
+            
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                ExpSystem.Instance.PrintStatus();
+                PrintWeaponStats();
+            }
+        }
+
         public World GetWorld() => world;
         public int GetPlayerId() => playerIdProperty.Value;
 
-        [ContextMenu("重新加载配置")]
+        [ContextMenu("Reload Configs")]
         public void ReloadConfigurations()
         {
-            Debug.Log("热重载配置...");
             LoadConfigurations();
-            Debug.Log("配置已重新加载");
+        }
+        
+        [ContextMenu("Test Weapon Upgrade")]
+        public void TestWeaponUpgrade()
+        {
+            if (weaponUpgradeManager == null) return;
+            int playerId = playerIdProperty.Value;
+            if (playerId < 0) return;
+            weaponUpgradeManager.UpgradeWeapon(world, playerId, "ProjectileKnife");
+            PrintWeaponStats();
+        }
+        
+        [ContextMenu("Add 100 Exp")]
+        public void AddTestExp()
+        {
+            ExpSystem.Instance.AddExpForTest(100f);
+        }
+        
+        [ContextMenu("Print Status")]
+        public void PrintPlayerStatus()
+        {
+            ExpSystem.Instance.PrintStatus();
+            PrintWeaponStats();
+        }
+        
+        private void PrintWeaponStats()
+        {
+            int playerId = playerIdProperty.Value;
+            if (playerId < 0) return;
+
+            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerId, out var runtimeStats))
+                return;
+
+            Debug.Log("===== Weapon Stats =====");
+            foreach (var kvp in runtimeStats.weaponStats)
+            {
+                var stats = kvp.Value;
+                Debug.Log(string.Format("Weapon: {0} Lv.{1}", kvp.Key, stats.level));
+                Debug.Log(string.Format("  Damage: {0:F1}", stats.GetFinalDamage()));
+                Debug.Log(string.Format("  Count: {0}", stats.GetFinalProjectileCount()));
+                Debug.Log(string.Format("  FireRate: {0:F2}s", stats.GetFinalFireRate()));
+            }
+            Debug.Log("========================");
         }
     }
 }

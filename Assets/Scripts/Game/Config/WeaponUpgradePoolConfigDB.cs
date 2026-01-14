@@ -17,14 +17,21 @@ namespace ConfigHandler
         public static WeaponUpgradePoolConfigDB CustomLoad(string fileName)
         {
             var wrapper = JsonConfigLoader.Load<WeaponUpgradePoolConfigRoot>(fileName);
-            if (wrapper == null || wrapper.items == null)
+            if (wrapper == null || wrapper.weapons == null)
+            {
+                UnityEngine.Debug.LogError($"[WeaponUpgradePoolConfigDB] 加载失败: {fileName}");
                 return null;
+            }
 
             var db = new WeaponUpgradePoolConfigDB();
-            foreach (var kvp in wrapper.items)
+            foreach (var kvp in wrapper.weapons)
             {
-                db.Add(kvp.Key, kvp.Value);
+                var def = kvp.Value;
+                def.weaponId = kvp.Key; // 设置 weaponId
+                db.Add(kvp.Key, def);
             }
+            
+            UnityEngine.Debug.Log($"[WeaponUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个武器配置");
             return db;
         }
     }
@@ -32,7 +39,7 @@ namespace ConfigHandler
     [Serializable]
     public class WeaponUpgradePoolConfigRoot
     {
-        public Dictionary<string, WeaponUpgradePoolDef> items;
+        public Dictionary<string, WeaponUpgradePoolDef> weapons;
     }
 
     [Serializable]
