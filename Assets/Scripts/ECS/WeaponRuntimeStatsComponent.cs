@@ -36,6 +36,9 @@ namespace ECS
             public int countAdd;            // 数量增加
             public float fireRateMultiply;  // 射速倍率
             public float radiusAdd;         // 半径增加
+            public float speedAdd;          // 速度增加
+            public float rangeAdd;          // 射程增加
+            public float knockbackAdd;      // 击退增加
 
             public WeaponStats()
             {
@@ -81,6 +84,38 @@ namespace ECS
             public int GetFinalOrbitCount()
             {
                 return orbitCount + countAdd;
+            }
+            
+            /// <summary>
+            /// 获取最终投射物速度
+            /// </summary>
+            public float GetFinalProjectileSpeed()
+            {
+                return projectileSpeed + speedAdd;
+            }
+            
+            /// <summary>
+            /// 获取最终投射物射程
+            /// </summary>
+            public float GetFinalProjectileRange()
+            {
+                return projectileRange + rangeAdd;
+            }
+            
+            /// <summary>
+            /// 获取最终环绕速度
+            /// </summary>
+            public float GetFinalOrbitSpeed()
+            {
+                return orbitSpeed + speedAdd;
+            }
+            
+            /// <summary>
+            /// 获取最终击退力
+            /// </summary>
+            public float GetFinalKnockback()
+            {
+                return knockback + knockbackAdd;
             }
         }
 

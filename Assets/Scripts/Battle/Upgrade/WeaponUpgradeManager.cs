@@ -69,9 +69,50 @@ namespace Battle
             // 应用升级效果到运行时属性
             ApplyUpgradeRules(runtimeStats, weaponId, upgradeRule, oldLevel, weaponData.level);
 
+            // 如果是轨道武器,需要重新生成
+            if (_weaponConfigDB.TryGet(weaponId, out var weaponConfig))
+            {
+                if (weaponConfig.battle.Type == WeaponType.Orbit && weaponData.orbitSpawned)
+                {
+                    // 清除旧的轨道武器
+                    DestroyOrbitWeapons(world, playerEntity, weaponId);
+                    
+                    // 重置生成标志,让系统重新生成
+                    weaponData.orbitSpawned = false;
+                    
+                    Debug.Log($"[WeaponUpgradeManager] 轨道武器 {weaponId} 升级,将重新生成");
+                }
+            }
+
             Debug.Log($"[WeaponUpgradeManager] 武器 {weaponId} 从 Lv.{oldLevel} 升级到 Lv.{weaponData.level}");
 
             return true;
+        }
+
+        /// <summary>
+        /// 清除指定武器的所有轨道实体
+        /// </summary>
+        private void DestroyOrbitWeapons(World world, int playerEntity, string weaponId)
+        {
+            // 查找所有属于这个武器的轨道实体
+            var entitiesToDestroy = new System.Collections.Generic.List<int>();
+            
+            foreach (var (entity, orbit) in world.GetComponents<OrbitComponent>())
+            {
+                if (orbit.centerEntity == playerEntity)
+                {
+                    // 这里可以添加更精确的判断,比如通过武器ID标记
+                    // 暂时清除所有轨道武器
+                    entitiesToDestroy.Add(entity);
+                }
+            }
+            
+            foreach (var entity in entitiesToDestroy)
+            {
+                world.DestroyEntity(entity);
+            }
+            
+            Debug.Log($"[WeaponUpgradeManager] 清除了 {entitiesToDestroy.Count} 个轨道武器实体");
         }
 
         /// <summary>

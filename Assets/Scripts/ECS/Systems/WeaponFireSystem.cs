@@ -5,11 +5,11 @@ using ConfigHandler;
 namespace ECS.Systems
 {
     /// <summary>
-    /// 武器发射系统（重构版）
+    /// 武器发射系统（重构版 + 运行时属性支持）
     /// 职责：
     /// 1. 管理武器冷却
     /// 2. 决定是否触发发射
-    /// 3. 调用 SpawnService 生成实体
+    /// 3. 调用 SpawnService 生成实体（使用运行时属性）
     /// </summary>
     public class WeaponFireSystem : SystemBase
     {
@@ -21,20 +21,30 @@ namespace ECS.Systems
                     continue;
 
                 var ownerPos = world.GetComponent<PositionComponent>(owner);
+                
+                // 获取运行时属性组件
+                world.TryGetComponent<WeaponRuntimeStatsComponent>(owner, out var runtimeStats);
 
                 foreach (var weapon in slots.weapons)
                 {
                     if (!WeaponConfigDB.Instance.TryGet(weapon.weapon_type, out var def))
                         continue;
 
+                    // 获取武器的运行时属性
+                    WeaponRuntimeStatsComponent.WeaponStats stats = null;
+                    if (runtimeStats != null)
+                    {
+                        runtimeStats.TryGetStats(weapon.weapon_type, out stats);
+                    }
+
                     switch (def.battle.Type)
                     {
                         case WeaponType.Projectile:
-                            UpdateProjectileWeapon(world, owner, ownerPos, weapon, def, deltaTime);
+                            UpdateProjectileWeapon(world, owner, ownerPos, weapon, def, stats, deltaTime);
                             break;
 
                         case WeaponType.Orbit:
-                            UpdateOrbitWeapon(world, owner, weapon, def);
+                            UpdateOrbitWeapon(world, owner, weapon, def, stats);
                             break;
                     }
                 }
@@ -49,19 +59,23 @@ namespace ECS.Systems
             PositionComponent ownerPos,
             WeaponSlotsComponent.WeaponData weapon,
             WeaponConfig cfg,
+            WeaponRuntimeStatsComponent.WeaponStats stats,
             float deltaTime)
         {
             weapon.cooldown -= deltaTime;
             if (weapon.cooldown > 0f)
                 return;
 
-            var def = cfg.battle;
-            weapon.cooldown = def.projectile.interval;
+            // 使用运行时属性计算冷却时间
+            float fireRate = stats != null ? stats.GetFinalFireRate() : cfg.battle.projectile.interval;
+            weapon.cooldown = fireRate;
 
             int target = FindNearestEnemy(world, ownerPos);
             Vector2 dir = CalculateDirection(world, ownerPos, target);
 
-            int count = Mathf.RoundToInt(def.baseStats.count * weapon.level);
+            // 使用运行时属性计算投射物数量
+            int count = stats != null ? stats.GetFinalProjectileCount() : cfg.battle.baseStats.count;
+            
             for (int i = 0; i < count; i++)
             {
                 ProjectileSpawnService.Spawn(
@@ -70,7 +84,8 @@ namespace ECS.Systems
                     ownerPos,
                     dir,
                     cfg,
-                    weapon.level
+                    weapon.level,
+                    stats  // 传递运行时属性
                 );
             }
         }
@@ -81,15 +96,16 @@ namespace ECS.Systems
             World world,
             int owner,
             WeaponSlotsComponent.WeaponData weapon,
-            WeaponConfig cfg)
+            WeaponConfig cfg,
+            WeaponRuntimeStatsComponent.WeaponStats stats)
         {
             if (weapon.orbitSpawned)
                 return;
 
             weapon.orbitSpawned = true;
 
-            var def = cfg.battle;
-            int count = Mathf.RoundToInt(def.baseStats.count * weapon.level);
+            // 使用运行时属性计算轨道武器数量
+            int count = stats != null ? stats.GetFinalOrbitCount() : cfg.battle.baseStats.count;
             float step = Mathf.PI * 2f / count;
 
             for (int i = 0; i < count; i++)
@@ -101,7 +117,8 @@ namespace ECS.Systems
                     owner,
                     angle,
                     cfg,
-                    weapon.level
+                    weapon.level,
+                    stats  // 传递运行时属性
                 );
             }
         }
