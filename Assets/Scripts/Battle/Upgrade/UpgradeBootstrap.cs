@@ -1,4 +1,5 @@
 ﻿using ConfigHandler;
+using ECS.Core;
 using Game.Battle;
 using Lua;
 
@@ -6,7 +7,7 @@ namespace Battle
 {
     public static class UpgradeBootstrap
     {
-        public static void Initialize(ECS.Core.World world, int playerId)
+        public static void Initialize(World world, int playerId)
         {
             var weaponUpgradeManager = new WeaponUpgradeManager(
                 WeaponUpgradeRuleConfigDB.Instance,

@@ -25,15 +25,15 @@ public class RenderSystem
 
     private int totalRenderedThisFrame;
     private int totalErrorsThisFrame;
-
-    private readonly CinemachineVirtualCamera vcam;
+    
     private int currentCameraTarget = -1;
 
-    public RenderSystem(SpriteProvider spriteProvider, RenderObjectPool pool, CinemachineVirtualCamera vcam)
+    public Action<Transform> OnCameraTargetChanged;
+
+    public RenderSystem(SpriteProvider spriteProvider, RenderObjectPool pool)
     {
         this.spriteProvider = spriteProvider;
         this.pool = pool;
-        this.vcam = vcam;
     }
 
     // =========================================================
@@ -50,7 +50,6 @@ public class RenderSystem
     public void EndFrame()
     {
         RecycleDeadEntities();
-        UpdateCameraFollow();
 
         if (totalErrorsThisFrame > 0)
         {
@@ -58,25 +57,7 @@ public class RenderSystem
                 $"[RenderSystem] 本帧渲染 {totalRenderedThisFrame} 个实体，错误 {totalErrorsThisFrame}");
         }
     }
-
-    private void UpdateCameraFollow()
-    {
-        if (vcam == null)
-            return;
-
-        if (currentCameraTarget < 0)
-            return;
-
-        if (!transforms.TryGetValue(currentCameraTarget, out var transform))
-            return;
-
-        if (vcam.Follow != transform)
-        {
-            vcam.Follow = transform;
-            vcam.LookAt = transform;
-        }
-    }
-
+    
     // =========================================================
     // ECS → Render 同步入口
     // =========================================================
@@ -122,8 +103,8 @@ public class RenderSystem
             return;
 
         currentCameraTarget = eid;
+        OnCameraTargetChanged?.Invoke(transforms[eid]);
     }
-
 
     // =========================================================
     // 创建 / 更新

@@ -1,4 +1,8 @@
-﻿using Cinemachine;
+﻿using System;
+using System.Collections.Generic;
+using Battle.View.Battle.View;
+using Cinemachine;
+using ECS;
 using UnityEngine;
 using ECS.Core;
 using UniRx;
@@ -10,10 +14,13 @@ namespace Battle
         public static ECSGameManager Instance { get; private set; }
 
         private World world;
+        private RenderSyncSystem syncSystem;
         private IntReactiveProperty playerId = new(-1);
 
-        public CinemachineVirtualCamera camera;
+        public CinemachineVirtualCamera vCam;
 
+        private List<IDisposable> disposables = new List<IDisposable>();
+        
         private void Awake()
         {
             Instance = this;
@@ -23,7 +30,11 @@ namespace Battle
         {
             GameConfigLoader.LoadAll();
 
-            world = ECSWorldFactory.Create(camera);
+            var renderSystem = new RenderSystem(new SpriteProvider(), new RenderObjectPool());
+            renderSystem.OnCameraTargetChanged += new CameraFollowController(vCam).SetTarget;
+
+            world = new World();
+            syncSystem = new RenderSyncSystem(renderSystem);
 
             ECSSystemInstaller.Install(world);
 
@@ -41,11 +52,16 @@ namespace Battle
         private void Update()
         {
             world?.Update(Time.deltaTime);
-            ECSWorldFactory.Render(world);
+            syncSystem.Update(world);
         }
 
         private void OnDestroy()
         {
+            foreach (var disposable in disposables)
+            {
+                disposable.Dispose();
+            }
+            
             world?.Clear();
         }
 
