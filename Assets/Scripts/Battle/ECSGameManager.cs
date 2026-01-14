@@ -61,10 +61,16 @@ namespace Battle
             Debug.Log($"游戏初始化完成 - 实体数: {world.EntityCount}, 系统数: {world.SystemCount}");
         }
 
-         void Bind(int playerId)
+        void Bind(int playerId)
         {
             PlayerContext.Instance.Initialize(world, playerId);
-            ExpSystem.Instance.Init(LuaMain.Env,  PlayerContext.Instance);
+
+            var upgradeService = new UpgradeService(
+                WeaponUpgradePoolConfigDB.Instance,
+                WeaponUpgradeRuleConfigDB.Instance,
+                PassiveUpgradePoolConfigDB.Instance
+            );
+            ExpSystem.Instance.Init(LuaMain.Env, PlayerContext.Instance, upgradeService);
             world.RegisterService(ExpSystem.Instance);
         }
 

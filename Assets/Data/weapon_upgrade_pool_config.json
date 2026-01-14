@@ -1,0 +1,15 @@
+﻿{
+  "weapons": {
+    "ProjectileKnife": {
+      "weight": 10,
+      "unlockLevel": 1,
+      "excludeIfMax": true
+    },
+
+    "OrbitKnife": {
+      "weight": 8,
+      "unlockLevel": 2,
+      "excludeIfMax": true
+    }
+  }
+}

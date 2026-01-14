@@ -9,7 +9,9 @@ namespace Framework.Config
     {
         bool TryGet(TKey key, out TValue value);
         TValue Get(TKey key);
-        IEnumerable<TKey> GetAllKeys();
+        public IEnumerable<TKey> AllKeys { get; }
+
+        public IEnumerable<TValue> AllValues { get; }
     }
 
     /// <summary>
@@ -22,6 +24,7 @@ namespace Framework.Config
         public static TDB Instance => _instance;
 
         protected readonly Dictionary<TKey, TValue> _data = new Dictionary<TKey, TValue>();
+        public Dictionary<TKey, TValue> Data => _data;
 
         public static void Initialize(TDB db)
         {
@@ -39,10 +42,9 @@ namespace Framework.Config
             return value;
         }
 
-        public IEnumerable<TKey> GetAllKeys()
-        {
-            return _data.Keys;
-        }
+        public IEnumerable<TKey> AllKeys => _data.Keys;
+
+        public IEnumerable<TValue> AllValues => _data.Values;
 
         protected void Add(TKey key, TValue value)
         {

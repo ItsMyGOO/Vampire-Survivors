@@ -1,0 +1,48 @@
+﻿{
+  "passives": {
+    "MaxHealth": {
+      "attribute": "MaxHealth",
+      "valuePerLevel": 20,
+      "maxLevel": 5,
+      "weight": 10,
+      "unlockLevel": 1,
+      "excludeIfMax": true
+    },
+
+    "MoveSpeed": {
+      "attribute": "MoveSpeed",
+      "valuePerLevel": 0.1,
+      "maxLevel": 5,
+      "weight": 8,
+      "unlockLevel": 1,
+      "excludeIfMax": true
+    },
+
+    "AttackDamage": {
+      "attribute": "AttackDamage",
+      "valuePerLevel": 5,
+      "maxLevel": 8,
+      "weight": 9,
+      "unlockLevel": 2,
+      "excludeIfMax": true
+    },
+
+    "CooldownReduction": {
+      "attribute": "CooldownReduction",
+      "valuePerLevel": 0.05,
+      "maxLevel": 5,
+      "weight": 6,
+      "unlockLevel": 3,
+      "excludeIfMax": true
+    },
+
+    "PickupRange": {
+      "attribute": "PickupRange",
+      "valuePerLevel": 0.3,
+      "maxLevel": 4,
+      "weight": 7,
+      "unlockLevel": 1,
+      "excludeIfMax": true
+    }
+  }
+}

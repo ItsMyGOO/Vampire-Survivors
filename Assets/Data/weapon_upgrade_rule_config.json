@@ -1,15 +1,21 @@
 ﻿{
   "weapons": {
     "ProjectileKnife": {
-      "weight": 10,
-      "unlockLevel": 1,
-      "excludeIfMax": true
+      "maxLevel": 8,
+      "rules": [
+        { "stat": "Damage", "op": "Add", "value": 2 },
+        { "stat": "Count", "op": "Add", "value": 1, "every": 2 },
+        { "stat": "Cooldown", "op": "Mul", "value": 0.9, "every": 3 }
+      ]
     },
 
     "OrbitKnife": {
-      "weight": 8,
-      "unlockLevel": 2,
-      "excludeIfMax": true
+      "maxLevel": 6,
+      "rules": [
+        { "stat": "Damage", "op": "Add", "value": 1.5 },
+        { "stat": "Radius", "op": "Add", "value": 0.2 },
+        { "stat": "Count", "op": "Add", "value": 1, "every": 2 }
+      ]
     }
   }
 }
