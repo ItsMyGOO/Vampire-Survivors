@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Core;
+using Core.Buff;
 
 namespace Combat.Skill
 {

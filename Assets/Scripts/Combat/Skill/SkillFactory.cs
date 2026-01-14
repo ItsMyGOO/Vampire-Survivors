@@ -1,5 +1,5 @@
 ﻿using Combat.Damage;
-using Core;
+using Core.Buff;
 
 namespace Combat.Skill
 {

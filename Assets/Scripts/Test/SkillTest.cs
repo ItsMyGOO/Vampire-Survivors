@@ -1,6 +1,6 @@
 ﻿using Combat.Buff;
 using Combat.Skill;
-using Core;
+using Core.Buff;
 using UnityEngine;
 
 namespace Game.Test

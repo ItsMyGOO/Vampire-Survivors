@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Core.Buff;
 
 namespace Combat.Buff.Damage
 {

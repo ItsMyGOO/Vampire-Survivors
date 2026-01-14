@@ -1,6 +1,4 @@
-﻿using Combat.Skill;
-using Game.Test;
-using UnityEngine;
+﻿using UnityEngine;
 using XLua;
 
 namespace Lua

@@ -1,5 +1,4 @@
 ﻿using ECS.Core;
-using UnityEngine;
 
 namespace ECS.Systems
 {

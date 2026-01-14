@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Combat.Skill;
-using Core;
 using Lua;
 using UnityEngine;
 using XLua;

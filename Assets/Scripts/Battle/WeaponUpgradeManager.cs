@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ConfigHandler;
+﻿using ConfigHandler;
 using ECS;
 using ECS.Core;
 using UnityEngine;

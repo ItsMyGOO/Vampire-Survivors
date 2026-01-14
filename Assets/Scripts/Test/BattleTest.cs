@@ -1,5 +1,4 @@
-﻿using System;
-using Lua;
+﻿using Lua;
 using UnityEngine;
 using XLua;
 using Random = UnityEngine.Random;

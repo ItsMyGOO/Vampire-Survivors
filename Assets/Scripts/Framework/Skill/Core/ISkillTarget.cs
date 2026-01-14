@@ -1,4 +1,4 @@
-﻿namespace Core
+﻿namespace Core.Buff
 {
     public interface ISkillTarget
     {
