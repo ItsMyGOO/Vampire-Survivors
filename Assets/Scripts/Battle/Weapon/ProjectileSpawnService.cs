@@ -10,6 +10,24 @@ namespace ECS.Systems
     /// </summary>
     public static class ProjectileSpawnService
     {
+        public static Vector2 Calculate(
+            Vector2 baseDir,
+            int index,
+            int count,
+            float spreadAngleDeg
+        )
+        {
+            if (count <= 1) return baseDir;
+
+            float baseAngle = Mathf.Atan2(baseDir.y, baseDir.x);
+            float spreadRad = spreadAngleDeg * Mathf.Deg2Rad;
+            float start = baseAngle - spreadRad * 0.5f;
+            float step = spreadRad / (count - 1);
+
+            float angle = start + step * index;
+            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        }
+
         public static void Spawn(
             World world,
             int ownerId,
@@ -55,7 +73,7 @@ namespace ECS.Systems
             // 使用运行时属性计算最终伤害
             float finalDamage = stats != null ? stats.GetFinalDamage() : (battle.baseStats.damage * level);
             float finalKnockback = stats != null ? stats.GetFinalKnockback() : battle.baseStats.knockback;
-            
+
             world.AddComponent(entity, new DamageSourceComponent
             {
                 damage = finalDamage,
@@ -74,7 +92,7 @@ namespace ECS.Systems
 
             // ================= LifeTime =================
             world.AddComponent(entity, new LifeTimeComponent(lifetime));
-            
+
             // Debug日志：显示最终使用的属性
             if (stats != null)
             {

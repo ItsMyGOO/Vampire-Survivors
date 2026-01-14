@@ -71,13 +71,16 @@ namespace ECS.Systems
             weapon.cooldown = fireRate;
 
             int target = FindNearestEnemy(world, ownerPos);
-            Vector2 dir = CalculateDirection(world, ownerPos, target);
+            Vector2 baseDir = CalculateDirection(world, ownerPos, target);
 
             // 使用运行时属性计算投射物数量
             int count = stats != null ? stats.GetFinalProjectileCount() : cfg.battle.baseStats.count;
             
             for (int i = 0; i < count; i++)
             {
+                
+                Vector2 dir = ProjectileSpawnService.Calculate(
+                    baseDir, i, count, 5);
                 ProjectileSpawnService.Spawn(
                     world,
                     owner,
