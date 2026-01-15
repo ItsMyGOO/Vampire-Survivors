@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ECS
+namespace Battle.Player
 {
     /// <summary>
     /// 玩家属性组件 - 用于升级和属性提升

@@ -1,4 +1,5 @@
-﻿using ECS.Core;
+﻿using Battle.Player;
+using ECS.Core;
 using UnityEngine;
 
 namespace Battle.Upgrade

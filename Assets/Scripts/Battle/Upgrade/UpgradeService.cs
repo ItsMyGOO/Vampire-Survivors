@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Battle.Player;
 using ConfigHandler;
 
 namespace Battle.Upgrade
@@ -14,26 +15,20 @@ namespace Battle.Upgrade
         private PassiveUpgradePoolConfigDB PassiveUpgradePoolConfigDB;
 
 
-        public UpgradeService(WeaponUpgradePoolConfigDB weaponUpgradePoolConfigDB,
-            WeaponUpgradeRuleConfigDB weaponUpgradeRuleConfigDB,
-            PassiveUpgradePoolConfigDB passiveUpgradePoolConfigDB)
+        public UpgradeService()
         {
-            WeaponUpgradePoolConfigDB = weaponUpgradePoolConfigDB;
-            WeaponUpgradeRuleConfigDB = weaponUpgradeRuleConfigDB;
-            PassiveUpgradePoolConfigDB = passiveUpgradePoolConfigDB;
+            WeaponUpgradePoolConfigDB = WeaponUpgradePoolConfigDB.Instance;
+            WeaponUpgradeRuleConfigDB = WeaponUpgradeRuleConfigDB.Instance;
+            PassiveUpgradePoolConfigDB = PassiveUpgradePoolConfigDB.Instance;
         }
 
-        public List<UpgradeOption> RollOptions(
-            int optionCount,
-            int playerLevel)
+        public List<UpgradeOption> RollOptions(int optionCount, int playerLevel)
         {
             var upgradeState = PlayerContext.Instance.UpgradeState;
             return RollOptions(optionCount, playerLevel, upgradeState.weapons, upgradeState.passives);
         }
 
-        public List<UpgradeOption> RollOptions(
-            int optionCount,
-            int playerLevel,
+        public List<UpgradeOption> RollOptions(int optionCount, int playerLevel,
             IReadOnlyDictionary<string, int> ownedWeapons,
             IReadOnlyDictionary<string, int> passiveLevels)
         {
@@ -58,9 +53,7 @@ namespace Battle.Upgrade
         // Weapon Pool
         // =========================
 
-        private void CollectWeaponCandidates(
-            List<WeightedCandidate> list,
-            int playerLevel,
+        private void CollectWeaponCandidates(List<WeightedCandidate> list, int playerLevel,
             IReadOnlyDictionary<string, int> ownedWeapons)
         {
             foreach (var (weaponId, def) in WeaponUpgradePoolConfigDB.Data)
@@ -91,9 +84,7 @@ namespace Battle.Upgrade
         // Passive Pool
         // =========================
 
-        private void CollectPassiveCandidates(
-            List<WeightedCandidate> list,
-            int playerLevel,
+        private void CollectPassiveCandidates(List<WeightedCandidate> list, int playerLevel,
             IReadOnlyDictionary<string, int> passiveLevels)
         {
             foreach (var (passiveId, def) in PassiveUpgradePoolConfigDB.Data)
@@ -120,9 +111,7 @@ namespace Battle.Upgrade
         // Weighted Roll
         // =========================
 
-        private List<UpgradeOption> RollFromCandidates(
-            List<WeightedCandidate> candidates,
-            int count)
+        private List<UpgradeOption> RollFromCandidates(List<WeightedCandidate> candidates, int count)
         {
             var results = new List<UpgradeOption>();
             var pool = new List<WeightedCandidate>(candidates);

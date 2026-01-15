@@ -1,4 +1,4 @@
-﻿using Battle;
+﻿using Battle.Player;
 using Battle.Upgrade;
 using UnityEngine;
 using UnityEngine.UI;

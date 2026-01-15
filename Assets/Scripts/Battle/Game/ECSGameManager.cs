@@ -1,4 +1,5 @@
-﻿using Battle.Upgrade;
+﻿using Battle.Player;
+using Battle.Upgrade;
 using Battle.View;
 using Battle.Weapon;
 using Cinemachine;
@@ -18,7 +19,7 @@ namespace Battle
         private IntReactiveProperty playerId = new(-1);
 
         public CinemachineVirtualCamera vCam;
-        
+
         private void Awake()
         {
             Instance = this;
@@ -28,19 +29,21 @@ namespace Battle
         {
             GameConfigLoader.LoadAll();
 
+            world = new World();
+            int pid = PlayerFactory.CreatePlayer(world);
+
             var renderSystem = new RenderSystem(new SpriteProvider(), new RenderObjectPool());
             renderSystem.OnCameraTargetChanged += new CameraFollowController(vCam).SetTarget;
-
-            world = new World();
+            
             syncSystem = new RenderSyncSystem(renderSystem);
 
             ECSSystemInstaller.Install(world);
 
-            int pid = PlayerFactory.CreatePlayer(world);
+            
             playerId.Value = pid;
 
             UpgradeBootstrap.Initialize(world, pid);
-    
+
             PlayerWeaponInitializer.Initialize(world, pid);
 
             gameObject.AddComponent<ECSGameDebugController>()

@@ -1,7 +1,7 @@
 ﻿using ECS.Core;
 using ECS;
 
-namespace Battle
+namespace Battle.Player
 {
     public static class PlayerFactory
     {

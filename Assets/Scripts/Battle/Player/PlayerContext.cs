@@ -1,7 +1,7 @@
 ﻿using Battle.Upgrade;
 using ECS.Core;
 
-namespace Battle
+namespace Battle.Player
 {
     /// <summary>
     /// 玩家上下文 - 单例
@@ -13,7 +13,6 @@ namespace Battle
 
         public World World { get; private set; }
         public int PlayerEntity { get; private set; }
-        public WeaponUpgradeManager WeaponUpgradeManager { get; set; }
         public UpgradeService UpgradeService { get; private set; }
         public ExpData ExpData { get; set; }
         public PlayerUpgradeState UpgradeState { get; set; }
@@ -21,14 +20,12 @@ namespace Battle
         public static void Initialize(
             World world,
             int playerEntity,
-            WeaponUpgradeManager weaponUpgradeManager,
             UpgradeService upgradeService)
         {
             Instance = new PlayerContext
             {
                 World = world,
                 PlayerEntity = playerEntity,
-                WeaponUpgradeManager = weaponUpgradeManager,
                 UpgradeService = upgradeService
             };
         }
@@ -43,7 +40,6 @@ namespace Battle
 
             World = null;
             PlayerEntity = -1;
-            WeaponUpgradeManager = null;
             UpgradeService = null;
 
             // 清空单例

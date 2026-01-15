@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Battle.Player;
 using ECS.Core;
 using UniRx;
 using UnityEngine;
@@ -60,14 +61,14 @@ namespace Battle.Upgrade
 
         public void Init(
             LuaEnv luaEnv,
-            PlayerContext ctx,
+            World world,
+            int playerId,
             UpgradeService upgradeService)
         {
             this.luaEnv = luaEnv;
+            this.world = world;
+            this.playerEntity = playerId;
             this.upgradeService = upgradeService;
-
-            world = ctx.World;
-            playerEntity = ctx.PlayerEntity;
 
             InitLuaUpgradeFlow();
         }

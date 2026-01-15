@@ -1,4 +1,5 @@
-﻿using ConfigHandler;
+﻿using Battle.Player;
+using ConfigHandler;
 using ECS.Core;
 using Lua;
 
@@ -8,24 +9,17 @@ namespace Battle.Upgrade
     {
         public static void Initialize(World world, int playerId)
         {
-            var weaponUpgradeManager = new WeaponUpgradeManager(
-                WeaponUpgradeRuleConfigDB.Instance,
-                WeaponConfigDB.Instance);
-
-
-            var upgradeService = new UpgradeService(
-                WeaponUpgradePoolConfigDB.Instance,
-                WeaponUpgradeRuleConfigDB.Instance,
-                PassiveUpgradePoolConfigDB.Instance);
+            var weaponUpgradeManager = new WeaponUpgradeManager();
+            var upgradeService = new UpgradeService();
 
             UpgradeApplyService.Initialize(weaponUpgradeManager);
-            
-            PlayerContext.Initialize(world, playerId, weaponUpgradeManager, upgradeService);
-            
+
+            PlayerContext.Initialize(world, playerId, upgradeService);
+
             var expData = ExpSystem.Instance.CreateExpData();
             PlayerContext.Instance.BindExpData(expData);
 
-            ExpSystem.Instance.Init(LuaMain.Env, PlayerContext.Instance, upgradeService);
+            ExpSystem.Instance.Init(LuaMain.Env, world, playerId, upgradeService);
             LuaMain.Register(ExpSystem.Instance);
 
             world.RegisterService(ExpSystem.Instance);

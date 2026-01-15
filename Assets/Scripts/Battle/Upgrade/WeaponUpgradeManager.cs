@@ -14,12 +14,10 @@ namespace Battle.Upgrade
         private WeaponUpgradeRuleConfigDB _upgradeRuleDB;
         private WeaponConfigDB _weaponConfigDB;
 
-        public WeaponUpgradeManager(
-            WeaponUpgradeRuleConfigDB upgradeRuleDB,
-            WeaponConfigDB weaponConfigDB)
+        public WeaponUpgradeManager()
         {
-            _upgradeRuleDB = upgradeRuleDB;
-            _weaponConfigDB = weaponConfigDB;
+            _upgradeRuleDB = WeaponUpgradeRuleConfigDB.Instance;
+            _weaponConfigDB = WeaponConfigDB.Instance;
         }
 
         /// <summary>

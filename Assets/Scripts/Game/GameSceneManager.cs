@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System;
 using Battle;
+using Battle.Player;
 
 namespace Game
 {
