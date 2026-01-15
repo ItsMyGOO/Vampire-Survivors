@@ -1,4 +1,4 @@
-﻿namespace ECS
+﻿namespace Battle.Weapon
 {
     /// <summary>
     /// 武器在某一时刻的最终战斗数值
@@ -28,5 +28,4 @@
         public float radius;
         public float speed;
     }
-
 }

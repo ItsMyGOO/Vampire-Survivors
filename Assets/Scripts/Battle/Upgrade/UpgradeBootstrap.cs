@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using ConfigHandler;
+﻿using ConfigHandler;
 using ECS.Core;
-using Game.Battle;
 using Lua;
 
-namespace Battle
+namespace Battle.Upgrade
 {
     public static class UpgradeBootstrap
     {
@@ -15,8 +12,6 @@ namespace Battle
                 WeaponUpgradeRuleConfigDB.Instance,
                 WeaponConfigDB.Instance);
 
-            PlayerContext.Instance.Initialize(world, playerId);
-            PlayerContext.Instance.WeaponUpgradeManager = weaponUpgradeManager;
 
             var upgradeService = new UpgradeService(
                 WeaponUpgradePoolConfigDB.Instance,
@@ -25,12 +20,14 @@ namespace Battle
 
             UpgradeApplyService.Initialize(weaponUpgradeManager);
             
+            PlayerContext.Initialize(world, playerId, weaponUpgradeManager, upgradeService);
+            
             var expData = ExpSystem.Instance.CreateExpData();
             PlayerContext.Instance.BindExpData(expData);
 
             ExpSystem.Instance.Init(LuaMain.Env, PlayerContext.Instance, upgradeService);
             LuaMain.Register(ExpSystem.Instance);
-            
+
             world.RegisterService(ExpSystem.Instance);
         }
     }

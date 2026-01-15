@@ -1,8 +1,9 @@
 ﻿using ConfigHandler;
+using ECS;
 using ECS.Core;
 using UnityEngine;
 
-namespace ECS.Systems
+namespace Battle.Weapon
 {
     public static class ProjectileSpawnService
     {

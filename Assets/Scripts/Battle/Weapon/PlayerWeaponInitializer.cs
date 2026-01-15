@@ -2,7 +2,7 @@
 using ConfigHandler;
 using ECS;
 
-namespace Battle
+namespace Battle.Weapon
 {
     /// <summary>
     /// 玩家武器运行时数据初始化

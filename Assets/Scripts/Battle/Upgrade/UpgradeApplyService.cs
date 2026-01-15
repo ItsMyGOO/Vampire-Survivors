@@ -1,8 +1,7 @@
 ﻿using ECS.Core;
-using Game.Battle;
 using UnityEngine;
 
-namespace Battle
+namespace Battle.Upgrade
 {
     public static class UpgradeApplyService
     {

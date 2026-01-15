@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using ConfigHandler;
-using Game.Battle;
 
-namespace Battle
+namespace Battle.Upgrade
 {
     public class UpgradeService
     {

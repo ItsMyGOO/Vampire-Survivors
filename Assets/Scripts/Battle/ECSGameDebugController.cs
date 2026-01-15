@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using Battle.Upgrade;
+using UnityEngine;
 using ECS.Core;
-using Game.Battle;
 
 namespace Battle
 {

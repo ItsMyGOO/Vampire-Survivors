@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Battle;
 using ECS.Core;
 using UniRx;
 using UnityEngine;
 using XLua;
 
-namespace Game.Battle
+namespace Battle.Upgrade
 {
     public class ExpData
     {

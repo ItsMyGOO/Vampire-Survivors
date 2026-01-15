@@ -1,7 +1,7 @@
 ﻿using System;
 using ConfigHandler;
 
-namespace ECS
+namespace Battle.Weapon
 {
     /// <summary>
     /// 单个武器的运行时状态（升级 / Buff / Lua 修改）

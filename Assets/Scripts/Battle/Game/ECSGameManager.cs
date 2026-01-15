@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Battle.View.Battle.View;
+﻿using Battle.Upgrade;
+using Battle.View;
+using Battle.Weapon;
 using Cinemachine;
 using ECS;
 using UnityEngine;

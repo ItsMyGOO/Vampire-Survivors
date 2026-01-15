@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ConfigHandler;
 
-namespace ECS
+namespace Battle.Weapon
 {
     /// <summary>
     /// 挂在 Player / WeaponOwner 上

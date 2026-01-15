@@ -1,9 +1,10 @@
-﻿using ConfigHandler;
+﻿using Battle.Weapon;
+using ConfigHandler;
 using ECS;
 using ECS.Core;
 using UnityEngine;
 
-namespace Battle
+namespace Battle.Upgrade
 {
     /// <summary>
     /// 武器升级管理器 - 负责处理武器的升级逻辑

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Battle
+namespace Battle.Upgrade
 {
     /// <summary>
     /// 玩家升级状态（Weapon + Passive）

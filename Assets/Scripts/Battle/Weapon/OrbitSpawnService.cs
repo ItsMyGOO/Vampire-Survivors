@@ -1,8 +1,9 @@
 ﻿using ConfigHandler;
+using ECS;
 using ECS.Core;
 using UnityEngine;
 
-namespace ECS.Systems
+namespace Battle.Weapon
 {
     /// <summary>
     /// 轨道武器生成服务
