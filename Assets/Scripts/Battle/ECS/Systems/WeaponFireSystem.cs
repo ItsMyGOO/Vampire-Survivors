@@ -1,4 +1,5 @@
-﻿using ECS.Core;
+﻿using Battle.Weapon;
+using ECS.Core;
 using UnityEngine;
 using ConfigHandler;
 

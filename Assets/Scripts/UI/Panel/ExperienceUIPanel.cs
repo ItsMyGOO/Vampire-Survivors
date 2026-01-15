@@ -1,4 +1,5 @@
 ﻿using Battle;
+using Battle.Upgrade;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
