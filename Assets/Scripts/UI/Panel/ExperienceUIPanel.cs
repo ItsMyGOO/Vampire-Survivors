@@ -1,4 +1,4 @@
-﻿using Game.Battle;
+﻿using Battle;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
