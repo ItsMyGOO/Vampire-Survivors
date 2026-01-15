@@ -106,14 +106,46 @@ namespace ECS.Systems
         // ===== Target =====（不变）
         private int FindNearestEnemy(World world, PositionComponent playerPos)
         {
-            /* 原样 */
-            return -1;
+            int nearest = -1;
+            float minDistSq = float.MaxValue;
+
+            foreach (var (entity, _) in world.GetComponents<EnemyTagComponent>())
+            {
+                if (!world.HasComponent<PositionComponent>(entity))
+                    continue;
+
+                var pos = world.GetComponent<PositionComponent>(entity);
+                float dx = pos.x - playerPos.x;
+                float dy = pos.y - playerPos.y;
+                float distSq = dx * dx + dy * dy;
+
+                if (distSq < minDistSq)
+                {
+                    minDistSq = distSq;
+                    nearest = entity;
+                }
+            }
+
+            return nearest;
         }
 
         private Vector2 CalculateDirection(World world, PositionComponent ownerPos, int target)
         {
-            /* 原样 */
-            return Vector2.right;
+            if (target == -1)
+                return Vector2.right;
+
+            var targetPos = world.GetComponent<PositionComponent>(target);
+            if (targetPos == null)
+                return Vector2.right;
+
+            Vector2 dir = new Vector2(
+                targetPos.x - ownerPos.x,
+                targetPos.y - ownerPos.y
+            );
+
+            return dir.sqrMagnitude < 0.0001f
+                ? Vector2.right
+                : dir.normalized;
         }
     }
 }
