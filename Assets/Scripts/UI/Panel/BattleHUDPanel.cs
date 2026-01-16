@@ -33,12 +33,7 @@ namespace UI.Panel
 
         protected override void OnStart()
         {
-            // 等 PlayerContext & Exp 初始化完成
-            Observable.EveryUpdate()
-                .Where(_ => PlayerContext.Instance.ExpSystem.ExpData != null)
-                .Take(1)
-                .Subscribe(_ => Bind(PlayerContext.Instance.ExpSystem.ExpData))
-                .AddTo(this);
+           Bind(PlayerContext.Instance.ExpSystem.ExpData);
         }
 
         void Bind(ExpData expData)
