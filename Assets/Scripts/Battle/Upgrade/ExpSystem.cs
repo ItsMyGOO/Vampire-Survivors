@@ -1,5 +1,4 @@
 ﻿using System;
-using Battle.Player;
 using ECS.Core;
 using UniRx;
 using UnityEngine;
@@ -34,7 +33,7 @@ namespace Battle.Upgrade
         private const float EXP_GROWTH_RATE = 1.15f;
 
         public ExpData ExpData { get; private set; } = new();
-        
+
         // =========================
         // Exp
         // =========================
@@ -91,13 +90,6 @@ namespace Battle.Upgrade
             Debug.Log($"  等级: {ExpData.level.Value}");
             Debug.Log($"  当前经验: {ExpData.current_exp.Value:F1}");
             Debug.Log($"  升级所需: {ExpData.exp_to_next_level.Value:F1}");
-
-            var upgradeState = PlayerContext.Instance.UpgradeState;
-            Debug.Log($"  拥有武器数: {upgradeState.weapons.Count}");
-            foreach (var weapon in upgradeState.weapons)
-            {
-                Debug.Log($"    - {weapon.Key}: Lv.{weapon.Value}");
-            }
         }
     }
 }

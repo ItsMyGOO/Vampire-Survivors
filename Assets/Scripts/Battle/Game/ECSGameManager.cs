@@ -42,6 +42,9 @@ namespace Battle
             // 5. World 系统
             InstallWorldSystems(world);
 
+            // ===== 升级 / 经验 =====
+            UpgradeWorldInstaller.Install(world);
+
             // 6. Player 运行时数据
             PlayerWeaponInitializer.Initialize(world, playerId);
         }
@@ -49,7 +52,7 @@ namespace Battle
         private void InstallWorldSystems(World w)
         {
             ECSSystemInstaller.Install(w);
-            
+
             // ===== 渲染 =====
             var renderSystem = new RenderSystem(
                 new SpriteProvider(),
@@ -60,9 +63,6 @@ namespace Battle
                 new CameraFollowController(vCam).SetTarget;
 
             syncSystem = new RenderSyncSystem(renderSystem);
-
-            // ===== 升级 / 经验 =====
-            UpgradeWorldInstaller.Install(w);
         }
 
         private void Update()
