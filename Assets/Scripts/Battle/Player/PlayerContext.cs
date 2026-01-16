@@ -13,7 +13,6 @@ namespace Battle.Player
 
         public World World { get; private set; }
         public int PlayerEntity { get; private set; }
-        public PlayerUpgradeState UpgradeState { get; set; }
         public ExpSystem ExpSystem { get; set; }
 
         public static void Initialize(World world, int playerEntity)

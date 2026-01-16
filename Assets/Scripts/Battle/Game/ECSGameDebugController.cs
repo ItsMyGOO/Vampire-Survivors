@@ -16,7 +16,6 @@ namespace Battle
             {
                 PlayerContext.Instance.World.DebugPrint();
                 PlayerContext.Instance.ExpSystem.PrintStatus();
-                PlayerContext.Instance.UpgradeState.PrintStatus();
             }
         }
     }

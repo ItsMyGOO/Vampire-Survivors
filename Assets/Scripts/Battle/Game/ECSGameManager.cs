@@ -43,7 +43,7 @@ namespace Battle
             InstallWorldSystems(world);
 
             // ===== 升级 / 经验 =====
-            UpgradeWorldInstaller.Install(world);
+            UpgradeWorldInstaller.Install(world,playerId);
 
             // 6. Player 运行时数据
             PlayerWeaponInitializer.Initialize(world, playerId);

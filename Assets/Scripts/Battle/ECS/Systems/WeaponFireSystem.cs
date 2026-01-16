@@ -16,9 +16,9 @@ namespace ECS.Systems
 
                 var ownerPos = world.GetComponent<PositionComponent>(owner);
 
-                foreach (var weapon in weaponStats.GetAllWeapons())
+                foreach (var (weaponId, weapon) in weaponStats.GetAllWeapons())
                 {
-                    if (!WeaponConfigDB.Instance.TryGet(weapon.weaponId, out var cfg))
+                    if (!WeaponConfigDB.Instance.TryGet(weaponId, out var cfg))
                         continue;
 
                     var stats = weapon.BuildFinalStats(cfg);

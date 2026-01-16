@@ -6,16 +6,14 @@ namespace Battle.Upgrade
 {
     public static class UpgradeWorldInstaller
     {
-        public static void Install(World world)
+        public static void Install(World world, int playerEntity)
         {
             // 1. System
             var expSystem = new ExpSystem();
-            
-            var upgradeState = new PlayerUpgradeState();
 
             // 2. Services
-            var upgradeService = new UpgradeService(LuaMain.Env);
-            var weaponUpgradeManager = new WeaponUpgradeManager();
+            var upgradeService = new UpgradeService(LuaMain.Env, world, playerEntity);
+            var weaponUpgradeManager = new WeaponUpgradeManager(world, playerEntity);
             var upgradeApplyService = new UpgradeApplyService(weaponUpgradeManager);
 
             // 3. 事件绑定
@@ -30,7 +28,6 @@ namespace Battle.Upgrade
 
             // 6. PlayerContext 只存引用
             PlayerContext.Instance.ExpSystem = expSystem;
-            PlayerContext.Instance.UpgradeState = upgradeState;
         }
     }
 }

@@ -14,9 +14,9 @@ namespace Battle.Weapon
         private readonly Dictionary<string, WeaponRuntimeStats> _stats
             = new Dictionary<string, WeaponRuntimeStats>();
         
-        public IEnumerable<WeaponRuntimeStats> GetAllWeapons()
+        public IReadOnlyDictionary<string, WeaponRuntimeStats> GetAllWeapons()
         {
-            return _stats.Values;
+            return _stats;
         }
 
         public WeaponRuntimeStats GetOrCreate(string weaponId)

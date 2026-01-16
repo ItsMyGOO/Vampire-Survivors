@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Battle.Player;
+using Battle.Weapon;
 using ConfigHandler;
+using ECS.Core;
 using UnityEngine;
 using XLua;
 
@@ -9,7 +11,7 @@ namespace Battle.Upgrade
 {
     public class UpgradeService : IDisposable
     {
-        public event Action<UpgradeOption> OnApplyUpgradeOptions;
+        public Action<UpgradeOption> OnApplyUpgradeOptions;
 
         // =========================
         // 对外 API（Lua / UI 调用）
@@ -30,9 +32,14 @@ namespace Battle.Upgrade
         private LuaTable luaUpgradeFlow;
         private LuaFunction luaOnUpgradeOptions;
 
-        public UpgradeService(LuaEnv luaEnv)
+        World world;
+        int playerId;
+
+        public UpgradeService(LuaEnv luaEnv, World world, int playerId)
         {
             this.luaEnv = luaEnv;
+            this.world = world;
+            this.playerId = playerId;
 
             WeaponUpgradePoolConfigDB = WeaponUpgradePoolConfigDB.Instance;
             WeaponUpgradeRuleConfigDB = WeaponUpgradeRuleConfigDB.Instance;
@@ -126,17 +133,17 @@ namespace Battle.Upgrade
             }
 
             // 应用选择的升级
-            OnApplyUpgradeOptions?.Invoke(selected);
+            OnApplyUpgradeOptions.Invoke(selected);
         }
 
         public List<UpgradeOption> RollOptions(int optionCount, int playerLevel)
         {
-            var upgradeState = PlayerContext.Instance.UpgradeState;
-            return RollOptions(optionCount, playerLevel, upgradeState.weapons, upgradeState.passives);
+            var weapons = world.GetComponent<WeaponRuntimeStatsComponent>(playerId).GetAllWeapons();
+            return RollOptions(optionCount, playerLevel, weapons, null);
         }
 
         public List<UpgradeOption> RollOptions(int optionCount, int playerLevel,
-            IReadOnlyDictionary<string, int> ownedWeapons,
+            IReadOnlyDictionary<string, WeaponRuntimeStats> ownedWeapons,
             IReadOnlyDictionary<string, int> passiveLevels)
         {
             var candidates = new List<WeightedCandidate>();
@@ -161,7 +168,7 @@ namespace Battle.Upgrade
         // =========================
 
         private void CollectWeaponCandidates(List<WeightedCandidate> list, int playerLevel,
-            IReadOnlyDictionary<string, int> ownedWeapons)
+            IReadOnlyDictionary<string, WeaponRuntimeStats> ownedWeapons)
         {
             foreach (var (weaponId, def) in WeaponUpgradePoolConfigDB.Data)
             {
@@ -169,7 +176,8 @@ namespace Battle.Upgrade
                 if (playerLevel < def.unlockLevel)
                     continue;
 
-                bool owned = ownedWeapons.TryGetValue(weaponId, out var level);
+                bool owned = ownedWeapons.TryGetValue(weaponId, out var stats);
+                int level = owned ? stats.level : 0;
 
                 if (!WeaponUpgradeRuleConfigDB.Data.TryGetValue(weaponId, out var ruleDef))
                     continue;
@@ -199,7 +207,8 @@ namespace Battle.Upgrade
                 if (playerLevel < def.unlockLevel)
                     continue;
 
-                passiveLevels.TryGetValue(passiveId, out var level);
+                int level = 0;
+                passiveLevels?.TryGetValue(passiveId, out level);
 
                 if (def.excludeIfMax && level >= def.maxLevel)
                     continue;

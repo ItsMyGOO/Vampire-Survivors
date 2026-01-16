@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Battle.Weapon;
 using ConfigHandler;
 using ECS;
@@ -14,16 +15,22 @@ namespace Battle.Upgrade
         private WeaponUpgradeRuleConfigDB _upgradeRuleDB;
         private WeaponConfigDB _weaponConfigDB;
 
-        public WeaponUpgradeManager()
+        private World world;
+        private int playerEntity;
+
+        public WeaponUpgradeManager(World world, int playerId)
         {
             _upgradeRuleDB = WeaponUpgradeRuleConfigDB.Instance;
             _weaponConfigDB = WeaponConfigDB.Instance;
+
+            this.world = world;
+            playerEntity = playerId;
         }
 
         /// <summary>
         /// 升级指定武器
         /// </summary>
-        public bool UpgradeWeapon(World world, int playerEntity, string weaponId)
+        public bool UpgradeWeapon(string weaponId)
         {
             // 获取武器槽组件
             if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var weaponStats))
@@ -64,7 +71,7 @@ namespace Battle.Upgrade
                 if (weaponConfig.battle.Type == WeaponType.Orbit && weapon.orbitSpawned)
                 {
                     // 清除旧的轨道武器
-                    DestroyOrbitWeapons(world, playerEntity, weaponId);
+                    DestroyOrbitWeapons(weaponId);
 
                     // 重置生成标志,让系统重新生成
                     weapon.orbitSpawned = false;
@@ -81,7 +88,7 @@ namespace Battle.Upgrade
         /// <summary>
         /// 清除指定武器的所有轨道实体
         /// </summary>
-        private void DestroyOrbitWeapons(World world, int playerEntity, string weaponId)
+        private void DestroyOrbitWeapons(string weaponId)
         {
             // 查找所有属于这个武器的轨道实体
             var entitiesToDestroy = new System.Collections.Generic.List<int>();
@@ -107,7 +114,7 @@ namespace Battle.Upgrade
         /// <summary>
         /// 添加新武器
         /// </summary>
-        public bool AddWeapon(World world, int playerEntity, string weaponId)
+        public bool AddWeapon(string weaponId)
         {
             if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var weaponStats))
             {
@@ -119,7 +126,7 @@ namespace Battle.Upgrade
             if (weaponStats.HasWeapon(weaponId))
             {
                 Debug.LogWarning($"[WeaponUpgradeManager] 玩家已拥有武器 {weaponId}, 将进行升级");
-                return UpgradeWeapon(world, playerEntity, weaponId);
+                return UpgradeWeapon(weaponId);
             }
 
             // 获取武器配置
@@ -131,7 +138,7 @@ namespace Battle.Upgrade
 
             // 创建新武器数据
             var weapon = weaponStats.AddWeapon(weaponId, 1);
-            
+
             // 初始化运行时属性
             InitializeWeaponStats(weapon, weaponConfig);
 
@@ -284,7 +291,7 @@ namespace Battle.Upgrade
 
             if (!weaponStats.TryGetRuntime(weaponId, out var weapon))
                 return 0;
-                
+
             return weapon.level;
         }
 

@@ -13,22 +13,20 @@ namespace Battle.Weapon
     {
         public static void Initialize(World world, int playerId)
         {
-            if (!world.TryGetComponent(playerId, out WeaponRuntimeStatsComponent weaponStats))
-                return;
-
-            foreach (var weapon in weaponStats.GetAllWeapons())
-            {
-                if (!WeaponConfigDB.Instance.Data.TryGetValue(
-                        weapon.weaponId,
-                        out var cfg))
-                    continue;
-
-                // 只创建运行时状态 + 设置等级
-                if (weapon.level == 0)
-                {
-                    weapon.level = 1;
-                }
-            }
+            // if (!world.TryGetComponent(playerId, out WeaponRuntimeStatsComponent weaponStats))
+            //     return;
+            //
+            // foreach (var (weaponId, weapon) in weaponStats.GetAllWeapons())
+            // {
+            //     if (!WeaponConfigDB.Instance.Data.TryGetValue(weaponId, out var cfg))
+            //         continue;
+            //
+            //     // 只创建运行时状态 + 设置等级
+            //     if (weapon.level == 0)
+            //     {
+            //         weapon.level = 1;
+            //     }
+            // }
         }
     }
 }
