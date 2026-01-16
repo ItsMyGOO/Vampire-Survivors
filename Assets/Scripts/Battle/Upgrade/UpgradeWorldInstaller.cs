@@ -10,6 +10,8 @@ namespace Battle.Upgrade
         {
             // 1. System
             var expSystem = new ExpSystem();
+            
+            var upgradeState = new PlayerUpgradeState();
 
             // 2. Services
             var upgradeService = new UpgradeService(LuaMain.Env);
@@ -28,6 +30,7 @@ namespace Battle.Upgrade
 
             // 6. PlayerContext 只存引用
             PlayerContext.Instance.ExpSystem = expSystem;
+            PlayerContext.Instance.UpgradeState = upgradeState;
         }
     }
 }

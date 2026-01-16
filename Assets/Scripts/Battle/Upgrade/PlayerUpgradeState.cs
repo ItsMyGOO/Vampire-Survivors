@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Battle.Upgrade
 {
@@ -56,14 +57,23 @@ namespace Battle.Upgrade
                 passives[passiveId] = 1;
         }
 
-        public static IReadOnlyDictionary<string, int> GetWeapons(int playerEntity)
+        public IReadOnlyDictionary<string, int> GetWeapons(int playerEntity)
         {
-            throw new System.NotImplementedException();
+            return weapons;
         }
 
-        public static IReadOnlyDictionary<string, int> GetPassives(int playerEntity)
+        public IReadOnlyDictionary<string, int> GetPassives(int playerEntity)
         {
-            throw new System.NotImplementedException();
+            return passives;
+        }
+
+        public void PrintStatus()
+        {
+            Debug.Log($"  拥有武器数: {weapons.Count}");
+            foreach (var weapon in weapons)
+            {
+                Debug.Log($"    - {weapon.Key}: Lv.{weapon.Value}");
+            }
         }
     }
 }

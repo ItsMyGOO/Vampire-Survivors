@@ -13,16 +13,10 @@ namespace Battle
                 PlayerContext.Instance.ExpSystem.AddExpForTest(20);
 
             if (Input.GetKeyDown(KeyCode.F1))
-                PlayerContext.Instance.World.DebugPrint();
-        }
-
-        public void PrintStatus()
-        {
-            var upgradeState = PlayerContext.Instance.UpgradeState;
-            Debug.Log($"  拥有武器数: {upgradeState.weapons.Count}");
-            foreach (var weapon in upgradeState.weapons)
             {
-                Debug.Log($"    - {weapon.Key}: Lv.{weapon.Value}");
+                PlayerContext.Instance.World.DebugPrint();
+                PlayerContext.Instance.ExpSystem.PrintStatus();
+                PlayerContext.Instance.UpgradeState.PrintStatus();
             }
         }
     }
