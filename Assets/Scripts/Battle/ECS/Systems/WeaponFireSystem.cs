@@ -1,4 +1,4 @@
-﻿using Battle.Weapon;
+using Battle.Weapon;
 using ECS.Core;
 using UnityEngine;
 using ConfigHandler;
@@ -9,22 +9,19 @@ namespace ECS.Systems
     {
         public override void Update(World world, float deltaTime)
         {
-            foreach (var (owner, slots) in world.GetComponents<WeaponSlotsComponent>())
+            foreach (var (owner, weaponStats) in world.GetComponents<WeaponRuntimeStatsComponent>())
             {
                 if (!world.HasComponent<PositionComponent>(owner))
                     continue;
 
                 var ownerPos = world.GetComponent<PositionComponent>(owner);
 
-                if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(owner, out var runtimeStats))
-                    continue;
-
-                foreach (var weapon in slots.weapons)
+                foreach (var weapon in weaponStats.GetAllWeapons())
                 {
-                    if (!WeaponConfigDB.Instance.TryGet(weapon.weapon_type, out var cfg))
+                    if (!WeaponConfigDB.Instance.TryGet(weapon.weaponId, out var cfg))
                         continue;
 
-                    var stats = runtimeStats.BuildFinalStats(weapon.weapon_type, cfg);
+                    var stats = weapon.BuildFinalStats(cfg);
 
                     switch (cfg.battle.Type)
                     {
@@ -46,7 +43,7 @@ namespace ECS.Systems
             World world,
             int owner,
             PositionComponent ownerPos,
-            WeaponSlotsComponent.WeaponData weapon,
+            WeaponRuntimeStats weapon,
             WeaponFinalStats stats,
             float deltaTime,
             WeaponConfig cfg)
@@ -81,7 +78,7 @@ namespace ECS.Systems
         private void UpdateOrbit(
             World world,
             int owner,
-            WeaponSlotsComponent.WeaponData weapon,
+            WeaponRuntimeStats weapon,
             WeaponFinalStats stats,
             WeaponConfig cfg)
         {
@@ -104,7 +101,7 @@ namespace ECS.Systems
             }
         }
 
-        // ===== Target =====（不变）
+        // ===== Target =====
         private int FindNearestEnemy(World world, PositionComponent playerPos)
         {
             int nearest = -1;

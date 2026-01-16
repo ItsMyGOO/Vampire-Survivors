@@ -1,4 +1,4 @@
-﻿using Battle.Weapon;
+using Battle.Weapon;
 using ConfigHandler;
 using ECS;
 using ECS.Core;
@@ -26,15 +26,14 @@ namespace Battle.Upgrade
         public bool UpgradeWeapon(World world, int playerEntity, string weaponId)
         {
             // 获取武器槽组件
-            if (!world.TryGetComponent<WeaponSlotsComponent>(playerEntity, out var weaponSlots))
+            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var weaponStats))
             {
-                Debug.LogError($"[WeaponUpgradeManager] Player entity {playerEntity} 没有 WeaponSlotsComponent");
+                Debug.LogError($"[WeaponUpgradeManager] Player entity {playerEntity} 没有 WeaponRuntimeStatsComponent");
                 return false;
             }
 
             // 查找武器
-            var weaponData = weaponSlots.weapons.Find(w => w.weapon_type == weaponId);
-            if (weaponData == null)
+            if (!weaponStats.TryGetRuntime(weaponId, out var weapon))
             {
                 Debug.LogWarning($"[WeaponUpgradeManager] 玩家没有武器: {weaponId}");
                 return false;
@@ -48,42 +47,33 @@ namespace Battle.Upgrade
             }
 
             // 检查是否已达到最大等级
-            if (weaponData.level >= upgradeRule.maxLevel)
+            if (weapon.level >= upgradeRule.maxLevel)
             {
                 Debug.LogWarning($"[WeaponUpgradeManager] 武器 {weaponId} 已达到最大等级 {upgradeRule.maxLevel}");
                 return false;
             }
 
             // 升级
-            int oldLevel = weaponData.level;
-            weaponData.level++;
-
-            // 获取或创建运行时属性组件
-            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var runtimeStats))
-            {
-                runtimeStats = new WeaponRuntimeStatsComponent();
-                world.AddComponent(playerEntity, runtimeStats);
-            }
-
-            // 应用升级效果到运行时属性
-            ApplyUpgradeRules(runtimeStats, weaponId, upgradeRule, oldLevel, weaponData.level);
+            int oldLevel = weapon.level;
+            weapon.level++;
+            ApplyUpgradeRules(weapon, upgradeRule, oldLevel, weapon.level);
 
             // 如果是轨道武器,需要重新生成
             if (_weaponConfigDB.TryGet(weaponId, out var weaponConfig))
             {
-                if (weaponConfig.battle.Type == WeaponType.Orbit && weaponData.orbitSpawned)
+                if (weaponConfig.battle.Type == WeaponType.Orbit && weapon.orbitSpawned)
                 {
                     // 清除旧的轨道武器
                     DestroyOrbitWeapons(world, playerEntity, weaponId);
 
                     // 重置生成标志,让系统重新生成
-                    weaponData.orbitSpawned = false;
+                    weapon.orbitSpawned = false;
 
                     Debug.Log($"[WeaponUpgradeManager] 轨道武器 {weaponId} 升级,将重新生成");
                 }
             }
 
-            Debug.Log($"[WeaponUpgradeManager] 武器 {weaponId} 从 Lv.{oldLevel} 升级到 Lv.{weaponData.level}");
+            Debug.Log($"[WeaponUpgradeManager] 武器 {weaponId} 从 Lv.{oldLevel} 升级到 Lv.{weapon.level}");
 
             return true;
         }
@@ -119,15 +109,14 @@ namespace Battle.Upgrade
         /// </summary>
         public bool AddWeapon(World world, int playerEntity, string weaponId)
         {
-            if (!world.TryGetComponent<WeaponSlotsComponent>(playerEntity, out var weaponSlots))
+            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var weaponStats))
             {
-                Debug.LogError($"[WeaponUpgradeManager] Player entity {playerEntity} 没有 WeaponSlotsComponent");
+                Debug.LogError($"[WeaponUpgradeManager] Player entity {playerEntity} 没有 WeaponRuntimeStatsComponent");
                 return false;
             }
 
             // 检查是否已拥有该武器
-            var existingWeapon = weaponSlots.weapons.Find(w => w.weapon_type == weaponId);
-            if (existingWeapon != null)
+            if (weaponStats.HasWeapon(weaponId))
             {
                 Debug.LogWarning($"[WeaponUpgradeManager] 玩家已拥有武器 {weaponId}, 将进行升级");
                 return UpgradeWeapon(world, playerEntity, weaponId);
@@ -141,27 +130,10 @@ namespace Battle.Upgrade
             }
 
             // 创建新武器数据
-            var newWeapon = new WeaponSlotsComponent.WeaponData
-            {
-                weapon_type = weaponId,
-                level = 1,
-                cooldown = 0f,
-                fire_rate = weaponConfig.battle.Type == WeaponType.Projectile
-                    ? weaponConfig.battle.projectile.interval
-                    : 1.0f,
-                orbitSpawned = false
-            };
-
-            weaponSlots.weapons.Add(newWeapon);
-
+            var weapon = weaponStats.AddWeapon(weaponId, 1);
+            
             // 初始化运行时属性
-            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var runtimeStats))
-            {
-                runtimeStats = new WeaponRuntimeStatsComponent();
-                world.AddComponent(playerEntity, runtimeStats);
-            }
-
-            InitializeWeaponStats(runtimeStats, weaponId, weaponConfig);
+            InitializeWeaponStats(weapon, weaponConfig);
 
             Debug.Log($"[WeaponUpgradeManager] 添加新武器: {weaponId} Lv.1");
 
@@ -173,20 +145,17 @@ namespace Battle.Upgrade
         /// 只设置 level，不写任何基础数值
         /// </summary>
         private void InitializeWeaponStats(
-            WeaponRuntimeStatsComponent runtimeStats,
-            string weaponId,
+            WeaponRuntimeStats weapon,
             WeaponConfig weaponConfig)
         {
-            var stats = runtimeStats.GetOrCreate(weaponId);
-
             // 初始等级
-            stats.level = 1;
+            weapon.level = 1;
 
             // 清空所有修正（防止重复初始化）
-            stats.ResetModifiers();
+            weapon.ResetModifiers();
 
 #if UNITY_EDITOR
-            Debug.Log($"[WeaponUpgradeManager] 初始化武器 {weaponId} RuntimeStats (level=1)");
+            Debug.Log($"[WeaponUpgradeManager] 初始化武器 {weapon.weaponId} RuntimeStats (level=1)");
 #endif
         }
 
@@ -195,27 +164,22 @@ namespace Battle.Upgrade
         /// 应用升级规则（只修改 RuntimeStats）
         /// </summary>
         private void ApplyUpgradeRules(
-            WeaponRuntimeStatsComponent runtimeStats,
-            string weaponId,
+            WeaponRuntimeStats weapon,
             WeaponUpgradeRuleDef upgradeRule,
             int fromLevel,
             int toLevel)
         {
-            var stats = runtimeStats.GetOrCreate(weaponId);
-
-            stats.level = toLevel;
-
             foreach (var rule in upgradeRule.rules)
             {
                 if (!ShouldApplyRule(rule, fromLevel, toLevel))
                     continue;
 
-                ApplySingleRule(stats, rule);
+                ApplySingleRule(weapon, rule);
             }
 
 #if UNITY_EDITOR
             Debug.Log(
-                $"[WeaponUpgradeManager] 武器 {weaponId} 升级到 Lv.{toLevel}");
+                $"[WeaponUpgradeManager] 武器 {weapon.weaponId} 升级到 Lv.{toLevel}");
 #endif
         }
 
@@ -315,11 +279,13 @@ namespace Battle.Upgrade
         /// </summary>
         public int GetWeaponLevel(World world, int playerEntity, string weaponId)
         {
-            if (!world.TryGetComponent<WeaponSlotsComponent>(playerEntity, out var weaponSlots))
+            if (!world.TryGetComponent<WeaponRuntimeStatsComponent>(playerEntity, out var weaponStats))
                 return 0;
 
-            var weaponData = weaponSlots.weapons.Find(w => w.weapon_type == weaponId);
-            return weaponData?.level ?? 0;
+            if (!weaponStats.TryGetRuntime(weaponId, out var weapon))
+                return 0;
+                
+            return weapon.level;
         }
 
         /// <summary>

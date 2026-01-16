@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ConfigHandler;
 
 namespace Battle.Weapon
@@ -11,9 +11,10 @@ namespace Battle.Weapon
     {
         public string weaponId;
         public int level;
-
-        // ========= 累计修正 =========
-
+        
+        public float cooldown;          
+        public bool orbitSpawned;    
+        
         public float damageAdd;
         public float damageMul = 1f;
 
@@ -58,14 +59,11 @@ namespace Battle.Weapon
 
             return new WeaponFinalStats
             {
-                // ===== 通用 =====
                 damage = (baseStats.damage * level + damageAdd) * damageMul,
                 knockback = baseStats.knockback + knockbackAdd,
-
-                // ===== 投射物 =====
+                
                 projectile = pState,
-
-                // ===== 环绕 =====
+                
                 orbit = oState
             };
         }

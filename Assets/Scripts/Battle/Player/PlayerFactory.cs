@@ -1,5 +1,6 @@
-﻿using ECS.Core;
+using ECS.Core;
 using ECS;
+using Battle.Weapon;
 
 namespace Battle.Player
 {
@@ -23,15 +24,11 @@ namespace Battle.Player
                 ClipSetName = "Player",
                 DefaultAnim = "Idle"
             });
-
-            world.AddComponent(id, new WeaponSlotsComponent
-            {
-                weapons =
-                {
-                    new WeaponSlotsComponent.WeaponData("ProjectileKnife",1,1),
-                    new WeaponSlotsComponent.WeaponData("OrbitKnife",1,1)
-                }
-            });
+            
+            var weaponStats = new WeaponRuntimeStatsComponent();
+            weaponStats.AddWeapon("ProjectileKnife", 1);
+            weaponStats.AddWeapon("OrbitKnife", 1);
+            world.AddComponent(id, weaponStats);
 
             return id;
         }

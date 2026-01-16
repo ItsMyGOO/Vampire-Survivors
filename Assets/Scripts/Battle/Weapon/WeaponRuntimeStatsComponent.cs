@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ConfigHandler;
 
@@ -13,10 +13,12 @@ namespace Battle.Weapon
     {
         private readonly Dictionary<string, WeaponRuntimeStats> _stats
             = new Dictionary<string, WeaponRuntimeStats>();
+        
+        public IEnumerable<WeaponRuntimeStats> GetAllWeapons()
+        {
+            return _stats.Values;
+        }
 
-        /// <summary>
-        /// 获取或创建运行时状态
-        /// </summary>
         public WeaponRuntimeStats GetOrCreate(string weaponId)
         {
             if (!_stats.TryGetValue(weaponId, out var stats))
@@ -24,16 +26,38 @@ namespace Battle.Weapon
                 stats = new WeaponRuntimeStats
                 {
                     weaponId = weaponId,
-                    level = 1
+                    level = 1,
+                    cooldown = 0f,
+                    orbitSpawned = false
                 };
                 _stats.Add(weaponId, stats);
             }
             return stats;
         }
+        
+        public WeaponRuntimeStats AddWeapon(string weaponId, int initialLevel = 1)
+        {
+            if (_stats.ContainsKey(weaponId))
+            {
+                return _stats[weaponId];
+            }
 
-        /// <summary>
-        /// 构建最终数值（System / Spawn 用）
-        /// </summary>
+            var stats = new WeaponRuntimeStats
+            {
+                weaponId = weaponId,
+                level = initialLevel,
+                cooldown = 0f,
+                orbitSpawned = false
+            };
+            _stats.Add(weaponId, stats);
+            return stats;
+        }
+        
+        public bool HasWeapon(string weaponId)
+        {
+            return _stats.ContainsKey(weaponId);
+        }
+        
         public WeaponFinalStats BuildFinalStats(
             string weaponId,
             WeaponConfig cfg)
@@ -41,13 +65,17 @@ namespace Battle.Weapon
             var runtime = GetOrCreate(weaponId);
             return runtime.BuildFinalStats(cfg);
         }
-
-        /// <summary>
-        /// 用于升级系统 / Lua
-        /// </summary>
+        
         public bool TryGetRuntime(string weaponId, out WeaponRuntimeStats stats)
         {
             return _stats.TryGetValue(weaponId, out stats);
         }
+        
+        public bool RemoveWeapon(string weaponId)
+        {
+            return _stats.Remove(weaponId);
+        }
+        
+        public int WeaponCount => _stats.Count;
     }
 }

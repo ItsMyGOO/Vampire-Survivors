@@ -1,6 +1,7 @@
 ﻿using ECS.Core;
 using ConfigHandler;
 using ECS;
+using Battle.Weapon;
 
 namespace Battle.Weapon
 {
@@ -12,28 +13,22 @@ namespace Battle.Weapon
     {
         public static void Initialize(World world, int playerId)
         {
-            if (!world.TryGetComponent(playerId, out WeaponSlotsComponent slots))
+            if (!world.TryGetComponent(playerId, out WeaponRuntimeStatsComponent weaponStats))
                 return;
 
-            // 如果已经存在，避免重复初始化
-            if (world.HasComponent<WeaponRuntimeStatsComponent>(playerId))
-                return;
-
-            var statsComponent = new WeaponRuntimeStatsComponent();
-
-            foreach (var weapon in slots.weapons)
+            foreach (var weapon in weaponStats.GetAllWeapons())
             {
                 if (!WeaponConfigDB.Instance.Data.TryGetValue(
-                        weapon.weapon_type,
+                        weapon.weaponId,
                         out var cfg))
                     continue;
 
                 // 只创建运行时状态 + 设置等级
-                var stats = statsComponent.GetOrCreate(weapon.weapon_type);
-                stats.level = weapon.level;
+                if (weapon.level == 0)
+                {
+                    weapon.level = 1;
+                }
             }
-
-            world.AddComponent(playerId, statsComponent);
         }
     }
 }

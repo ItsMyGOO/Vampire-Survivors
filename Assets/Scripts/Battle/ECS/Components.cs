@@ -230,42 +230,6 @@ namespace ECS
 // ============================================
 
     /// <summary>
-    /// 武器槽组件
-    /// </summary>
-    [Serializable]
-    public class WeaponSlotsComponent
-    {
-        [Serializable]
-        public class WeaponData
-        {
-            public string weapon_type;
-            public int level;
-            public float cooldown;
-            public float fire_rate;
-            public bool orbitSpawned;
-
-            public WeaponData()
-            {
-            }
-
-            public WeaponData(string weaponType, int level = 1, float fireRate = 1.0f)
-            {
-                this.weapon_type = weaponType;
-                this.level = level;
-                this.fire_rate = fireRate;
-                this.cooldown = 0f;
-            }
-        }
-
-        public List<WeaponData> weapons;
-
-        public WeaponSlotsComponent()
-        {
-            weapons = new List<WeaponData>();
-        }
-    }
-
-    /// <summary>
     /// 投射物组件
     /// </summary>
     [Serializable]
