@@ -131,29 +131,29 @@ namespace Game
         {
             Debug.Log("[GameSceneManager] 清理战斗数据");
 
-            // 1. 清理 ECSGameManager
-            if (ECSGameManager.Instance != null)
-            {
-                // ECSGameManager 会在 OnDestroy 中自动清理 World
-                Destroy(ECSGameManager.Instance.gameObject);
-            }
-
-            // 2. 清理 PlayerContext
-            if (PlayerContext.Instance != null)
-            {
-                PlayerContext.Instance.Clear();
-            }
-
-            // 3. 清理 LuaMain (如果还在用)
-            var luaMain = FindObjectOfType<Lua.LuaMain>();
-            if (luaMain != null)
-            {
-                Destroy(luaMain.gameObject);
-            }
-
-            // 4. 强制垃圾回收
-            System.GC.Collect();
-            Resources.UnloadUnusedAssets();
+            // // 1. 清理 ECSGameManager
+            // if (ECSGameManager.Instance != null)
+            // {
+            //     // ECSGameManager 会在 OnDestroy 中自动清理 World
+            //     Destroy(ECSGameManager.Instance.gameObject);
+            // }
+            //
+            // // 2. 清理 PlayerContext
+            // if (PlayerContext.Instance != null)
+            // {
+            //     PlayerContext.Instance.Clear();
+            // }
+            //
+            // // 3. 清理 LuaMain (如果还在用)
+            // var luaMain = FindObjectOfType<Lua.LuaMain>();
+            // if (luaMain != null)
+            // {
+            //     Destroy(luaMain.gameObject);
+            // }
+            //
+            // // 4. 强制垃圾回收
+            // System.GC.Collect();
+            // Resources.UnloadUnusedAssets();
 
             Debug.Log("[GameSceneManager] 战斗数据清理完成");
         }

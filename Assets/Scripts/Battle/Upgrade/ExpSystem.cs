@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Battle.Player;
 using ECS.Core;
 using UniRx;
 using UnityEngine;
-using XLua;
 
 namespace Battle.Upgrade
 {
@@ -28,176 +26,38 @@ namespace Battle.Upgrade
     /// 经验 & 升级系统（重构后）
     /// 只负责：经验 → 升级 → 请求 UpgradeService
     /// </summary>
-    public sealed class ExpSystem : IExpReceiver, IDisposable
+    public sealed class ExpSystem : IExpReceiver
     {
-        public static ExpSystem Instance { get; } = new();
+        public event Action<int> OnLevelUp;
 
         private const float BASE_EXP = 10f;
         private const float EXP_GROWTH_RATE = 1.15f;
 
-        private ExpData _expData;
-        private World world;
-        private int playerEntity;
-
-        private LuaEnv luaEnv;
-        private LuaTable luaUpgradeFlow;
-        private LuaFunction luaOnUpgradeOptions;
-
-        private UpgradeService upgradeService;
-
-        // 测试模式开关
-        [System.NonSerialized] public bool testMode = true; // 设为 true 启用自动随机升级测试
-
-        /// <summary>
-        /// 升级选项可用事件（UI / Lua 监听）
-        /// </summary>
-        public event Action<List<UpgradeOption>> OnUpgradeOptionsReady;
-
-        public ExpData CreateExpData()
-        {
-            _expData = new ExpData();
-            return _expData;
-        }
-
-        public void Init(
-            LuaEnv luaEnv,
-            World world,
-            int playerId,
-            UpgradeService upgradeService)
-        {
-            this.luaEnv = luaEnv;
-            this.world = world;
-            this.playerEntity = playerId;
-            this.upgradeService = upgradeService;
-
-            InitLuaUpgradeFlow();
-        }
-
-        private void InitLuaUpgradeFlow()
-        {
-            var ret = luaEnv.DoString(@"
-        local flow = require('battle.upgrade_flow')
-        return flow
-    ");
-
-            luaUpgradeFlow = ret[0] as LuaTable;
-            luaOnUpgradeOptions =
-                luaUpgradeFlow.Get<LuaFunction>("OnUpgradeOptions");
-        }
+        public ExpData ExpData { get; private set; } = new();
+        
         // =========================
         // Exp
         // =========================
 
         public void AddExp(int value)
         {
-            _expData.current_exp.Value += value * _expData.exp_multiplier;
+            ExpData.current_exp.Value += value * ExpData.exp_multiplier;
 
-            while (_expData.current_exp.Value >= _expData.exp_to_next_level.Value)
+            while (ExpData.current_exp.Value >= ExpData.exp_to_next_level.Value)
                 LevelUp();
         }
 
         private void LevelUp()
         {
-            _expData.current_exp.Value -= _expData.exp_to_next_level.Value;
-            _expData.level.Value++;
+            ExpData.current_exp.Value -= ExpData.exp_to_next_level.Value;
+            ExpData.level.Value++;
 
-            _expData.exp_to_next_level.Value =
-                CalculateExpForLevel(_expData.level.Value + 1);
+            ExpData.exp_to_next_level.Value =
+                CalculateExpForLevel(ExpData.level.Value + 1);
 
-            Debug.Log($"[ExpSystem] ========== Level Up → {_expData.level.Value} ==========");
+            Debug.Log($"[ExpSystem] ========== Level Up → {ExpData.level.Value} ==========");
 
-            RollUpgradeOptions();
-        }
-
-        // =========================
-        // Upgrade
-        // =========================
-
-        private void RollUpgradeOptions()
-        {
-            var options = upgradeService.RollOptions(
-                optionCount: 3,
-                playerLevel: _expData.level.Value
-            );
-
-            if (options == null || options.Count == 0)
-            {
-                Debug.LogWarning("[ExpSystem] 没有可用的升级选项");
-                return;
-            }
-
-            Debug.Log($"[ExpSystem] 生成了 {options.Count} 个升级选项:");
-            for (int i = 0; i < options.Count; i++)
-            {
-                var opt = options[i];
-                Debug.Log($"  [{i}] {opt.type} - {opt.name} (ID: {opt.id})");
-            }
-
-            // 触发事件
-            OnUpgradeOptionsReady?.Invoke(options);
-
-            // 测试模式：自动随机选择一个武器升级选项
-            if (testMode)
-            {
-                AutoSelectUpgradeForTest(options);
-            }
-        }
-
-        /// <summary>
-        /// 测试模式：自动随机选择一个升级选项
-        /// </summary>
-        private void AutoSelectUpgradeForTest(List<UpgradeOption> options)
-        {
-            // 优先选择武器类型的选项
-            var weaponOptions = options.FindAll(opt => opt.type == UpgradeOptionType.Weapon);
-
-            UpgradeOption selected;
-            if (weaponOptions.Count > 0)
-            {
-                // 随机选择一个武器选项
-                int randomIndex = UnityEngine.Random.Range(0, weaponOptions.Count);
-                selected = weaponOptions[randomIndex];
-                Debug.Log($"[ExpSystem] 测试模式 - 随机选择武器: {selected.name} (ID: {selected.id})");
-            }
-            else if (options.Count > 0)
-            {
-                // 如果没有武器选项，随机选择任意选项
-                int randomIndex = UnityEngine.Random.Range(0, options.Count);
-                selected = options[randomIndex];
-                Debug.Log($"[ExpSystem] 测试模式 - 随机选择选项: {selected.name} (ID: {selected.id})");
-            }
-            else
-            {
-                Debug.LogWarning("[ExpSystem] 测试模式 - 没有可选择的选项");
-                return;
-            }
-
-            // 应用选择的升级
-            ApplyUpgradeOption(selected);
-        }
-
-        /// <summary>
-        /// 应用升级选项（可由外部UI或测试代码调用）
-        /// </summary>
-        public void ApplyUpgradeOption(UpgradeOption option)
-        {
-            if (option == null)
-            {
-                Debug.LogError("[ExpSystem] 升级选项为空");
-                return;
-            }
-
-            Debug.Log($"[ExpSystem] 应用升级选项: {option.type} - {option.name} (ID: {option.id})");
-
-            try
-            {
-                UpgradeApplyService.Apply(option);
-                Debug.Log($"[ExpSystem] ========== 升级应用完成 ==========\n");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[ExpSystem] 应用升级选项时出错: {e.Message}\n{e.StackTrace}");
-            }
+            OnLevelUp?.Invoke(ExpData.level.Value);
         }
 
         // =========================
@@ -207,17 +67,6 @@ namespace Battle.Upgrade
         private static float CalculateExpForLevel(int level)
         {
             return BASE_EXP * Mathf.Pow(EXP_GROWTH_RATE, level - 1);
-        }
-
-        public void Dispose()
-        {
-            luaOnUpgradeOptions?.Dispose();
-            OnUpgradeOptionsReady = null;
-
-            luaUpgradeFlow?.Dispose();
-            luaUpgradeFlow = null;
-
-            luaEnv = null;
         }
 
         // =========================
@@ -239,9 +88,9 @@ namespace Battle.Upgrade
         public void PrintStatus()
         {
             Debug.Log($"[ExpSystem] 当前状态:");
-            Debug.Log($"  等级: {_expData.level.Value}");
-            Debug.Log($"  当前经验: {_expData.current_exp.Value:F1}");
-            Debug.Log($"  升级所需: {_expData.exp_to_next_level.Value:F1}");
+            Debug.Log($"  等级: {ExpData.level.Value}");
+            Debug.Log($"  当前经验: {ExpData.current_exp.Value:F1}");
+            Debug.Log($"  升级所需: {ExpData.exp_to_next_level.Value:F1}");
 
             var upgradeState = PlayerContext.Instance.UpgradeState;
             Debug.Log($"  拥有武器数: {upgradeState.weapons.Count}");

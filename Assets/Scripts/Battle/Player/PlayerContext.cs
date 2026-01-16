@@ -13,20 +13,15 @@ namespace Battle.Player
 
         public World World { get; private set; }
         public int PlayerEntity { get; private set; }
-        public UpgradeService UpgradeService { get; private set; }
-        public ExpData ExpData { get; set; }
         public PlayerUpgradeState UpgradeState { get; set; }
+        public ExpSystem ExpSystem { get; set; }
 
-        public static void Initialize(
-            World world,
-            int playerEntity,
-            UpgradeService upgradeService)
+        public static void Initialize(World world, int playerEntity)
         {
             Instance = new PlayerContext
             {
                 World = world,
                 PlayerEntity = playerEntity,
-                UpgradeService = upgradeService
             };
         }
 
@@ -34,21 +29,12 @@ namespace Battle.Player
         /// 清理所有数据
         /// 在退出战斗时调用
         /// </summary>
-        public void Clear()
+        public static void Clear()
         {
             UnityEngine.Debug.Log("[PlayerContext] 清理数据");
-
-            World = null;
-            PlayerEntity = -1;
-            UpgradeService = null;
-
+            
             // 清空单例
             Instance = null;
-        }
-
-        public void BindExpData(ExpData expData)
-        {
-            ExpData= expData;
         }
     }
 }

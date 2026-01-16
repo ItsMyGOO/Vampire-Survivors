@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using Battle.Player;
 using ConfigHandler;
+using UnityEngine;
+using XLua;
 
 namespace Battle.Upgrade
 {
-    public class UpgradeService
+    public class UpgradeService : IDisposable
     {
+        public event Action<UpgradeOption> OnApplyUpgradeOptions;
+
         // =========================
         // 对外 API（Lua / UI 调用）
         // =========================
@@ -14,12 +18,115 @@ namespace Battle.Upgrade
         private WeaponUpgradeRuleConfigDB WeaponUpgradeRuleConfigDB;
         private PassiveUpgradePoolConfigDB PassiveUpgradePoolConfigDB;
 
+        // 测试模式开关
+        [NonSerialized] public bool testMode = true; // 设为 true 启用自动随机升级测试
 
-        public UpgradeService()
+        /// <summary>
+        /// 升级选项可用事件（UI / Lua 监听）
+        /// </summary>
+        public event Action<List<UpgradeOption>> OnUpgradeOptionsReady;
+
+        private LuaEnv luaEnv;
+        private LuaTable luaUpgradeFlow;
+        private LuaFunction luaOnUpgradeOptions;
+
+        public UpgradeService(LuaEnv luaEnv)
         {
+            this.luaEnv = luaEnv;
+
             WeaponUpgradePoolConfigDB = WeaponUpgradePoolConfigDB.Instance;
             WeaponUpgradeRuleConfigDB = WeaponUpgradeRuleConfigDB.Instance;
             PassiveUpgradePoolConfigDB = PassiveUpgradePoolConfigDB.Instance;
+
+            InitLuaUpgradeFlow();
+        }
+
+        private void InitLuaUpgradeFlow()
+        {
+            var ret = luaEnv.DoString(@"
+                local flow = require('battle.upgrade_flow')
+                return flow
+            ");
+
+            luaUpgradeFlow = ret[0] as LuaTable;
+            luaOnUpgradeOptions = luaUpgradeFlow.Get<LuaFunction>("OnUpgradeOptions");
+        }
+
+        public void Dispose()
+        {
+            luaOnUpgradeOptions?.Dispose();
+
+            luaUpgradeFlow?.Dispose();
+            luaUpgradeFlow = null;
+
+            luaEnv = null;
+        }
+
+        // =========================
+        // Upgrade
+        // =========================
+
+        public void RollUpgradeOptions(int level)
+        {
+            var options = RollOptions(
+                optionCount: 3,
+                playerLevel: level
+            );
+
+            if (options == null || options.Count == 0)
+            {
+                Debug.LogWarning("[ExpSystem] 没有可用的升级选项");
+                return;
+            }
+
+            Debug.Log($"[ExpSystem] 生成了 {options.Count} 个升级选项:");
+            for (int i = 0; i < options.Count; i++)
+            {
+                var opt = options[i];
+                Debug.Log($"  [{i}] {opt.type} - {opt.name} (ID: {opt.id})");
+            }
+
+            // 触发事件
+            OnUpgradeOptionsReady?.Invoke(options);
+
+            // 测试模式：自动随机选择一个武器升级选项
+            if (testMode)
+            {
+                AutoSelectUpgradeForTest(options);
+            }
+        }
+
+        /// <summary>
+        /// 测试模式：自动随机选择一个升级选项
+        /// </summary>
+        private void AutoSelectUpgradeForTest(List<UpgradeOption> options)
+        {
+            // 优先选择武器类型的选项
+            var weaponOptions = options.FindAll(opt => opt.type == UpgradeOptionType.Weapon);
+
+            UpgradeOption selected;
+            if (weaponOptions.Count > 0)
+            {
+                // 随机选择一个武器选项
+                int randomIndex = UnityEngine.Random.Range(0, weaponOptions.Count);
+                selected = weaponOptions[randomIndex];
+                Debug.Log($"[ExpSystem] 测试模式 - 随机选择武器: {selected.name} (ID: {selected.id})");
+            }
+            else if (options.Count > 0)
+            {
+                // 如果没有武器选项，随机选择任意选项
+                int randomIndex = UnityEngine.Random.Range(0, options.Count);
+                selected = options[randomIndex];
+                Debug.Log($"[ExpSystem] 测试模式 - 随机选择选项: {selected.name} (ID: {selected.id})");
+            }
+            else
+            {
+                Debug.LogWarning("[ExpSystem] 测试模式 - 没有可选择的选项");
+                return;
+            }
+
+            // 应用选择的升级
+            OnApplyUpgradeOptions?.Invoke(selected);
         }
 
         public List<UpgradeOption> RollOptions(int optionCount, int playerLevel)
@@ -159,8 +266,8 @@ namespace Battle.Upgrade
                         id = c.id,
                         type = c.type,
                         name = view.name,
-                        description = c.currentLevel == 0 
-                            ? view.description 
+                        description = c.currentLevel == 0
+                            ? view.description
                             : $"{view.description} (Lv.{c.currentLevel} → Lv.{nextLevel})",
                         icon = view.icon,
                         nextLevel = nextLevel

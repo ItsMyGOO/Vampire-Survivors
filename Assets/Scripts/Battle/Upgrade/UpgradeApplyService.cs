@@ -1,22 +1,47 @@
-﻿using Battle.Player;
+﻿using System;
+using Battle.Player;
 using ECS.Core;
 using UnityEngine;
 
 namespace Battle.Upgrade
 {
-    public static class UpgradeApplyService
+    public class UpgradeApplyService
     {
-        private static WeaponUpgradeManager _weaponUpgradeManager;
+        private WeaponUpgradeManager _weaponUpgradeManager;
 
         /// <summary>
         /// 初始化服务
         /// </summary>
-        public static void Initialize(WeaponUpgradeManager weaponUpgradeManager)
+        public UpgradeApplyService(WeaponUpgradeManager weaponUpgradeManager)
         {
             _weaponUpgradeManager = weaponUpgradeManager;
         }
 
-        public static void Apply(UpgradeOption option)
+        /// <summary>
+        /// 应用升级选项（可由外部UI或测试代码调用）
+        /// </summary>
+        public void ApplyUpgradeOption(UpgradeOption option)
+        {
+            if (option == null)
+            {
+                Debug.LogError("[ExpSystem] 升级选项为空");
+                return;
+            }
+
+            Debug.Log($"[ExpSystem] 应用升级选项: {option.type} - {option.name} (ID: {option.id})");
+
+            try
+            {
+                Apply(option);
+                Debug.Log($"[ExpSystem] ========== 升级应用完成 ==========\n");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ExpSystem] 应用升级选项时出错: {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        private void Apply(UpgradeOption option)
         {
             var world = PlayerContext.Instance.World;
             int player = PlayerContext.Instance.PlayerEntity;
@@ -33,7 +58,7 @@ namespace Battle.Upgrade
             }
         }
 
-        private static void ApplyWeapon(World world, int player, string weaponId)
+        private void ApplyWeapon(World world, int player, string weaponId)
         {
             if (_weaponUpgradeManager == null)
             {
@@ -51,7 +76,7 @@ namespace Battle.Upgrade
                 if (success)
                 {
                     Debug.Log($"[UpgradeApplyService] 成功添加武器 - {weaponId}");
-                    
+
                     // 更新玩家升级状态
                     var upgradeState = PlayerContext.Instance.UpgradeState;
                     upgradeState.AddOrUpgradeWeapon(weaponId);
@@ -68,7 +93,7 @@ namespace Battle.Upgrade
                 if (success)
                 {
                     Debug.Log($"[UpgradeApplyService] 成功升级武器 - {weaponId} 到 Lv.{currentLevel + 1}");
-                    
+
                     // 更新玩家升级状态
                     var upgradeState = PlayerContext.Instance.UpgradeState;
                     upgradeState.AddOrUpgradeWeapon(weaponId);
@@ -80,14 +105,14 @@ namespace Battle.Upgrade
             }
         }
 
-        private static void ApplyPassive(World world, int player, string passiveId)
+        private void ApplyPassive(World world, int player, string passiveId)
         {
             Debug.Log($"[UpgradeApplyService] 添加被动技能 - {passiveId}");
-            
+
             // 更新玩家升级状态
             var upgradeState = PlayerContext.Instance.UpgradeState;
             upgradeState.AddOrUpgradePassive(passiveId);
-            
+
             // TODO: 实现被动技能应用逻辑
         }
     }

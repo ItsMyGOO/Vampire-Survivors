@@ -6,48 +6,63 @@ using Cinemachine;
 using ECS;
 using UnityEngine;
 using ECS.Core;
-using UniRx;
+using UI.Core;
+using UI.Panel;
 
 namespace Battle
 {
     public class ECSGameManager : MonoBehaviour
     {
-        public static ECSGameManager Instance { get; private set; }
-
         private World world;
         private RenderSyncSystem syncSystem;
-        private IntReactiveProperty playerId = new(-1);
 
         public CinemachineVirtualCamera vCam;
 
-        private void Awake()
-        {
-            Instance = this;
-        }
-
         private void Start()
         {
+            Init();
+
+            UIManager.Instance.ShowPanel<BattleHUDPanel>();
+        }
+
+        private void Init()
+        {
+            // 1. 配置
             GameConfigLoader.LoadAll();
 
+            // 2. World
             world = new World();
-            int pid = PlayerFactory.CreatePlayer(world);
 
-            var renderSystem = new RenderSystem(new SpriteProvider(), new RenderObjectPool());
-            renderSystem.OnCameraTargetChanged += new CameraFollowController(vCam).SetTarget;
+            // 3. Player
+            int playerId = PlayerFactory.CreatePlayer(world);
+
+            // 4. PlayerContext（只存引用，不干活）
+            PlayerContext.Initialize(world, playerId);
+
+            // 5. World 系统
+            InstallWorldSystems(world);
+
+            // 6. Player 运行时数据
+            PlayerWeaponInitializer.Initialize(world, playerId);
+        }
+
+        private void InstallWorldSystems(World w)
+        {
+            ECSSystemInstaller.Install(w);
             
+            // ===== 渲染 =====
+            var renderSystem = new RenderSystem(
+                new SpriteProvider(),
+                new RenderObjectPool()
+            );
+
+            renderSystem.OnCameraTargetChanged +=
+                new CameraFollowController(vCam).SetTarget;
+
             syncSystem = new RenderSyncSystem(renderSystem);
 
-            ECSSystemInstaller.Install(world);
-
-            
-            playerId.Value = pid;
-
-            UpgradeBootstrap.Initialize(world, pid);
-
-            PlayerWeaponInitializer.Initialize(world, pid);
-
-            gameObject.AddComponent<ECSGameDebugController>()
-                .Initialize(world, pid);
+            // ===== 升级 / 经验 =====
+            UpgradeWorldInstaller.Install(w);
         }
 
         private void Update()
@@ -59,9 +74,9 @@ namespace Battle
         private void OnDestroy()
         {
             world?.Clear();
+            PlayerContext.Clear();
         }
 
         public World World => world;
-        public int PlayerId => playerId.Value;
     }
 }

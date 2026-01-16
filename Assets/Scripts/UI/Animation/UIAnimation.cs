@@ -3,16 +3,12 @@ using UnityEngine;
 
 namespace UI.Core
 {
-    public class UIAnimation: MonoBehaviour
+    /// <summary>
+    /// UI动画基类
+    /// </summary>
+    public abstract class UIAnimation : MonoBehaviour
     {
-        public void PlayShowAnimation(float animationDuration, Action action)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void PlayHideAnimation(float animationDuration, Action action)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void PlayShowAnimation(float duration, Action onComplete);
+        public abstract void PlayHideAnimation(float duration, Action onComplete);
     }
 }

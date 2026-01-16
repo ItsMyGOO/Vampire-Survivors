@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LuaPrefab: {fileID: 8307261306408392540, guid: caa218afe2292d34c8fb723954ffb56a, type: 3}
+  UIManager: {fileID: -3615182170289730077, guid: 274ecafd2a62cf64e8df80ab9ff8088a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
