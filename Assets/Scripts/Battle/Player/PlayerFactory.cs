@@ -1,6 +1,7 @@
 using ECS.Core;
 using ECS;
 using Battle.Weapon;
+using Battle.Upgrade;
 
 namespace Battle.Player
 {
@@ -24,6 +25,10 @@ namespace Battle.Player
                 ClipSetName = "Player",
                 DefaultAnim = "Idle"
             });
+
+            // 玩家属性与被动状态组件
+            world.AddComponent(id, new PlayerAttributeComponent());
+            world.AddComponent(id, new PassiveUpgradeStateComponent());
             
             var weaponStats = new WeaponRuntimeStatsComponent();
             weaponStats.AddWeapon("ProjectileKnife", 1);

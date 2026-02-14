@@ -1,3 +1,4 @@
+using Battle.Player;
 using Battle.Weapon;
 using ECS.Core;
 using UnityEngine;
@@ -16,12 +17,19 @@ namespace ECS.Systems
 
                 var ownerPos = world.GetComponent<PositionComponent>(owner);
 
+                var playerAttr = world.HasComponent<PlayerAttributeComponent>(owner)
+                    ? world.GetComponent<PlayerAttributeComponent>(owner)
+                    : null;
+                float pDamageMul = playerAttr?.damageMul ?? 1f;
+                float pCooldownMul = playerAttr?.cooldownMul ?? 1f;
+                float pSpeedMul = playerAttr?.projectileSpeedMul ?? 1f;
+
                 foreach (var (weaponId, weapon) in weaponStats.GetAllWeapons())
                 {
                     if (!WeaponConfigDB.Instance.TryGet(weaponId, out var cfg))
                         continue;
 
-                    var stats = weapon.BuildFinalStats(cfg);
+                    var stats = weapon.BuildFinalStats(cfg, pDamageMul, pCooldownMul, pSpeedMul);
 
                     switch (cfg.battle.Type)
                     {

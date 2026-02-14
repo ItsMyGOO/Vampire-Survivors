@@ -1,8 +1,8 @@
-﻿{
+{
   "passives": {
     "MaxHealth": {
       "attribute": "MaxHealth",
-      "valuePerLevel": 10,
+      "valuePerLevel": 20,
       "maxLevel": 5,
       "weight": 10,
       "unlockLevel": 1,
@@ -10,7 +10,7 @@
     },
     "MoveSpeed": {
       "attribute": "MoveSpeed",
-      "valuePerLevel": 0.1,
+      "valuePerLevel": 0.2,
       "maxLevel": 5,
       "weight": 10,
       "unlockLevel": 1,
@@ -18,10 +18,26 @@
     },
     "AttackDamage": {
       "attribute": "AttackDamage",
-      "valuePerLevel": 5,
+      "valuePerLevel": 0.1,
       "maxLevel": 5,
       "weight": 10,
-      "unlockLevel": 1,
+      "unlockLevel": 2,
+      "excludeIfMax": true
+    },
+    "AreaSize": {
+      "attribute": "AreaSize",
+      "valuePerLevel": 0.1,
+      "maxLevel": 5,
+      "weight": 8,
+      "unlockLevel": 3,
+      "excludeIfMax": true
+    },
+    "ProjectileCount": {
+      "attribute": "ProjectileCount",
+      "valuePerLevel": 1,
+      "maxLevel": 3,
+      "weight": 7,
+      "unlockLevel": 4,
       "excludeIfMax": true
     },
     "PickupRange": {
@@ -30,6 +46,38 @@
       "maxLevel": 3,
       "weight": 8,
       "unlockLevel": 2,
+      "excludeIfMax": true
+    },
+    "CooldownReduction": {
+      "attribute": "CooldownReduction",
+      "valuePerLevel": 0.05,
+      "maxLevel": 5,
+      "weight": 7,
+      "unlockLevel": 4,
+      "excludeIfMax": true
+    },
+    "Duration": {
+      "attribute": "Duration",
+      "valuePerLevel": 0.1,
+      "maxLevel": 5,
+      "weight": 6,
+      "unlockLevel": 3,
+      "excludeIfMax": true
+    },
+    "ExpGain": {
+      "attribute": "ExpGain",
+      "valuePerLevel": 0.1,
+      "maxLevel": 5,
+      "weight": 6,
+      "unlockLevel": 2,
+      "excludeIfMax": true
+    },
+    "ProjectileSpeed": {
+      "attribute": "ProjectileSpeed",
+      "valuePerLevel": 0.15,
+      "maxLevel": 5,
+      "weight": 6,
+      "unlockLevel": 3,
       "excludeIfMax": true
     }
   }

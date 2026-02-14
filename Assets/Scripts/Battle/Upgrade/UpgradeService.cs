@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Battle.Player;
 using Battle.Weapon;
@@ -139,7 +139,15 @@ namespace Battle.Upgrade
         public List<UpgradeOption> RollOptions(int optionCount, int playerLevel)
         {
             var weapons = world.GetComponent<WeaponRuntimeStatsComponent>(playerId).GetAllWeapons();
-            return RollOptions(optionCount, playerLevel, weapons, null);
+
+            IReadOnlyDictionary<string, int> passiveLevels = null;
+            var passiveState = world.GetComponent<PassiveUpgradeStateComponent>(playerId);
+            if (passiveState != null)
+            {
+                passiveLevels = passiveState.Levels;
+            }
+
+            return RollOptions(optionCount, playerLevel, weapons, passiveLevels);
         }
 
         public List<UpgradeOption> RollOptions(int optionCount, int playerLevel,
