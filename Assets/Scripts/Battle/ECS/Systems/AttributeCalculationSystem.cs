@@ -1,0 +1,161 @@
+﻿using ECS.Core;
+using System.Collections.Generic;
+
+namespace ECS.Systems
+{
+    /// <summary>
+    /// 属性计算系统
+    /// 职责：
+    /// 1. 从基础属性和修改器计算最终属性
+    /// 2. 应用公式: final = (base + additive) * (1 + multiplicative)
+    /// 3. 将计算结果写入 FinalAttributeComponent
+    /// 
+    /// 更新时机：
+    /// - 当修改器集合发生变化时
+    /// - 可以设置为每帧更新或事件驱动
+    /// </summary>
+    public class AttributeCalculationSystem : SystemBase
+    {
+        public override void Update(World world, float deltaTime)
+        {
+            // 遍历所有拥有属性的实体
+            var entities = world.GetEntitiesWithComponent<BaseAttributeComponent>();
+            
+            foreach (var entityId in entities)
+            {
+                CalculateAttributes(world, entityId);
+            }
+        }
+
+        /// <summary>
+        /// 计算单个实体的属性
+        /// </summary>
+        private void CalculateAttributes(World world, int entityId)
+        {
+            // 获取基础属性
+            if (!world.TryGetComponent<BaseAttributeComponent>(entityId, out var baseAttr))
+                return;
+
+            // 获取修改器集合
+            if (!world.TryGetComponent<AttributeModifierCollectionComponent>(entityId, out var modifiers))
+            {
+                // 如果没有修改器，直接使用基础属性
+                UpdateFinalAttributesFromBase(world, entityId, baseAttr);
+                return;
+            }
+
+            // 按属性类型分组修改器
+            var additiveMap = new Dictionary<AttributeType, float>();
+            var multiplicativeMap = new Dictionary<AttributeType, float>();
+
+            foreach (var modifier in modifiers.modifiers)
+            {
+                if (modifier.modifierType == ModifierType.Additive)
+                {
+                    if (!additiveMap.ContainsKey(modifier.attributeType))
+                        additiveMap[modifier.attributeType] = 0f;
+                    additiveMap[modifier.attributeType] += modifier.value;
+                }
+                else if (modifier.modifierType == ModifierType.Multiplicative)
+                {
+                    if (!multiplicativeMap.ContainsKey(modifier.attributeType))
+                        multiplicativeMap[modifier.attributeType] = 0f;
+                    multiplicativeMap[modifier.attributeType] += modifier.value;
+                }
+            }
+
+            // 计算最终属性
+            var final = CalculateFinalAttributes(baseAttr, additiveMap, multiplicativeMap);
+
+            // 更新或创建 FinalAttributeComponent
+            world.AddComponent(entityId, final);
+        }
+
+        /// <summary>
+        /// 无修改器时直接使用基础属性
+        /// </summary>
+        private void UpdateFinalAttributesFromBase(World world, int entityId, BaseAttributeComponent baseAttr)
+        {
+            var final = new FinalAttributeComponent
+            {
+                maxHealth = baseAttr.maxHealth,
+                healthRegen = baseAttr.healthRegen,
+                moveSpeed = baseAttr.moveSpeed,
+                armor = baseAttr.armor,
+                attackDamage = baseAttr.attackDamage,
+                attackSpeed = baseAttr.attackSpeed,
+                criticalChance = baseAttr.criticalChance,
+                criticalDamage = baseAttr.criticalDamage,
+                projectileSpeed = baseAttr.projectileSpeed,
+                areaSize = baseAttr.areaSize,
+                projectileCount = baseAttr.projectileCount,
+                pierceCount = baseAttr.pierceCount,
+                pickupRange = baseAttr.pickupRange,
+                expGain = baseAttr.expGain,
+                cooldownReduction = baseAttr.cooldownReduction,
+                duration = baseAttr.duration,
+                dodgeChance = baseAttr.dodgeChance,
+                damageReduction = baseAttr.damageReduction,
+                damageMul = 1f,
+                cooldownMul = 1f,
+                projectileSpeedMul = 1f
+            };
+
+            world.AddComponent(entityId, final);
+        }
+
+        /// <summary>
+        /// 应用公式计算最终属性
+        /// final = (base + additive) * (1 + multiplicative)
+        /// </summary>
+        private FinalAttributeComponent CalculateFinalAttributes(
+            BaseAttributeComponent baseAttr,
+            Dictionary<AttributeType, float> additive,
+            Dictionary<AttributeType, float> multiplicative)
+        {
+            var final = new FinalAttributeComponent();
+
+            // 辅助函数：计算单个属性
+            float Calc(AttributeType type, float baseValue)
+            {
+                float add = additive.TryGetValue(type, out var a) ? a : 0f;
+                float mul = multiplicative.TryGetValue(type, out var m) ? m : 0f;
+                return (baseValue + add) * (1f + mul);
+            }
+
+            int CalcInt(AttributeType type, int baseValue)
+            {
+                float add = additive.TryGetValue(type, out var a) ? a : 0f;
+                float mul = multiplicative.TryGetValue(type, out var m) ? m : 0f;
+                return (int)((baseValue + add) * (1f + mul));
+            }
+
+            // 计算所有属性
+            final.maxHealth = Calc(AttributeType.MaxHealth, baseAttr.maxHealth);
+            final.healthRegen = Calc(AttributeType.HealthRegen, baseAttr.healthRegen);
+            final.moveSpeed = Calc(AttributeType.MoveSpeed, baseAttr.moveSpeed);
+            final.armor = Calc(AttributeType.Armor, baseAttr.armor);
+            final.attackDamage = Calc(AttributeType.AttackDamage, baseAttr.attackDamage);
+            final.attackSpeed = Calc(AttributeType.AttackSpeed, baseAttr.attackSpeed);
+            final.criticalChance = Calc(AttributeType.CriticalChance, baseAttr.criticalChance);
+            final.criticalDamage = Calc(AttributeType.CriticalDamage, baseAttr.criticalDamage);
+            final.projectileSpeed = Calc(AttributeType.ProjectileSpeed, baseAttr.projectileSpeed);
+            final.areaSize = Calc(AttributeType.AreaSize, baseAttr.areaSize);
+            final.projectileCount = CalcInt(AttributeType.ProjectileCount, baseAttr.projectileCount);
+            final.pierceCount = CalcInt(AttributeType.PierceCount, baseAttr.pierceCount);
+            final.pickupRange = Calc(AttributeType.PickupRange, baseAttr.pickupRange);
+            final.expGain = Calc(AttributeType.ExpGain, baseAttr.expGain);
+            final.cooldownReduction = Calc(AttributeType.CooldownReduction, baseAttr.cooldownReduction);
+            final.duration = Calc(AttributeType.Duration, baseAttr.duration);
+            final.dodgeChance = Calc(AttributeType.DodgeChance, baseAttr.dodgeChance);
+            final.damageReduction = Calc(AttributeType.DamageReduction, baseAttr.damageReduction);
+
+            // 计算倍率字段（用于武器系统等）
+            final.damageMul = 1f + (multiplicative.TryGetValue(AttributeType.AttackDamage, out var dmg) ? dmg : 0f);
+            final.cooldownMul = 1f - final.cooldownReduction; // 冷却缩减转换为倍率
+            final.projectileSpeedMul = 1f + (multiplicative.TryGetValue(AttributeType.ProjectileSpeed, out var ps) ? ps : 0f);
+
+            return final;
+        }
+    }
+}
