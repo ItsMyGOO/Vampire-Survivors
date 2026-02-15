@@ -1,4 +1,5 @@
-﻿using ECS.Core;
+﻿using Battle.Player;
+using ECS.Core;
 
 namespace ECS.Systems
 {
@@ -17,7 +18,7 @@ namespace ECS.Systems
         public override void Update(World world, float deltaTime)
         {
             // 遍历所有拥有最终属性的实体
-            var entities = world.GetEntitiesWithComponent<FinalAttributeComponent>();
+            var entities = world.GetEntitiesWithComponent<PlayerAttributeComponent>();
 
             foreach (var entityId in entities)
             {
@@ -27,7 +28,7 @@ namespace ECS.Systems
 
         private void SyncAttributes(World world, int entityId)
         {
-            if (!world.TryGetComponent<FinalAttributeComponent>(entityId, out var final))
+            if (!world.TryGetComponent<PlayerAttributeComponent>(entityId, out var final))
                 return;
 
             // 同步移动速度
@@ -48,11 +49,11 @@ namespace ECS.Systems
         /// <summary>
         /// 同步移动速度到 VelocityComponent
         /// </summary>
-        private void SyncMoveSpeed(World world, int entityId, FinalAttributeComponent final)
+        private void SyncMoveSpeed(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<VelocityComponent>(entityId, out var velocity))
             {
-                velocity.speed = final.moveSpeed;
+                velocity.speed = player.moveSpeed;
             }
         }
 
@@ -60,15 +61,15 @@ namespace ECS.Systems
         /// 同步生命值到 HealthComponent
         /// 注意：只更新最大值，当前值按比例调整
         /// </summary>
-        private void SyncHealth(World world, int entityId, FinalAttributeComponent final)
+        private void SyncHealth(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<HealthComponent>(entityId, out var health))
             {
                 // 保持生命值百分比
                 float healthPercent = health.current / health.max;
                 
-                health.max = final.maxHealth;
-                health.regen = final.healthRegen;
+                health.max = player.maxHealth;
+                health.regen = player.healthRegen;
                 
                 // 如果是新增最大生命，按比例增加当前生命
                 // 避免加血上限后当前血量不变的问题
@@ -79,23 +80,23 @@ namespace ECS.Systems
         /// <summary>
         /// 同步拾取范围到 PickupRangeComponent
         /// </summary>
-        private void SyncPickupRange(World world, int entityId, FinalAttributeComponent final)
+        private void SyncPickupRange(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<PickupRangeComponent>(entityId, out var pickup))
             {
-                pickup.radius = final.pickupRange;
+                pickup.radius = player.pickupRange;
             }
         }
 
         /// <summary>
         /// 同步经验增益到经验系统
         /// </summary>
-        private void SyncExpGain(World world, int entityId, FinalAttributeComponent final)
+        private void SyncExpGain(World world, int entityId, PlayerAttributeComponent player)
         {
             // 如果使用 PlayerContext 单例方式访问经验系统
             if ( PlayerContext.Instance?.ExpSystem != null)
             {
-                 PlayerContext.Instance.ExpSystem.ExpData.exp_multiplier = final.expGain;
+                 PlayerContext.Instance.ExpSystem.ExpData.exp_multiplier = player.expGain;
             }
         }
     }

@@ -144,7 +144,7 @@ namespace ECS
     /// 由 AttributeCalculationSystem 计算并更新
     /// </summary>
     [Serializable]
-    public class FinalAttributeComponent
+    public class PlayerAttributeComponent
     {
         // 与 BaseAttributeComponent 相同的字段结构
         public float maxHealth;

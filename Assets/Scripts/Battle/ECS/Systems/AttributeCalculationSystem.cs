@@ -76,7 +76,7 @@ namespace ECS.Systems
         /// </summary>
         private void UpdateFinalAttributesFromBase(World world, int entityId, BaseAttributeComponent baseAttr)
         {
-            var final = new FinalAttributeComponent
+            var final = new PlayerAttributeComponent
             {
                 maxHealth = baseAttr.maxHealth,
                 healthRegen = baseAttr.healthRegen,
@@ -108,12 +108,12 @@ namespace ECS.Systems
         /// 应用公式计算最终属性
         /// final = (base + additive) * (1 + multiplicative)
         /// </summary>
-        private FinalAttributeComponent CalculateFinalAttributes(
+        private PlayerAttributeComponent CalculateFinalAttributes(
             BaseAttributeComponent baseAttr,
             Dictionary<AttributeType, float> additive,
             Dictionary<AttributeType, float> multiplicative)
         {
-            var final = new FinalAttributeComponent();
+            var final = new PlayerAttributeComponent();
 
             // 辅助函数：计算单个属性
             float Calc(AttributeType type, float baseValue)
