@@ -16,6 +16,10 @@ namespace ECS.Systems
     /// </summary>
     public class AttributeCalculationSystem : SystemBase
     {
+        // 优化2: 复用字典，避免频繁GC分配
+        private readonly Dictionary<AttributeType, float> _cachedAdditiveMap = new Dictionary<AttributeType, float>();
+        private readonly Dictionary<AttributeType, float> _cachedMultiplicativeMap = new Dictionary<AttributeType, float>();
+
         public override void Update(World world, float deltaTime)
         {
             // 优化：仅计算标记为脏的实体（脏标记模式）
@@ -49,27 +53,27 @@ namespace ECS.Systems
             }
 
             // 按属性类型分组修改器
-            var additiveMap = new Dictionary<AttributeType, float>();
-            var multiplicativeMap = new Dictionary<AttributeType, float>();
+            _cachedAdditiveMap.Clear();
+            _cachedMultiplicativeMap.Clear();
 
             foreach (var modifier in modifiers.modifiers)
             {
                 if (modifier.modifierType == ModifierType.Additive)
                 {
-                    if (!additiveMap.ContainsKey(modifier.attributeType))
-                        additiveMap[modifier.attributeType] = 0f;
-                    additiveMap[modifier.attributeType] += modifier.value;
+                    if (!_cachedAdditiveMap.ContainsKey(modifier.attributeType))
+                        _cachedAdditiveMap[modifier.attributeType] = 0f;
+                    _cachedAdditiveMap[modifier.attributeType] += modifier.value;
                 }
                 else if (modifier.modifierType == ModifierType.Multiplicative)
                 {
-                    if (!multiplicativeMap.ContainsKey(modifier.attributeType))
-                        multiplicativeMap[modifier.attributeType] = 0f;
-                    multiplicativeMap[modifier.attributeType] += modifier.value;
+                    if (!_cachedMultiplicativeMap.ContainsKey(modifier.attributeType))
+                        _cachedMultiplicativeMap[modifier.attributeType] = 0f;
+                    _cachedMultiplicativeMap[modifier.attributeType] += modifier.value;
                 }
             }
 
             // 计算最终属性
-            var final = CalculateFinalAttributes(baseAttr, additiveMap, multiplicativeMap);
+            var final = CalculateFinalAttributes(baseAttr, _cachedAdditiveMap, _cachedMultiplicativeMap);
 
             // 更新或创建 FinalAttributeComponent
             world.AddComponent(entityId, final);
