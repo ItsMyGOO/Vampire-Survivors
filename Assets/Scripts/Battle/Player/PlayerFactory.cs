@@ -40,6 +40,9 @@ namespace Battle.Player
             var passiveState = PassiveUpgradeStateComponent.Create();
             world.AddComponent(id, passiveState);
             
+            // 标记需要初始化计算属性（脏标记模式）
+            world.AddComponent(id, new AttributeDirtyComponent());
+            
             var weaponStats = new WeaponRuntimeStatsComponent();
             weaponStats.AddWeapon("ProjectileKnife", 1);
             weaponStats.AddWeapon("OrbitKnife", 1);

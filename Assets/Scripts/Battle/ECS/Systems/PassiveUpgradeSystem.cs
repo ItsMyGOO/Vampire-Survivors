@@ -122,6 +122,9 @@ namespace ECS.Systems
 
             // 更新组件
             world.AddComponent(entityId, modifierCollection);
+            
+            // 标记属性需要重新计算（脏标记模式优化）
+            world.AddComponent(entityId, new AttributeDirtyComponent());
         }
 
         /// <summary>
