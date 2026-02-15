@@ -75,8 +75,15 @@ namespace ECS.Systems
             // 计算最终属性
             var final = CalculateFinalAttributes(baseAttr, _cachedAdditiveMap, _cachedMultiplicativeMap);
 
-            // 更新或创建 FinalAttributeComponent
-            world.AddComponent(entityId, final);
+            // 值拷贝到已存在的组件（如果存在），否则添加新组件
+            if (world.TryGetComponent<PlayerAttributeComponent>(entityId, out var existing))
+            {
+                CopyAttributeValues(final, existing);
+            }
+            else
+            {
+                world.AddComponent(entityId, final);
+            }
         }
 
         /// <summary>
@@ -109,7 +116,15 @@ namespace ECS.Systems
                 projectileSpeedMul = 1f
             };
 
-            world.AddComponent(entityId, final);
+            // 值拷贝到已存在的组件（如果存在），否则添加新组件
+            if (world.TryGetComponent<PlayerAttributeComponent>(entityId, out var existing))
+            {
+                CopyAttributeValues(final, existing);
+            }
+            else
+            {
+                world.AddComponent(entityId, final);
+            }
         }
 
         /// <summary>
@@ -164,6 +179,36 @@ namespace ECS.Systems
             final.projectileSpeedMul = 1f + (multiplicative.TryGetValue(AttributeType.ProjectileSpeed, out var ps) ? ps : 0f);
 
             return final;
+        }
+
+        /// <summary>
+        /// 值拷贝辅助方法
+        /// 将源组件的所有属性值拷贝到目标组件
+        /// 用于更新已存在的组件，避免 AddComponent 的歧义
+        /// </summary>
+        private void CopyAttributeValues(PlayerAttributeComponent source, PlayerAttributeComponent target)
+        {
+            target.maxHealth = source.maxHealth;
+            target.healthRegen = source.healthRegen;
+            target.moveSpeed = source.moveSpeed;
+            target.armor = source.armor;
+            target.attackDamage = source.attackDamage;
+            target.attackSpeed = source.attackSpeed;
+            target.criticalChance = source.criticalChance;
+            target.criticalDamage = source.criticalDamage;
+            target.projectileSpeed = source.projectileSpeed;
+            target.areaSize = source.areaSize;
+            target.projectileCount = source.projectileCount;
+            target.pierceCount = source.pierceCount;
+            target.pickupRange = source.pickupRange;
+            target.expGain = source.expGain;
+            target.cooldownReduction = source.cooldownReduction;
+            target.duration = source.duration;
+            target.dodgeChance = source.dodgeChance;
+            target.damageReduction = source.damageReduction;
+            target.damageMul = source.damageMul;
+            target.cooldownMul = source.cooldownMul;
+            target.projectileSpeedMul = source.projectileSpeedMul;
         }
     }
 }
