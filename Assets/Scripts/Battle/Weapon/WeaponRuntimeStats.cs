@@ -31,9 +31,16 @@ namespace Battle.Weapon
         public float orbitSpeedAdd;
 
         /// <summary>
-        /// 根据 cfg + 当前修正，生成最终战斗数值
+        /// 根据 cfg + 当前修正 + 玩家被动倍率，生成最终战斗数值。
+        /// finalDamage = baseDamage * levelMul * playerDamageMul * weapon.damageMul
+        /// interval = baseInterval * weapon.fireRateMul * playerCooldownMul
+        /// speed = (baseSpeed + weapon.speedAdd) * playerProjectileSpeedMul
         /// </summary>
-        public WeaponFinalStats BuildFinalStats(WeaponConfig cfg)
+        public WeaponFinalStats BuildFinalStats(
+            WeaponConfig cfg,
+            float playerDamageMul = 1f,
+            float playerCooldownMul = 1f,
+            float playerProjectileSpeedMul = 1f)
         {
             var baseStats = cfg.battle.baseStats;
             var projectile = cfg.battle.projectile;
@@ -44,8 +51,8 @@ namespace Battle.Weapon
                 : new ProjectileFinalStats()
                 {
                     count = baseStats.count + countAdd,
-                    interval = projectile.interval * fireRateMul,
-                    speed = projectile.speed + speedAdd,
+                    interval = projectile.interval * fireRateMul * playerCooldownMul,
+                    speed = (projectile.speed + speedAdd) * playerProjectileSpeedMul,
                     range = projectile.range + rangeAdd
                 };
             var oState = orbit == null
@@ -54,16 +61,15 @@ namespace Battle.Weapon
                 {
                     count = baseStats.count + countAdd,
                     radius = orbit.radius + orbitRadiusAdd,
-                    speed = orbit.speed + orbitSpeedAdd
+                    speed = (orbit.speed + orbitSpeedAdd) * playerProjectileSpeedMul
                 };
 
+            float baseDamage = baseStats.damage * level + damageAdd;
             return new WeaponFinalStats
             {
-                damage = (baseStats.damage * level + damageAdd) * damageMul,
+                damage = baseDamage * damageMul * playerDamageMul,
                 knockback = baseStats.knockback + knockbackAdd,
-                
                 projectile = pState,
-                
                 orbit = oState
             };
         }

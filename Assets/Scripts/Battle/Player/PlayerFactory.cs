@@ -1,6 +1,7 @@
-using ECS.Core;
+﻿using ECS.Core;
 using ECS;
 using Battle.Weapon;
+using Battle.Upgrade;
 
 namespace Battle.Player
 {
@@ -24,6 +25,23 @@ namespace Battle.Player
                 ClipSetName = "Player",
                 DefaultAnim = "Idle"
             });
+
+            // 玩家属性组件 - 重构版
+            var baseAttr = BaseAttributeComponent.CreateDefault();
+            baseAttr.moveSpeed = 2f;  // 与 VelocityComponent 保持一致
+            baseAttr.maxHealth = 100f; // 与 HealthComponent 保持一致
+            world.AddComponent(id, baseAttr);
+            
+            // 修改器集合
+            var modifierCollection = AttributeModifierCollectionComponent.Create();
+            world.AddComponent(id, modifierCollection);
+            
+            // 被动状态
+            var passiveState = PassiveUpgradeStateComponent.Create();
+            world.AddComponent(id, passiveState);
+            
+            // 标记需要初始化计算属性（脏标记模式）
+            world.AddComponent(id, new AttributeDirtyComponent());
             
             var weaponStats = new WeaponRuntimeStatsComponent();
             weaponStats.AddWeapon("ProjectileKnife", 1);

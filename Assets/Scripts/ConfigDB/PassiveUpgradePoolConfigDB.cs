@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Framework.Config;
 
@@ -64,6 +64,8 @@ namespace ConfigHandler
         ProjectileCount,
         PickupRange,
         CooldownReduction,
-        Duration
+        Duration,
+        ExpGain,
+        ProjectileSpeed
     }
 }
