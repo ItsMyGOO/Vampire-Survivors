@@ -1,4 +1,4 @@
-﻿using Battle.Upgrade;
+using Battle.Upgrade;
 using ECS.Core;
 
 namespace Battle.Player
@@ -14,6 +14,8 @@ namespace Battle.Player
         public World World { get; private set; }
         public int PlayerEntity { get; private set; }
         public ExpSystem ExpSystem { get; set; }
+        public UpgradeApplyService UpgradeApplyService { get; set; }
+        public UpgradeService UpgradeService { get; set; }
 
         public static void Initialize(World world, int playerEntity)
         {

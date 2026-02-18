@@ -15,17 +15,17 @@ namespace Battle.Upgrade
         public Action<UpgradeOption> OnApplyUpgradeOptions;
 
         // =========================
-        // 瀵瑰 API锛圠ua / UI 璋冪敤锛?
+        // 对外 API（Lua / UI 调用）
         // =========================
         private WeaponUpgradePoolConfigDB WeaponUpgradePoolConfigDB;
         private WeaponUpgradeRuleConfigDB WeaponUpgradeRuleConfigDB;
         private PassiveUpgradePoolConfigDB PassiveUpgradePoolConfigDB;
 
-        // 娴嬭瘯妯″紡寮€鍏?
-        [NonSerialized] public bool testMode = true; // 璁句负 true 鍚敤鑷姩闅忔満鍗囩骇娴嬭瘯
+        // 测试模式开关
+        [NonSerialized] public bool testMode = true; // 设为 true 启用自动随机升级测试
 
         /// <summary>
-        /// 鍗囩骇閫夐」鍙敤浜嬩欢锛圲I / Lua 鐩戝惉锛?
+        /// 升级选项可用事件（UI / Lua 监听）
         /// </summary>
         public event Action<List<UpgradeOption>> OnUpgradeOptionsReady;
 
@@ -83,21 +83,21 @@ namespace Battle.Upgrade
 
             if (options == null || options.Count == 0)
             {
-                Debug.LogWarning("[ExpSystem] 娌℃湁鍙敤鐨勫崌绾ч€夐」");
+                Debug.LogWarning("[ExpSystem] 没有可用的升级选项");
                 return;
             }
 
-            Debug.Log($"[ExpSystem] 鐢熸垚浜?{options.Count} 涓崌绾ч€夐」:");
+            Debug.Log($"[ExpSystem] 生成了 {options.Count} 个升级选项:");
             for (int i = 0; i < options.Count; i++)
             {
                 var opt = options[i];
                 Debug.Log($"  [{i}] {opt.type} - {opt.name} (ID: {opt.id})");
             }
 
-            // 瑙﹀彂浜嬩欢
+            // 触发事件
             OnUpgradeOptionsReady?.Invoke(options);
 
-            // 娴嬭瘯妯″紡锛氳嚜鍔ㄩ殢鏈洪€夋嫨涓€涓鍣ㄥ崌绾ч€夐」
+            // 测试模式：自动随机选择一个武器升级选项
             if (testMode)
             {
                 AutoSelectUpgradeForTest(options);
@@ -105,35 +105,35 @@ namespace Battle.Upgrade
         }
 
         /// <summary>
-        /// 娴嬭瘯妯″紡锛氳嚜鍔ㄩ殢鏈洪€夋嫨涓€涓崌绾ч€夐」
+        /// 测试模式：自动随机选择一个升级选项
         /// </summary>
         private void AutoSelectUpgradeForTest(List<UpgradeOption> options)
         {
-            // 浼樺厛閫夋嫨姝﹀櫒绫诲瀷鐨勯€夐」
+            // 优先选择武器类型的选项
             var weaponOptions = options.FindAll(opt => opt.type == UpgradeOptionType.Weapon);
 
             UpgradeOption selected;
             if (weaponOptions.Count > 0)
             {
-                // 闅忔満閫夋嫨涓€涓鍣ㄩ€夐」
+                // 随机选择一个武器选项
                 int randomIndex = UnityEngine.Random.Range(0, weaponOptions.Count);
                 selected = weaponOptions[randomIndex];
-                Debug.Log($"[ExpSystem] 娴嬭瘯妯″紡 - 闅忔満閫夋嫨姝﹀櫒: {selected.name} (ID: {selected.id})");
+                Debug.Log($"[ExpSystem] 测试模式 - 随机选择武器: {selected.name} (ID: {selected.id})");
             }
             else if (options.Count > 0)
             {
-                // 濡傛灉娌℃湁姝﹀櫒閫夐」锛岄殢鏈洪€夋嫨浠绘剰閫夐」
+                // 如果没有武器选项，随机选择任意选项
                 int randomIndex = UnityEngine.Random.Range(0, options.Count);
                 selected = options[randomIndex];
-                Debug.Log($"[ExpSystem] 娴嬭瘯妯″紡 - 闅忔満閫夋嫨閫夐」: {selected.name} (ID: {selected.id})");
+                Debug.Log($"[ExpSystem] 测试模式 - 随机选择选项: {selected.name} (ID: {selected.id})");
             }
             else
             {
-                Debug.LogWarning("[ExpSystem] 娴嬭瘯妯″紡 - 娌℃湁鍙€夋嫨鐨勯€夐」");
+                Debug.LogWarning("[ExpSystem] 测试模式 - 没有可选择的选项");
                 return;
             }
 
-            // 搴旂敤閫夋嫨鐨勫崌绾?
+            // 应用选择的升级
             OnApplyUpgradeOptions.Invoke(selected);
         }
 
@@ -181,7 +181,7 @@ namespace Battle.Upgrade
         {
             foreach (var (weaponId, def) in WeaponUpgradePoolConfigDB.Data)
             {
-                // 绛夌骇闄愬埗
+                // 等级限制
                 if (playerLevel < def.unlockLevel)
                     continue;
 
@@ -190,7 +190,7 @@ namespace Battle.Upgrade
 
                 if (!WeaponUpgradeRuleConfigDB.Data.TryGetValue(weaponId, out var ruleDef))
                     continue;
-                // 宸叉弧绾ф帓闄?
+                // 已满级排除
                 if (owned && def.excludeIfMax && level >= ruleDef.maxLevel)
                     continue;
 
@@ -257,7 +257,7 @@ namespace Battle.Upgrade
                     {
                         var picked = pool[j];
                         results.Add(BuildOption(picked));
-                        pool.RemoveAt(j); // 闃叉閲嶅
+                        pool.RemoveAt(j); // 防止重复
                         break;
                     }
                 }
@@ -286,7 +286,7 @@ namespace Battle.Upgrade
                         name = view.name,
                         description = c.currentLevel == 0
                             ? view.description
-                            : $"{view.description} (Lv.{c.currentLevel} 鈫?Lv.{nextLevel})",
+                            : $"{view.description} (Lv.{c.currentLevel} → Lv.{nextLevel})",
                         icon = view.icon,
                         nextLevel = nextLevel
                     };
@@ -341,7 +341,7 @@ namespace Battle.Upgrade
         public string description;
         public string icon;
 
-        // 鍙€夛細缁?UI 鐢?
+        // 可选：给 UI 用
         public int nextLevel;
     }
 }

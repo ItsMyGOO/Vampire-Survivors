@@ -1,4 +1,4 @@
-﻿using Battle.Player;
+using Battle.Player;
 using ECS.Core;
 using Lua;
 
@@ -28,6 +28,8 @@ namespace Battle.Upgrade
 
             // 6. PlayerContext 只存引用
             PlayerContext.Instance.ExpSystem = expSystem;
+            PlayerContext.Instance.UpgradeApplyService = upgradeApplyService;
+            PlayerContext.Instance.UpgradeService = upgradeService;
         }
     }
 }
