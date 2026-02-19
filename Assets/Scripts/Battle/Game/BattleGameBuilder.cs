@@ -19,7 +19,6 @@ namespace Battle
 
             // Player
             int playerId = PlayerFactory.CreatePlayer(world);
-            PlayerContext.Initialize(world, playerId);
 
             // Core Systems
             ECSSystemInstaller.Install(world);
@@ -44,7 +43,11 @@ namespace Battle
 
             world.RegisterSystem(new HUDSyncSystem(playerId, hudViewModel));
 
-            return new BattleWorldContext(world, renderSync, hudViewModel);
+            // 构建 PlayerContext 供 Debug 工具使用
+            world.TryGetService<ExpSystem>(out var expSystem);
+            var playerContext = new PlayerContext(world, playerId, expSystem);
+
+            return new BattleWorldContext(world, renderSync, hudViewModel, playerContext);
         }
     }
 }

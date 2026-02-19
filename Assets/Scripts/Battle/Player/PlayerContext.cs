@@ -1,41 +1,24 @@
-using Battle.Upgrade;
+﻿using Battle.Upgrade;
 using ECS.Core;
 
 namespace Battle.Player
 {
     /// <summary>
-    /// 玩家上下文 - 单例
-    /// 存储玩家相关的全局数据
+    /// 玩家战斗上下文 - 轻量数据容器
+    /// 仅用于 Debug 工具等需要便捷访问战斗状态的场合
+    /// 不应在运行时逻辑中作为全局状态使用
     /// </summary>
     public class PlayerContext
     {
-        public static PlayerContext Instance { get; private set; }
+        public World World { get; }
+        public int PlayerEntity { get; }
+        public ExpSystem ExpSystem { get; }
 
-        public World World { get; private set; }
-        public int PlayerEntity { get; private set; }
-        public ExpSystem ExpSystem { get; set; }
-        public UpgradeApplyService UpgradeApplyService { get; set; }
-        public UpgradeService UpgradeService { get; set; }
-
-        public static void Initialize(World world, int playerEntity)
+        public PlayerContext(World world, int playerEntity, ExpSystem expSystem)
         {
-            Instance = new PlayerContext
-            {
-                World = world,
-                PlayerEntity = playerEntity,
-            };
-        }
-
-        /// <summary>
-        /// 清理所有数据
-        /// 在退出战斗时调用
-        /// </summary>
-        public static void Clear()
-        {
-            UnityEngine.Debug.Log("[PlayerContext] 清理数据");
-            
-            // 清空单例
-            Instance = null;
+            World = world;
+            PlayerEntity = playerEntity;
+            ExpSystem = expSystem;
         }
     }
 }

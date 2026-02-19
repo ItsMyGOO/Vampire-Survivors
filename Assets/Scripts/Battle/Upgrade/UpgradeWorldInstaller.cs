@@ -1,5 +1,4 @@
-using Battle.Player;
-using ECS.Core;
+﻿using ECS.Core;
 using Lua;
 
 namespace Battle.Upgrade
@@ -8,28 +7,23 @@ namespace Battle.Upgrade
     {
         public static void Install(World world, int playerEntity)
         {
-            // 1. System
+            // 1. Systems & Services
             var expSystem = new ExpSystem();
-
-            // 2. Services
-            var upgradeService = new UpgradeService(LuaMain.Env, world, playerEntity);
             var weaponUpgradeManager = new WeaponUpgradeManager(world, playerEntity);
-            var upgradeApplyService = new UpgradeApplyService(weaponUpgradeManager);
+            var upgradeApplyService = new UpgradeApplyService(weaponUpgradeManager, world, playerEntity);
+            var upgradeService = new UpgradeService(LuaMain.Env, world, playerEntity);
 
-            // 3. 事件绑定
+            // 2. 事件绑定
             expSystem.OnLevelUp += upgradeService.RollUpgradeOptions;
             upgradeService.OnApplyUpgradeOptions += upgradeApplyService.ApplyUpgradeOption;
 
-            // 4. World 注册（关键）
+            // 3. World 服务注册（供系统通过 TryGetService 访问）
             world.RegisterService(expSystem);
+            world.RegisterService(upgradeService);
+            world.RegisterService(upgradeApplyService);
 
-            // 5. Lua
+            // 4. Lua
             LuaMain.Register(upgradeService);
-
-            // 6. PlayerContext 只存引用
-            PlayerContext.Instance.ExpSystem = expSystem;
-            PlayerContext.Instance.UpgradeApplyService = upgradeApplyService;
-            PlayerContext.Instance.UpgradeService = upgradeService;
         }
     }
 }

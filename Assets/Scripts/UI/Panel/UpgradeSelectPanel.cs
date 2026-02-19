@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using Battle.Player;
+﻿using System.Collections.Generic;
 using Battle.Upgrade;
 using UI.Core;
 using UnityEngine;
@@ -8,11 +7,7 @@ namespace UI.Panel
 {
     /// <summary>
     /// 升级选择面板 - View 层
-    /// 显示三个升级选项卡片，玩家选择后触发升级并关闭面板
-    /// 
-    /// 接入方式：
-    /// UpgradeService.OnUpgradeOptionsReady → UpgradeSelectPanel.Show(options)
-    /// 玩家点击卡片 → UpgradeApplyService.ApplyUpgradeOption → Panel.Hide()
+    /// 服务通过 BindServices 由外部注入，不直接访问全局状态
     /// </summary>
     public class UpgradeSelectPanel : UIPanel
     {
@@ -22,33 +17,29 @@ namespace UI.Panel
         [Header("Settings")]
         [SerializeField] private bool pauseGameOnShow = true;
 
+        private UpgradeService _upgradeService;
+        private UpgradeApplyService _applyService;
         private List<UpgradeOption> _currentOptions;
 
-protected override void OnInit()
+        protected override void OnInit()
         {
             if (optionItems == null || optionItems.Length == 0)
                 Debug.LogError("[UpgradeSelectPanel] optionItems 未配置，请在 Inspector 中绑定三个 UpgradeOptionItem");
         }
 
-protected override void OnStart()
+        /// <summary>
+        /// 由 ECSGameManager 在场景初始化后调用，注入服务
+        /// </summary>
+        public void BindServices(UpgradeService upgradeService, UpgradeApplyService applyService)
         {
-            // 等 PlayerContext 就绪后再订阅（Battle 场景 Start 顺序保证）
-            var upgradeService = PlayerContext.Instance?.UpgradeService;
-            if (upgradeService == null)
-            {
-                Debug.LogError("[UpgradeSelectPanel] UpgradeService 未注册，无法订阅升级事件");
-                return;
-            }
+            _upgradeService = upgradeService;
+            _applyService = applyService;
 
-            upgradeService.OnUpgradeOptionsReady += ShowOptions;
-            upgradeService.testMode = false; // 关闭自动选择，由 UI 接管
-            Debug.Log("[UpgradeSelectPanel] 已订阅 OnUpgradeOptionsReady");
+            _upgradeService.OnUpgradeOptionsReady += ShowOptions;
+            _upgradeService.testMode = false; // 关闭自动选择，由 UI 接管
+            Debug.Log("[UpgradeSelectPanel] 已绑定服务并订阅 OnUpgradeOptionsReady");
         }
 
-
-        /// <summary>
-        /// 由 UpgradeService.OnUpgradeOptionsReady 事件调用
-        /// </summary>
         public void ShowOptions(List<UpgradeOption> options)
         {
             if (options == null || options.Count == 0)
@@ -74,9 +65,6 @@ protected override void OnStart()
                 Time.timeScale = 1f;
         }
 
-        /// <summary>
-        /// 将选项数据绑定到卡片
-        /// </summary>
         private void BindOptions(List<UpgradeOption> options)
         {
             for (int i = 0; i < optionItems.Length; i++)
@@ -90,39 +78,29 @@ protected override void OnStart()
                 }
                 else
                 {
-                    // 选项不足时隐藏多余的卡片
                     optionItems[i].gameObject.SetActive(false);
                 }
             }
         }
 
-        /// <summary>
-        /// 玩家点击某张卡片
-        /// </summary>
         private void OnOptionSelected(UpgradeOption option)
         {
             Debug.Log($"[UpgradeSelectPanel] 玩家选择: {option.type} - {option.name}");
 
-            // 触发升级应用
-            var applyService = PlayerContext.Instance?.UpgradeApplyService;
-            if (applyService == null)
+            if (_applyService == null)
             {
-                Debug.LogError("[UpgradeSelectPanel] UpgradeApplyService 未注册");
+                Debug.LogError("[UpgradeSelectPanel] UpgradeApplyService 未绑定");
                 return;
             }
 
-            applyService.ApplyUpgradeOption(option);
-
-            // 关闭面板
+            _applyService.ApplyUpgradeOption(option);
             Hide();
         }
-    
 
-private void OnDestroy()
+        private void OnDestroy()
         {
-            var upgradeService = PlayerContext.Instance?.UpgradeService;
-            if (upgradeService != null)
-                upgradeService.OnUpgradeOptionsReady -= ShowOptions;
+            if (_upgradeService != null)
+                _upgradeService.OnUpgradeOptionsReady -= ShowOptions;
         }
-}
+    }
 }

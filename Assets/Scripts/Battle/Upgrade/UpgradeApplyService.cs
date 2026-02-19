@@ -1,30 +1,26 @@
-﻿using Battle.Player;
-using ECS;
+﻿using ECS;
+using ECS.Core;
 using UnityEngine;
 
 namespace Battle.Upgrade
 {
     /// <summary>
-    /// 升级应用服务 - 重构版
-    /// 职责简化为：将外部升级请求转换为 ECS 意图组件
-    /// 
-    /// 原有的复杂逻辑移至：
-    /// - PassiveUpgradeSystem: 处理被动升级
-    /// - AttributeCalculationSystem: 计算属性
-    /// - AttributeSyncSystem: 同步属性到其他组件
+    /// 升级应用服务
+    /// 职责：将外部升级请求转换为 ECS 意图组件
     /// </summary>
     public class UpgradeApplyService
     {
-        private WeaponUpgradeManager weaponUpgradeManager;
+        private readonly WeaponUpgradeManager _weaponUpgradeManager;
+        private readonly World _world;
+        private readonly int _playerId;
 
-        public UpgradeApplyService(WeaponUpgradeManager weaponUpgradeManager)
+        public UpgradeApplyService(WeaponUpgradeManager weaponUpgradeManager, World world, int playerId)
         {
-            this.weaponUpgradeManager = weaponUpgradeManager;
+            _weaponUpgradeManager = weaponUpgradeManager;
+            _world = world;
+            _playerId = playerId;
         }
 
-        /// <summary>
-        /// 应用升级选项
-        /// </summary>
         public void ApplyUpgradeOption(UpgradeOption option)
         {
             if (option == null)
@@ -47,64 +43,42 @@ namespace Battle.Upgrade
             }
         }
 
-        /// <summary>
-        /// 应用武器升级（保持原有逻辑）
-        /// </summary>
         private void ApplyWeapon(string weaponId)
         {
-            if (weaponUpgradeManager == null)
+            if (_weaponUpgradeManager == null)
             {
                 Debug.LogError("[UpgradeApplyService] WeaponUpgradeManager 未初始化");
                 return;
             }
 
-            var world = PlayerContext.Instance.World;
-            int player = PlayerContext.Instance.PlayerEntity;
-
-            int currentLevel = weaponUpgradeManager.GetWeaponLevel(world, player, weaponId);
+            int currentLevel = _weaponUpgradeManager.GetWeaponLevel(_world, _playerId, weaponId);
 
             if (currentLevel == 0)
             {
-                bool success = weaponUpgradeManager.AddWeapon(weaponId);
+                bool success = _weaponUpgradeManager.AddWeapon(weaponId);
                 if (success)
-                {
                     Debug.Log($"[UpgradeApplyService] 成功添加武器 - {weaponId}");
-                }
                 else
-                {
                     Debug.LogError($"[UpgradeApplyService] 添加武器失败 - {weaponId}");
-                }
             }
             else
             {
-                bool success = weaponUpgradeManager.UpgradeWeapon(weaponId);
+                bool success = _weaponUpgradeManager.UpgradeWeapon(weaponId);
                 if (success)
-                {
                     Debug.Log($"[UpgradeApplyService] 成功升级武器 - {weaponId} 到 Lv.{currentLevel + 1}");
-                }
                 else
-                {
                     Debug.LogError($"[UpgradeApplyService] 升级武器失败 - {weaponId}");
-                }
             }
         }
 
-        /// <summary>
-        /// 应用被动升级 - 重构版
-        /// 只负责创建意图组件，具体逻辑由 PassiveUpgradeSystem 处理
-        /// </summary>
         private void ApplyPassive(string passiveId)
         {
             Debug.Log($"[UpgradeApplyService] 请求添加被动技能 - {passiveId}");
 
-            var world = PlayerContext.Instance.World;
-            int player = PlayerContext.Instance.PlayerEntity;
-
-            // 创建升级意图组件
             var intent = new PassiveUpgradeIntentComponent(passiveId, levelDelta: 1);
-            world.AddComponent(player, intent);
+            _world.AddComponent(_playerId, intent);
 
-            Debug.Log($"[UpgradeApplyService] 已创建被动升级意图，等待系统处理");
+            Debug.Log("[UpgradeApplyService] 已创建被动升级意图，等待系统处理");
         }
     }
 }
