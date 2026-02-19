@@ -27,14 +27,23 @@ namespace UI.Core
             base.OnBeforeHide();
         }
 
+        protected virtual void OnDestroy()
+        {
+            OnViewModelDispose();
+        }
+
         /// <summary>
         /// 当 ViewModel 获取成功时调用
         /// </summary>
-        protected virtual void OnViewModelReady() { }
+        protected virtual void OnViewModelReady()
+        {
+        }
 
         /// <summary>
         /// 隐藏时调用（用于取消订阅）
         /// </summary>
-        protected virtual void OnViewModelDispose() { }
+        protected virtual void OnViewModelDispose()
+        {
+        }
     }
 }

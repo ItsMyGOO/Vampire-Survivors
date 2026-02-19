@@ -7,7 +7,7 @@ using UniRx;
 
 namespace UI.Panel
 {
-    public class BattleHUDPanel : UIPanel
+    public class BattleHUDPanel : UIBindPanel<HUDViewModel>
     {
         [Header("UI References")]
         [SerializeField] private Button pauseButton;
@@ -18,71 +18,49 @@ namespace UI.Panel
         [SerializeField] private TextMeshProUGUI levelText;
 
         private CompositeDisposable _disposables;
-        private HUDViewModel _viewModel;
 
         #region Lifecycle
 
         protected override void OnInit()
         {
-            pauseButton?.onClick.AddListener(OnPauseButtonClicked);
+            // pauseButton?.onClick.AddListener(OnPauseButtonClicked);
         }
 
-        protected override void OnAfterShow()
+        protected override void OnViewModelReady()
         {
-            base.OnAfterShow();
-
-            _viewModel = ViewModelRegistry.Get<HUDViewModel>();
-
-            if (_viewModel != null)
-                SubscribeViewModel();
-        }
-
-        protected override void OnBeforeHide()
-        {
-            DisposeSubscriptions();
-        }
-
-        private void OnDestroy()
-        {
-            DisposeSubscriptions();
-            pauseButton?.onClick.RemoveListener(OnPauseButtonClicked);
-        }
-
-        #endregion
-
-        #region Binding
-
-        private void SubscribeViewModel()
-        {
-            DisposeSubscriptions();
-
             _disposables = new CompositeDisposable();
 
-            _viewModel.Level
+            ViewModel.Level
                 .Subscribe(lv => levelText.text = $"Lv.{lv}")
                 .AddTo(_disposables);
 
-            _viewModel.ExpRatio
+            ViewModel.ExpRatio
                 .Subscribe(v => expSlider.value = Mathf.Clamp01(v))
                 .AddTo(_disposables);
 
-            _viewModel.HealthRatio
-                .Subscribe(v => healthSlider.value = Mathf.Clamp01(v))
-                .AddTo(_disposables);
+            // ViewModel.HealthRatio
+            //     .Subscribe(v => healthSlider.value = Mathf.Clamp01(v))
+            //     .AddTo(_disposables);
 
-            _viewModel.KillCount
+            ViewModel.KillCount
                 .Subscribe(v => killCountText.text = $"Kills: {v}")
                 .AddTo(_disposables);
 
-            _viewModel.BattleTime
+            ViewModel.BattleTime
                 .Subscribe(UpdateTimeDisplay)
                 .AddTo(_disposables);
         }
 
-        private void DisposeSubscriptions()
+        protected override void OnViewModelDispose()
         {
             _disposables?.Dispose();
             _disposables = null;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            // pauseButton?.onClick.RemoveListener(OnPauseButtonClicked);
         }
 
         #endregion

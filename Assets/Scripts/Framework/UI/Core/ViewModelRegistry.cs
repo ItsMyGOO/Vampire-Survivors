@@ -12,6 +12,11 @@ namespace UI.Model
             _viewModels[typeof(T)] = vm;
         }
 
+        public static void Unregister<T>() where T : class
+        {
+            _viewModels.Remove(typeof(T));
+        }
+
         public static T Get<T>() where T : class
         {
             if (_viewModels.TryGetValue(typeof(T), out var vm))

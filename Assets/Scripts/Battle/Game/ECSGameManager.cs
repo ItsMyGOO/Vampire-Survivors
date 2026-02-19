@@ -17,46 +17,49 @@ namespace Battle
         private World world;
         private RenderSyncSystem syncSystem;
 
-        public CinemachineVirtualCamera vCam;
+        private HUDViewModel hudViewModel;
+        private HUDSyncSystem hudSyncSystem;
+
+        [SerializeField] private CinemachineVirtualCamera vCam;
 
         private void Start()
         {
-            Init();
-
+            InitializeGame();
             UIManager.Instance.ShowPanel<BattleHUDPanel>();
         }
 
-        private void Init()
+        private void InitializeGame()
         {
-            // 1. 配置
-            GameConfigLoader.LoadAll();
-
-            // 2. World
-            world = new World();
-
-            // 3. Player
-            int playerId = PlayerFactory.CreatePlayer(world);
-
-            // 4. PlayerContext（只存引用，不干活）
-            PlayerContext.Initialize(world, playerId);
-
-            // 5. World 系统
-            InstallWorldSystems(world);
-
-            // ===== 升级 / 经验 =====
-            UpgradeWorldInstaller.Install(world, playerId);
-
-            var hudViewModel = new HUDViewModel();
-            ViewModelRegistry.Register(hudViewModel);
-
-            world.RegisterSystem(new HUDSyncSystem(playerId, hudViewModel));
+            LoadConfig();
+            CreateWorld();
+            CreatePlayer();
+            InstallSystems();
+            InstallUpgrade();
+            InstallHUD();
         }
 
-        private void InstallWorldSystems(World w)
-        {
-            ECSSystemInstaller.Install(w);
+        #region Init Steps
 
-            // ===== 渲染 =====
+        private void LoadConfig()
+        {
+            GameConfigLoader.LoadAll();
+        }
+
+        private void CreateWorld()
+        {
+            world = new World();
+        }
+
+        private void CreatePlayer()
+        {
+            int playerId = PlayerFactory.CreatePlayer(world);
+            PlayerContext.Initialize(world, playerId);
+        }
+
+        private void InstallSystems()
+        {
+            ECSSystemInstaller.Install(world);
+
             var renderSystem = new RenderSystem(
                 new SpriteProvider(),
                 new RenderObjectPool()
@@ -68,17 +71,58 @@ namespace Battle
             syncSystem = new RenderSyncSystem(renderSystem);
         }
 
+        private void InstallUpgrade()
+        {
+            UpgradeWorldInstaller.Install(world, PlayerContext.Instance.PlayerEntity);
+        }
+
+        private void InstallHUD()
+        {
+            hudViewModel = new HUDViewModel();
+            ViewModelRegistry.Register(hudViewModel);
+
+            hudSyncSystem = new HUDSyncSystem(PlayerContext.Instance.PlayerEntity, hudViewModel);
+            world.RegisterSystem(hudSyncSystem);
+        }
+
+        #endregion
+
         private void Update()
         {
-            world?.Update(Time.deltaTime);
-            syncSystem.Update(world);
+            if (world == null) return;
+
+            world.Update(Time.deltaTime);
+            syncSystem?.Update(world);
         }
 
         private void OnDestroy()
         {
+            DisposeHUD();
+            DisposeWorld();
+        }
+
+        #region Dispose
+
+        private void DisposeHUD()
+        {
+            if (hudSyncSystem != null && world != null)
+                world.UnregisterSystem(hudSyncSystem);
+
+            ViewModelRegistry.Unregister<HUDViewModel>();
+
+            hudSyncSystem = null;
+            hudViewModel = null;
+        }
+
+        private void DisposeWorld()
+        {
             world?.Clear();
+            world = null;
+
             PlayerContext.Clear();
         }
+
+        #endregion
 
         public World World => world;
     }
