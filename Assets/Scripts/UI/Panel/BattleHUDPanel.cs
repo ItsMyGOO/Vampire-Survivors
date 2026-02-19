@@ -1,117 +1,119 @@
-﻿using Battle.Player;
-using Battle.Upgrade;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UI.Core;
+using UI.Model;
 using UniRx;
 
 namespace UI.Panel
 {
     public class BattleHUDPanel : UIPanel
     {
-        [Header("UI References")] [SerializeField]
-        private Button pauseButton;
-
+        [Header("UI References")]
+        [SerializeField] private Button pauseButton;
         [SerializeField] private TextMeshProUGUI timeText;
         [SerializeField] private TextMeshProUGUI killCountText;
         [SerializeField] private Slider healthSlider;
         [SerializeField] private Slider expSlider;
-        [SerializeField] private Text levelText;
+        [SerializeField] private TextMeshProUGUI levelText;
 
-        private float battleTime = 0f;
-        private int killCount = 0;
+        private CompositeDisposable _disposables;
+        private HUDViewModel _viewModel;
+
+        #region Lifecycle
 
         protected override void OnInit()
         {
-            if (pauseButton != null)
-                pauseButton.onClick.AddListener(OnPauseButtonClicked);
-
-            UpdateTimeDisplay();
-            UpdateKillCountDisplay();
-        }
-
-        protected override void OnStart()
-        {
-           Bind(PlayerContext.Instance.ExpSystem.ExpData);
-        }
-
-        void Bind(ExpData expData)
-        {
-            // 等级显示
-            expData.level
-                .Subscribe(lv => { levelText.text = $"Lv.{lv}"; })
-                .AddTo(this);
-
-            // 经验条：current / nextLevel
-            Observable.CombineLatest(
-                    expData.current_exp,
-                    expData.exp_to_next_level,
-                    (cur, max) => max > 0f ? cur / max : 0f)
-                .Subscribe(v => { expSlider.value = Mathf.Clamp01(v); })
-                .AddTo(this);
-        }
-
-        private void Update()
-        {
-            if (!IsVisible) return;
-
-            battleTime += Time.deltaTime;
-            UpdateTimeDisplay();
-        }
-
-        private void OnPauseButtonClicked()
-        {
-            if (UIManager.Instance != null)
-                UIManager.Instance.ShowPanel<PauseMenuPanel>();
-        }
-
-        private void UpdateTimeDisplay()
-        {
-            if (timeText != null)
-            {
-                int minutes = Mathf.FloorToInt(battleTime / 60f);
-                int seconds = Mathf.FloorToInt(battleTime % 60f);
-                timeText.text = $"{minutes:00}:{seconds:00}";
-            }
-        }
-
-        private void UpdateKillCountDisplay()
-        {
-            if (killCountText != null)
-                killCountText.text = $"Kills: {killCount}";
-        }
-
-        public void UpdateHealth(float current, float max)
-        {
-            if (healthSlider != null)
-                healthSlider.value = current / max;
-        }
-
-        public void UpdateExp(float current, float max)
-        {
-            if (expSlider != null)
-                expSlider.value = current / max;
-        }
-
-        public void AddKill()
-        {
-            killCount++;
-            UpdateKillCountDisplay();
+            pauseButton?.onClick.AddListener(OnPauseButtonClicked);
         }
 
         protected override void OnAfterShow()
         {
-            battleTime = 0f;
-            killCount = 0;
-            UpdateTimeDisplay();
-            UpdateKillCountDisplay();
+            base.OnAfterShow();
+
+            if (_viewModel != null)
+                SubscribeViewModel();
+        }
+
+        protected override void OnBeforeHide()
+        {
+            DisposeSubscriptions();
         }
 
         private void OnDestroy()
         {
-            if (pauseButton != null)
-                pauseButton.onClick.RemoveListener(OnPauseButtonClicked);
+            DisposeSubscriptions();
+            pauseButton?.onClick.RemoveListener(OnPauseButtonClicked);
         }
+
+        #endregion
+
+        #region Public API
+
+        /// <summary>
+        /// 注入 ViewModel（只注入，不自动 Show）
+        /// </summary>
+        public void SetViewModel(HUDViewModel vm)
+        {
+            _viewModel = vm;
+
+            if (IsVisible)
+                SubscribeViewModel();
+        }
+
+        #endregion
+
+        #region Binding
+
+        private void SubscribeViewModel()
+        {
+            DisposeSubscriptions();
+
+            _disposables = new CompositeDisposable();
+
+            _viewModel.Level
+                .Subscribe(lv => levelText.text = $"Lv.{lv}")
+                .AddTo(_disposables);
+
+            _viewModel.ExpRatio
+                .Subscribe(v => expSlider.value = Mathf.Clamp01(v))
+                .AddTo(_disposables);
+
+            _viewModel.HealthRatio
+                .Subscribe(v => healthSlider.value = Mathf.Clamp01(v))
+                .AddTo(_disposables);
+
+            _viewModel.KillCount
+                .Subscribe(v => killCountText.text = $"Kills: {v}")
+                .AddTo(_disposables);
+
+            _viewModel.BattleTime
+                .Subscribe(UpdateTimeDisplay)
+                .AddTo(_disposables);
+        }
+
+        private void DisposeSubscriptions()
+        {
+            _disposables?.Dispose();
+            _disposables = null;
+        }
+
+        #endregion
+
+        #region UI Logic
+
+        private void UpdateTimeDisplay(float battleTime)
+        {
+            int minutes = Mathf.FloorToInt(battleTime / 60f);
+            int seconds = Mathf.FloorToInt(battleTime % 60f);
+            timeText.text = $"{minutes:00}:{seconds:00}";
+        }
+
+        private void OnPauseButtonClicked()
+        {
+            UIManager.Instance?.ShowPanel<PauseMenuPanel>();
+        }
+
+        #endregion
     }
 }
