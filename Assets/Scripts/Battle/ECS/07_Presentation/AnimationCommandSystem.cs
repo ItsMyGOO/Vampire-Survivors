@@ -36,9 +36,6 @@ namespace ECS.Systems
                         break;
                 }
 
-                // 执行回调
-                command.callback?.Invoke();
-
                 toRemove.Add(entity);
             }
 

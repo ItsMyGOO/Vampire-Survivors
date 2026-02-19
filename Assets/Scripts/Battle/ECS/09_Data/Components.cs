@@ -138,17 +138,15 @@ namespace ECS
     {
         public string command; // "play", "stop", "pause"
         public string anim_name;
-        public Action callback; // 完成后的回调
 
         public AnimationCommandComponent()
         {
         }
 
-        public AnimationCommandComponent(string command, string animName, Action callback = null)
+        public AnimationCommandComponent(string command, string animName)
         {
             this.command = command;
             this.anim_name = animName;
-            this.callback = callback;
         }
     }
 
