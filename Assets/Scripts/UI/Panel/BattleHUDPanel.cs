@@ -31,6 +31,8 @@ namespace UI.Panel
         {
             base.OnAfterShow();
 
+            _viewModel = ViewModelRegistry.Get<HUDViewModel>();
+
             if (_viewModel != null)
                 SubscribeViewModel();
         }
@@ -44,21 +46,6 @@ namespace UI.Panel
         {
             DisposeSubscriptions();
             pauseButton?.onClick.RemoveListener(OnPauseButtonClicked);
-        }
-
-        #endregion
-
-        #region Public API
-
-        /// <summary>
-        /// 注入 ViewModel（只注入，不自动 Show）
-        /// </summary>
-        public void SetViewModel(HUDViewModel vm)
-        {
-            _viewModel = vm;
-
-            if (IsVisible)
-                SubscribeViewModel();
         }
 
         #endregion

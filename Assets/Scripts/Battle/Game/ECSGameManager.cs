@@ -1,12 +1,13 @@
 ﻿using Battle.Player;
 using Battle.Upgrade;
 using Battle.View;
-using Battle.Weapon;
 using Cinemachine;
 using ECS;
 using UnityEngine;
 using ECS.Core;
+using ECS.SyncSystems;
 using UI.Core;
+using UI.Model;
 using UI.Panel;
 
 namespace Battle
@@ -43,7 +44,12 @@ namespace Battle
             InstallWorldSystems(world);
 
             // ===== 升级 / 经验 =====
-            UpgradeWorldInstaller.Install(world,playerId);
+            UpgradeWorldInstaller.Install(world, playerId);
+
+            var hudViewModel = new HUDViewModel();
+            ViewModelRegistry.Register(hudViewModel);
+
+            world.RegisterSystem(new HUDSyncSystem(playerId, hudViewModel));
         }
 
         private void InstallWorldSystems(World w)
