@@ -1,5 +1,6 @@
-﻿using ECS.Core;
-using Battle.Upgrade;
+﻿using Battle.Upgrade;
+using ECS.Core;
+using System.Collections.Generic;
 
 namespace ECS.Systems
 {
@@ -12,19 +13,16 @@ namespace ECS.Systems
     {
         public override void Update(World world, float deltaTime)
         {
-            var entities = world.GetEntitiesWithComponent<PlayerAttributeComponent>();
-
-            foreach (var entityId in entities)
+            // GetComponents 返回 Dictionary<int,T>，foreach 不经接口，无装箱
+            Dictionary<int, PlayerAttributeComponent> components = world.GetComponents<PlayerAttributeComponent>();
+            foreach (KeyValuePair<int, PlayerAttributeComponent> kvp in components)
             {
-                SyncAttributes(world, entityId);
+                SyncAttributes(world, kvp.Key, kvp.Value);
             }
         }
 
-        private void SyncAttributes(World world, int entityId)
+        private void SyncAttributes(World world, int entityId, PlayerAttributeComponent final)
         {
-            if (!world.TryGetComponent<PlayerAttributeComponent>(entityId, out var final))
-                return;
-
             SyncMoveSpeed(world, entityId, final);
             SyncHealth(world, entityId, final);
             SyncPickupRange(world, entityId, final);
@@ -56,13 +54,6 @@ namespace ECS.Systems
 
         private void SyncExpGain(World world, PlayerAttributeComponent player)
         {
-            // 通过 World 服务注册表获取 ExpSystem，避免全局单例依赖
-            if (world.TryGetService<IExpReceiver>(out _))
-            {
-                // IExpReceiver 不暴露 ExpData，通过已有的 ExpSystem 服务设置倍率
-                // ExpSystem 注册为 IExpReceiver，需要转型访问 ExpData
-            }
-
             if (world.TryGetService<ExpSystem>(out var expSystem))
                 expSystem.ExpData.exp_multiplier = player.expGain;
         }

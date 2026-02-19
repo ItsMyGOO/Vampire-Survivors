@@ -7,83 +7,71 @@ namespace ECS.Core
         bool HasComponent(int entityId);
         void RemoveComponent(int entityId);
         int GetComponentCount();
+        // 供 World 填充缓冲区用
+        void FillEntityBuffer(List<int> buffer);
     }
-
-// ============================================
-// 泛型组件存储
-// ============================================
 
     public class ComponentStore<T> : IComponentStore where T : class, new()
     {
-        private Dictionary<int, T> components = new Dictionary<int, T>();
+        private readonly Dictionary<int, T> _components = new Dictionary<int, T>();
 
-        /// <summary>
-        /// 添加组件
-        /// </summary>
+        // 同步维护的实体 ID 列表，避免每次遍历 Dictionary 再收集
+        private readonly List<int> _entityList = new List<int>();
+
         public void Add(int entityId, T component)
         {
-            components[entityId] = component;
+            bool isNew = !_components.ContainsKey(entityId);
+            _components[entityId] = component;
+            if (isNew)
+                _entityList.Add(entityId);
         }
 
-        /// <summary>
-        /// 获取组件（直接返回引用，可修改）
-        /// </summary>
         public T Get(int entityId)
         {
-            if (components.TryGetValue(entityId, out T component))
-            {
-                return component;
-            }
-
-            return null;
+            _components.TryGetValue(entityId, out T component);
+            return component;
         }
 
-        /// <summary>
-        /// 检查是否有组件
-        /// </summary>
         public bool HasComponent(int entityId)
         {
-            return components.ContainsKey(entityId);
+            return _components.ContainsKey(entityId);
         }
 
-        /// <summary>
-        /// 移除组件
-        /// </summary>
         public void Remove(int entityId)
         {
-            components.Remove(entityId);
+            if (_components.Remove(entityId))
+                _entityList.Remove(entityId);
         }
 
         /// <summary>
-        /// 获取所有组件（用于遍历）
+        /// 获取所有组件（用于 GetComponents 遍历，直接迭代 Dictionary）
+        /// 返回具体类型，避免 foreach 通过 IEnumerable 接口产生装箱
         /// </summary>
-        public IEnumerable<KeyValuePair<int, T>> GetAll()
+        public Dictionary<int, T> GetAllDirect()
         {
-            return components;
+            return _components;
         }
 
-        /// <summary>
-        /// 组件数量
-        /// </summary>
-        public int Count => components.Count;
+        public int Count => _components.Count;
 
-        /// <summary>
-        /// 清空所有组件
-        /// </summary>
         public void Clear()
         {
-            components.Clear();
+            _components.Clear();
+            _entityList.Clear();
         }
 
         // IComponentStore 接口实现
-        void IComponentStore.RemoveComponent(int entityId)
-        {
-            Remove(entityId);
-        }
+        void IComponentStore.RemoveComponent(int entityId) => Remove(entityId);
 
-        int IComponentStore.GetComponentCount()
+        int IComponentStore.GetComponentCount() => Count;
+
+        /// <summary>
+        /// 将当前实体 ID 列表复制到外部缓冲区（零 GC）
+        /// </summary>
+        void IComponentStore.FillEntityBuffer(List<int> buffer)
         {
-            return Count;
+            buffer.Clear();
+            buffer.AddRange(_entityList);
         }
     }
 }

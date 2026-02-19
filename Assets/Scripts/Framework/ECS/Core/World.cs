@@ -6,38 +6,41 @@ namespace ECS.Core
 {
     /// <summary>
     /// ECS World - 实体组件系统的核心管理器
-    /// 职责：
-    /// 1. 实体生命周期管理（创建/销毁）
-    /// 2. 组件存储管理
-    /// 3. 系统注册和更新
     /// </summary>
     public class World
     {
         // 实体管理
-        private int nextEntityId = 1;
-        private HashSet<int> activeEntities = new HashSet<int>();
-        private Queue<int> entitiesToDestroy = new Queue<int>();
+        private int _nextEntityId = 1;
+        private readonly HashSet<int> _activeEntities = new HashSet<int>();
+        private readonly Queue<int> _entitiesToDestroy = new Queue<int>();
 
         // 组件存储
-        private Dictionary<Type, IComponentStore> componentStores = new Dictionary<Type, IComponentStore>();
+        private readonly Dictionary<Type, IComponentStore> _componentStores = new Dictionary<Type, IComponentStore>();
 
         // 系统管理
-        private List<ISystem> systems = new List<ISystem>();
+        private readonly List<ISystem> _systems = new List<ISystem>();
 
-        // 统计信息
-        public int EntityCount => activeEntities.Count;
-        public int SystemCount => systems.Count;
+        // 服务注册表
+        private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
-        private Dictionary<Type, object> services = new();
+        // 每种组件类型对应一个复用缓冲区，避免 GetEntitiesWithComponent 每次 new List
+        private readonly Dictionary<Type, List<int>> _entityQueryBuffers = new Dictionary<Type, List<int>>();
+
+        public int EntityCount => _activeEntities.Count;
+        public int SystemCount => _systems.Count;
+
+        // ============================================
+        // 服务注册表
+        // ============================================
 
         public void RegisterService<T>(T service) where T : class
         {
-            services[typeof(T)] = service;
+            _services[typeof(T)] = service;
         }
 
         public bool TryGetService<T>(out T service) where T : class
         {
-            foreach (var obj in services.Values)
+            foreach (var obj in _services.Values)
             {
                 if (obj is T t)
                 {
@@ -50,18 +53,14 @@ namespace ECS.Core
             return false;
         }
 
-
         // ============================================
         // 实体管理
         // ============================================
 
-        /// <summary>
-        /// 创建新实体
-        /// </summary>
         public int CreateEntity()
         {
-            int id = nextEntityId++;
-            activeEntities.Add(id);
+            int id = _nextEntityId++;
+            _activeEntities.Add(id);
             return id;
         }
 
@@ -70,164 +69,109 @@ namespace ECS.Core
         /// </summary>
         public void DestroyEntity(int entityId)
         {
-            if (activeEntities.Contains(entityId))
-            {
-                entitiesToDestroy.Enqueue(entityId);
-            }
+            if (_activeEntities.Contains(entityId))
+                _entitiesToDestroy.Enqueue(entityId);
         }
 
-        /// <summary>
-        /// 检查实体是否存在
-        /// </summary>
         public bool EntityExists(int entityId)
         {
-            return activeEntities.Contains(entityId);
+            return _activeEntities.Contains(entityId);
         }
 
         // ============================================
         // 组件管理
         // ============================================
 
-        /// <summary>
-        /// 添加组件到实体
-        /// </summary>
         public void AddComponent<T>(int entityId, T component) where T : class, new()
         {
-            if (!activeEntities.Contains(entityId))
+            if (!_activeEntities.Contains(entityId))
             {
                 Debug.LogWarning($"尝试给不存在的实体 {entityId} 添加组件 {typeof(T).Name}");
                 return;
             }
 
-            var store = GetOrCreateStore<T>();
-            store.Add(entityId, component);
+            GetOrCreateStore<T>().Add(entityId, component);
         }
 
-        /// <summary>
-        /// 获取组件（返回引用，可修改）
-        /// </summary>
         public T GetComponent<T>(int entityId) where T : class, new()
         {
-            var store = GetOrCreateStore<T>();
-            return store.Get(entityId);
+            return GetOrCreateStore<T>().Get(entityId);
         }
 
-        /// <summary>
-        /// 尝试获取组件（安全版本）
-        /// </summary>
         public bool TryGetComponent<T>(int entityId, out T component) where T : class, new()
         {
             component = null;
-            
-            if (!activeEntities.Contains(entityId))
-            {
-                return false;
-            }
 
-            if (!componentStores.TryGetValue(typeof(T), out var store))
-            {
+            if (!_activeEntities.Contains(entityId))
                 return false;
-            }
+
+            if (!_componentStores.TryGetValue(typeof(T), out var store))
+                return false;
 
             if (!store.HasComponent(entityId))
-            {
                 return false;
-            }
 
             component = ((ComponentStore<T>)store).Get(entityId);
             return component != null;
         }
 
-        /// <summary>
-        /// 检查实体是否有某组件
-        /// </summary>
         public bool HasComponent<T>(int entityId) where T : class, new()
         {
-            if (!componentStores.TryGetValue(typeof(T), out var store))
-            {
+            if (!_componentStores.TryGetValue(typeof(T), out var store))
                 return false;
-            }
 
             return store.HasComponent(entityId);
         }
 
-        /// <summary>
-        /// 移除组件
-        /// </summary>
         public void RemoveComponent<T>(int entityId) where T : class, new()
         {
-            var store = GetOrCreateStore<T>();
-            store.Remove(entityId);
+            GetOrCreateStore<T>().Remove(entityId);
         }
 
         /// <summary>
-        /// 获取所有拥有某组件的实体（用于系统遍历）
+        /// 获取所有拥有某组件的实体和组件对（直接迭代 Dictionary，无分配）
+        /// 返回具体 Dictionary 类型，避免 foreach 通过接口产生装箱
         /// </summary>
-        public IEnumerable<KeyValuePair<int, T>> GetComponents<T>() where T : class, new()
+        public Dictionary<int, T> GetComponents<T>() where T : class, new()
         {
-            var store = GetOrCreateStore<T>();
-            return store.GetAll();
+            return GetOrCreateStore<T>().GetAllDirect();
         }
 
         /// <summary>
-        /// 获取所有拥有某组件的实体ID列表
+        /// 将拥有某组件的所有实体 ID 填入外部缓冲区（零 GC）
+        /// 调用方负责持有并复用 buffer
         /// </summary>
-        public List<int> GetEntitiesWithComponent<T>() where T : class, new()
+        public void GetEntitiesWithComponent<T>(List<int> buffer) where T : class, new()
         {
-            var store = GetOrCreateStore<T>();
-            var entities = new List<int>();
-
-            foreach (var kvp in store.GetAll())
+            if (!_componentStores.TryGetValue(typeof(T), out var store))
             {
-                entities.Add(kvp.Key);
+                buffer.Clear();
+                return;
             }
 
-            return entities;
+            store.FillEntityBuffer(buffer);
         }
 
         // ============================================
         // 系统管理
         // ============================================
 
-        /// <summary>
-        /// 注册系统
-        /// </summary>
         public void RegisterSystem(ISystem system)
         {
-            if (!systems.Contains(system))
-            {
-                systems.Add(system);
-            }
+            if (!_systems.Contains(system))
+                _systems.Add(system);
         }
 
-        /// <summary>
-        /// 移除系统
-        /// </summary>
         public void UnregisterSystem(ISystem system)
         {
-            systems.Remove(system);
+            _systems.Remove(system);
         }
 
-        /// <summary>
-        /// 更新所有系统
-        /// </summary>
         public void Update(float deltaTime)
         {
-            // 更新所有系统
-            foreach (var system in systems)
-            {
-                system.Update(this, deltaTime);
-                // try
-                // {
-                //     system.Update(this, deltaTime);
-                // }
-                // catch (Exception e)
-                // {
-                //     Debug.LogError($"系统 {system.GetType().Name} 更新时出错: {e.Message}\n{e.StackTrace}");
-                // }
-            }
+            for (int i = 0; i < _systems.Count; i++)
+                _systems[i].Update(this, deltaTime);
 
-            // 处理延迟销毁的实体
             ProcessDestroyQueue();
         }
 
@@ -235,47 +179,35 @@ namespace ECS.Core
         // 内部方法
         // ============================================
 
-        /// <summary>
-        /// 获取或创建组件存储
-        /// </summary>
         private ComponentStore<T> GetOrCreateStore<T>() where T : class, new()
         {
             var type = typeof(T);
 
-            if (!componentStores.TryGetValue(type, out var store))
+            if (!_componentStores.TryGetValue(type, out var store))
             {
                 var newStore = new ComponentStore<T>();
-                componentStores[type] = newStore;
+                _componentStores[type] = newStore;
                 return newStore;
             }
 
             return (ComponentStore<T>)store;
         }
 
-        /// <summary>
-        /// 处理延迟销毁队列
-        /// </summary>
         private void ProcessDestroyQueue()
         {
-            while (entitiesToDestroy.Count > 0)
+            while (_entitiesToDestroy.Count > 0)
             {
-                int entityId = entitiesToDestroy.Dequeue();
+                int entityId = _entitiesToDestroy.Dequeue();
 
-                if (!activeEntities.Contains(entityId))
-                {
+                if (!_activeEntities.Contains(entityId))
                     continue;
-                }
 
-                // 从活跃实体中移除
-                activeEntities.Remove(entityId);
+                _activeEntities.Remove(entityId);
 
-                // 从所有组件存储中移除
-                foreach (var store in componentStores.Values)
+                foreach (var store in _componentStores.Values)
                 {
                     if (store.HasComponent(entityId))
-                    {
                         store.RemoveComponent(entityId);
-                    }
                 }
             }
         }
@@ -284,71 +216,40 @@ namespace ECS.Core
         // 调试和统计
         // ============================================
 
-        /// <summary>
-        /// 获取所有实体ID
-        /// </summary>
         public List<int> GetAllEntities()
         {
-            return new List<int>(activeEntities);
+            return new List<int>(_activeEntities);
         }
 
-        /// <summary>
-        /// 获取组件统计信息
-        /// </summary>
         public Dictionary<string, int> GetComponentStats()
         {
             var stats = new Dictionary<string, int>();
 
-            foreach (var kvp in componentStores)
-            {
-                string typeName = kvp.Key.Name;
-                int count = kvp.Value.GetComponentCount();
-                stats[typeName] = count;
-            }
+            foreach (var kvp in _componentStores)
+                stats[kvp.Key.Name] = kvp.Value.GetComponentCount();
 
             return stats;
         }
 
-        /// <summary>
-        /// 打印调试信息
-        /// </summary>
         public void DebugPrint()
         {
             Debug.Log($"=== ECS World 状态 ===");
             Debug.Log($"实体数量: {EntityCount}");
             Debug.Log($"系统数量: {SystemCount}");
-            Debug.Log($"组件类型数量: {componentStores.Count}");
+            Debug.Log($"组件类型数量: {_componentStores.Count}");
 
             Debug.Log("\n组件统计:");
             foreach (var kvp in GetComponentStats())
-            {
                 Debug.Log($"  {kvp.Key}: {kvp.Value}");
-            }
         }
 
-        /// <summary>
-        /// 清空所有数据
-        /// </summary>
         public void Clear()
         {
-            activeEntities.Clear();
-            entitiesToDestroy.Clear();
-
-            foreach (var store in componentStores.Values)
-            {
-                if (store is IComponentStore componentStore)
-                {
-                    // 清空组件存储
-                    var allEntities = GetAllEntities();
-                    foreach (var entityId in allEntities)
-                    {
-                        componentStore.RemoveComponent(entityId);
-                    }
-                }
-            }
-
-            componentStores.Clear();
-            nextEntityId = 1;
+            _activeEntities.Clear();
+            _entitiesToDestroy.Clear();
+            _componentStores.Clear();
+            _entityQueryBuffers.Clear();
+            _nextEntityId = 1;
         }
     }
 }
