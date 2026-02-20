@@ -1,4 +1,4 @@
-﻿using ECS.Core;
+using ECS.Core;
 using System.Collections.Generic;
 
 namespace ECS.Systems
@@ -24,7 +24,7 @@ namespace ECS.Systems
         // 遍历中调用 RemoveComponent 会修改它，所以先快照一份
         private readonly List<int> _dirtySnapshot = new List<int>();
 
-        public override void Update(World world, float deltaTime)
+public override void Update(World world, float deltaTime)
         {
             // 直接填入复用 buffer，零 GC 分配
             world.GetEntitiesWithComponent<AttributeDirtyComponent>(_dirtySnapshot);
@@ -33,7 +33,8 @@ namespace ECS.Systems
             {
                 int entityId = _dirtySnapshot[i];
                 CalculateAttributes(world, entityId);
-                world.RemoveComponent<AttributeDirtyComponent>(entityId);
+                // Dirty 标记由 AttributeSyncSystem 在同步完成后统一移除，
+                // 确保 Sync 能感知到本帧发生了属性变化。
             }
         }
 
