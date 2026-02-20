@@ -17,13 +17,13 @@ namespace ECS.Systems
         {
             _grid.Clear();
 
-            world.IterateComponents<ECS.EnemyTagComponent>(out int[] ids, out _, out int count);
+            world.IterateComponents<EnemyTagComponent>(out int[] ids, out _, out int count);
             for (int i = 0; i < count; i++)
             {
                 int enemyId = ids[i];
-                if (!world.HasComponent<ECS.PositionComponent>(enemyId)) continue;
+                if (!world.HasComponent<PositionComponent>(enemyId)) continue;
 
-                var pos = world.GetComponent<ECS.PositionComponent>(enemyId);
+                var pos = world.GetComponent<PositionComponent>(enemyId);
                 _grid.Insert(enemyId, pos.x, pos.y);
             }
         }

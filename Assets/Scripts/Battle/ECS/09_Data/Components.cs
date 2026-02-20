@@ -126,7 +126,7 @@ namespace ECS
         public AnimationCommandComponent(string command, string animName)
         {
             this.command = command;
-            this.anim_name = animName;
+            anim_name = animName;
         }
     }
 
@@ -160,7 +160,7 @@ namespace ECS
         public ColliderComponent(float radius, bool isTrigger = true)
         {
             this.radius = radius;
-            this.is_trigger = isTrigger;
+            is_trigger = isTrigger;
         }
     }
 
@@ -175,7 +175,7 @@ namespace ECS
         public HitCooldownComponent(float duration)
         {
             this.duration = duration;
-            this.timer = 0f;
+            timer = 0f;
         }
     }
 
@@ -214,7 +214,7 @@ namespace ECS
         {
             this.speed = speed;
             this.pierce = pierce;
-            this.hit_count = 0;
+            hit_count = 0;
             this.lifetime = lifetime;
         }
     }
@@ -248,8 +248,8 @@ namespace ECS
 
         public SeekComponent(int targetId, float turnSpeed = 5.0f)
         {
-            this.target_id = targetId;
-            this.turn_speed = turnSpeed;
+            target_id = targetId;
+            turn_speed = turnSpeed;
         }
     }
 
@@ -270,7 +270,7 @@ namespace ECS
         {
             this.radius = radius;
             this.damage = damage;
-            this.triggered = false;
+            triggered = false;
         }
     }
 
@@ -285,7 +285,7 @@ namespace ECS
         public LifeTimeComponent(float duration)
         {
             this.duration = duration;
-            this.elapsed = 0f;
+            elapsed = 0f;
         }
     }
 
@@ -333,7 +333,7 @@ namespace ECS
 
         public PropComponent(string propType, float value)
         {
-            this.prop_type = propType;
+            prop_type = propType;
             this.value = value;
         }
     }
@@ -423,9 +423,9 @@ namespace ECS
 
         public PickupableComponent(string itemType, int value, bool autoPickup = true)
         {
-            this.item_type = itemType;
+            item_type = itemType;
             this.value = value;
-            this.auto_pickup = autoPickup;
+            auto_pickup = autoPickup;
         }
     }
 
@@ -442,7 +442,7 @@ namespace ECS
         {
             this.radius = radius;
             this.strength = strength;
-            this.active = true;
+            active = true;
         }
     }
 }

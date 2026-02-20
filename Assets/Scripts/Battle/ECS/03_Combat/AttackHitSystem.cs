@@ -52,7 +52,7 @@ namespace ECS.Systems
 
 #if UNITY_EDITOR
                 if (neighborCount >= _neighborBuffer.Length)
-                    UnityEngine.Debug.LogWarning(
+                    Debug.LogWarning(
                         $"[AttackHitSystem] 邻居缓冲区已满（{_neighborBuffer.Length}），可能存在碰撞漏检，请增大 _neighborBuffer 大小。");
 #endif
 

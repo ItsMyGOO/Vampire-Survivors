@@ -91,7 +91,7 @@ namespace Battle.Upgrade
         private void DestroyOrbitWeapons(string weaponId)
         {
             // 查找所有属于这个武器的轨道实体
-            var entitiesToDestroy = new System.Collections.Generic.List<int>();
+            var entitiesToDestroy = new List<int>();
 
             foreach (var (entity, orbit) in world.GetComponents<OrbitComponent>())
             {

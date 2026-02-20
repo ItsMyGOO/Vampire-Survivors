@@ -18,24 +18,24 @@ namespace ECS.Systems
             if (!world.TryGetService<IItemSpatialIndex>(out var itemIndex))
                 return;
 
-            foreach (var (magnetEntity, magnet) in world.GetComponents<ECS.MagnetComponent>())
+            foreach (var (magnetEntity, magnet) in world.GetComponents<MagnetComponent>())
             {
                 if (!magnet.active) continue;
-                if (!world.HasComponent<ECS.PositionComponent>(magnetEntity)) continue;
+                if (!world.HasComponent<PositionComponent>(magnetEntity)) continue;
 
-                var magnetPos = world.GetComponent<ECS.PositionComponent>(magnetEntity);
+                var magnetPos = world.GetComponent<PositionComponent>(magnetEntity);
                 int neighborCount = itemIndex.QueryItems(magnetPos.x, magnetPos.y, magnet.radius, _neighborBuffer);
 
                 for (int i = 0; i < neighborCount; i++)
                 {
                     int itemId = _neighborBuffer[i];
 
-                    if (!world.HasComponent<ECS.PickupableComponent>(itemId)) continue;
-                    var pickupable = world.GetComponent<ECS.PickupableComponent>(itemId);
+                    if (!world.HasComponent<PickupableComponent>(itemId)) continue;
+                    var pickupable = world.GetComponent<PickupableComponent>(itemId);
                     if (!pickupable.auto_pickup) continue;
 
-                    if (!world.HasComponent<ECS.PositionComponent>(itemId)) continue;
-                    var itemPos = world.GetComponent<ECS.PositionComponent>(itemId);
+                    if (!world.HasComponent<PositionComponent>(itemId)) continue;
+                    var itemPos = world.GetComponent<PositionComponent>(itemId);
 
                     float dx = magnetPos.x - itemPos.x;
                     float dy = magnetPos.y - itemPos.y;
@@ -43,10 +43,10 @@ namespace ECS.Systems
                     if (distSq <= 0.0001f) continue;
 
                     float dist = Mathf.Sqrt(distSq);
-                    if (!world.HasComponent<ECS.VelocityComponent>(itemId))
-                        world.AddComponent(itemId, new ECS.VelocityComponent());
+                    if (!world.HasComponent<VelocityComponent>(itemId))
+                        world.AddComponent(itemId, new VelocityComponent());
 
-                    var velocity = world.GetComponent<ECS.VelocityComponent>(itemId);
+                    var velocity = world.GetComponent<VelocityComponent>(itemId);
                     float speedMultiplier = 1.0f + (magnet.radius - dist) / magnet.radius;
                     float speed = magnet.strength * speedMultiplier;
                     velocity.x = (dx / dist) * speed;

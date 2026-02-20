@@ -74,7 +74,7 @@ namespace ECS.Systems
                     break;
 
                 case "coin":
-                    UnityEngine.Debug.Log($"Picked up {pickupable.value} coins");
+                    Debug.Log($"Picked up {pickupable.value} coins");
                     break;
 
                 case "magnet":

@@ -17,13 +17,13 @@ namespace ECS.Systems
         {
             _grid.Clear();
 
-            world.IterateComponents<ECS.PickupableComponent>(out int[] ids, out _, out int count);
+            world.IterateComponents<PickupableComponent>(out int[] ids, out _, out int count);
             for (int i = 0; i < count; i++)
             {
                 int itemId = ids[i];
-                if (!world.HasComponent<ECS.PositionComponent>(itemId)) continue;
+                if (!world.HasComponent<PositionComponent>(itemId)) continue;
 
-                var pos = world.GetComponent<ECS.PositionComponent>(itemId);
+                var pos = world.GetComponent<PositionComponent>(itemId);
                 _grid.Insert(itemId, pos.x, pos.y);
             }
         }
