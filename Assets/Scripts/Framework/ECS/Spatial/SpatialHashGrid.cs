@@ -65,14 +65,14 @@ namespace ECS.Core
             }
 
             list.Add(entityId);
-        }
+                }
 
         // ------------------------------------------------
         // 查询邻居（零分配）
         // results 由调用方预分配；返回实际写入数量
         // 遍历以 (x,y) 为中心的 3×3 个 cell
         // ------------------------------------------------
-        public int QueryNeighbors(float x, float y, float radius, int[] results)
+public int QueryNeighbors(float x, float y, float radius, int[] results)
         {
             int cx = CellX(x);
             int cy = CellY(y);
@@ -93,7 +93,13 @@ namespace ECS.Core
 
                     for (int i = 0; i < list.Count; i++)
                     {
-                        if (count >= maxResults) return count;
+                        if (count >= maxResults)
+                        {
+#if UNITY_EDITOR
+                            WarnTruncation(maxResults);
+#endif
+                            return count;
+                        }
                         results[count++] = list[i];
                     }
                 }
@@ -101,6 +107,22 @@ namespace ECS.Core
 
             return count;
         }
+
+#if UNITY_EDITOR
+        // 节流警告：避免每帧触发導致 Console 刷屏
+        private double _lastWarnTime = -999;
+        private void WarnTruncation(int bufferSize)
+        {
+            double now = UnityEngine.Time.realtimeSinceStartupAsDouble;
+            if (now - _lastWarnTime < 1.0) return;
+            _lastWarnTime = now;
+            UnityEngine.Debug.LogWarning(
+                $"[SpatialHashGrid] QueryNeighbors 缓冲区已满（{bufferSize}），" +
+                "查询范围内仍有实体未被写入，存在静默漏检。" +
+                "请增大调用方的 _neighborBuffer 大小。");
+        }
+#endif
+
 
         // ------------------------------------------------
         // 内部辅助
