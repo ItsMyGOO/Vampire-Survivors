@@ -38,13 +38,11 @@ namespace ECS.Core
 
         public bool TryGetService<T>(out T service) where T : class
         {
-            foreach (var obj in _services.Values)
+            // 直接用接口类型作 key O(1) 查找，避免 foreach+装箱
+            if (_services.TryGetValue(typeof(T), out var obj) && obj is T t)
             {
-                if (obj is T t)
-                {
-                    service = t;
-                    return true;
-                }
+                service = t;
+                return true;
             }
             service = null;
             return false;

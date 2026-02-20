@@ -6,44 +6,53 @@ namespace ECS.Systems
     /// <summary>
     /// 磁铁系统
     /// 职责: 吸引道具向玩家移动
+    /// 优化: 通过 IItemSpatialIndex 服务查询范围内道具，O(M×k) 代替 O(M×N)
     /// </summary>
     public class MagnetSystem : SystemBase
     {
+        // 邻居缓冲区：预分配，QueryItems 零 GC
+        private readonly int[] _neighborBuffer = new int[256];
+
         public override void Update(World world, float deltaTime)
         {
-            foreach (var (magnetEntity, magnet) in world.GetComponents<MagnetComponent>())
+            if (!world.TryGetService<IItemSpatialIndex>(out var itemIndex))
+                return;
+
+            foreach (var (magnetEntity, magnet) in world.GetComponents<ECS.MagnetComponent>())
             {
                 if (!magnet.active) continue;
-                if (!world.HasComponent<PositionComponent>(magnetEntity)) continue;
+                if (!world.HasComponent<ECS.PositionComponent>(magnetEntity)) continue;
 
-                var magnetPos = world.GetComponent<PositionComponent>(magnetEntity);
+                var magnetPos = world.GetComponent<ECS.PositionComponent>(magnetEntity);
+                int neighborCount = itemIndex.QueryItems(magnetPos.x, magnetPos.y, magnet.radius, _neighborBuffer);
 
-                foreach (var (itemId, pickupable) in world.GetComponents<PickupableComponent>())
+                for (int i = 0; i < neighborCount; i++)
                 {
-                    if (!pickupable.auto_pickup) continue;
-                    if (!world.HasComponent<PositionComponent>(itemId)) continue;
+                    int itemId = _neighborBuffer[i];
 
-                    var itemPos = world.GetComponent<PositionComponent>(itemId);
+                    if (!world.HasComponent<ECS.PickupableComponent>(itemId)) continue;
+                    var pickupable = world.GetComponent<ECS.PickupableComponent>(itemId);
+                    if (!pickupable.auto_pickup) continue;
+
+                    if (!world.HasComponent<ECS.PositionComponent>(itemId)) continue;
+                    var itemPos = world.GetComponent<ECS.PositionComponent>(itemId);
 
                     float dx = magnetPos.x - itemPos.x;
                     float dy = magnetPos.y - itemPos.y;
-                    float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                    float distSq = dx * dx + dy * dy;
+                    if (distSq <= 0.0001f) continue;
 
-                    if (dist <= magnet.radius && dist > 0.01f)
-                    {
-                        if (!world.HasComponent<VelocityComponent>(itemId))
-                            world.AddComponent(itemId, new VelocityComponent());
+                    float dist = Mathf.Sqrt(distSq);
+                    if (!world.HasComponent<ECS.VelocityComponent>(itemId))
+                        world.AddComponent(itemId, new ECS.VelocityComponent());
 
-                        var velocity = world.GetComponent<VelocityComponent>(itemId);
-                        float dirX = dx / dist;
-                        float dirY = dy / dist;
-                        float speedMultiplier = 1.0f + (magnet.radius - dist) / magnet.radius;
-                        float speed = magnet.strength * speedMultiplier;
-                        velocity.x = dirX * speed;
-                        velocity.y = dirY * speed;
-                        velocity.speed = 1.0f;
-                        world.SetComponent(itemId, velocity);
-                    }
+                    var velocity = world.GetComponent<ECS.VelocityComponent>(itemId);
+                    float speedMultiplier = 1.0f + (magnet.radius - dist) / magnet.radius;
+                    float speed = magnet.strength * speedMultiplier;
+                    velocity.x = (dx / dist) * speed;
+                    velocity.y = (dy / dist) * speed;
+                    velocity.speed = 1.0f;
+                    world.SetComponent(itemId, velocity);
                 }
             }
         }

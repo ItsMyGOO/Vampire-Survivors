@@ -15,6 +15,11 @@ namespace Battle
             world.RegisterSystem(new AttributeCalculationSystem());
             world.RegisterSystem(new AttributeSyncSystem());
 
+            // --- 道具空间索引（必须在 MagnetSystem / PickupSystem 之前构建）---
+            var itemSpatialIndex = new ItemSpatialIndexSystem();
+            world.RegisterSystem(itemSpatialIndex);
+            world.RegisterService<IItemSpatialIndex>(itemSpatialIndex);
+
             // --- 拾取 / 磁铁 ---
             world.RegisterSystem(new MagnetSystem());
             world.RegisterSystem(new PickupSystem());
@@ -25,6 +30,11 @@ namespace Battle
             // --- 移动 ---
             world.RegisterSystem(new AIMovementSystem());
             world.RegisterSystem(new MovementSystem());
+
+            // --- 敌人空间索引（必须在 AttackHitSystem 之前构建）---
+            var enemySpatialIndex = new EnemySpatialIndexSystem();
+            world.RegisterSystem(enemySpatialIndex);
+            world.RegisterService<IEnemySpatialIndex>(enemySpatialIndex);
 
             // --- 战斗 ---
             world.RegisterSystem(new WeaponFireSystem());

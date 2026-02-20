@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // 文件: EnemySpawnSystem.cs - 完整版本
 // 使用 EnemyConfigDB 加载敌人配置
 // ============================================
@@ -88,17 +88,18 @@ namespace ECS.Systems
         /// <summary>
         /// 生成敌人实体
         /// </summary>
-        private void SpawnEnemy(World world, EnemyDef enemyDef)
+private void SpawnEnemy(World world, EnemyDef enemyDef)
         {
             int enemyId = world.CreateEntity();
 
             // 敌人标签
             world.AddComponent(enemyId, new EnemyTagComponent());
 
-            // 位置组件（在屏幕边缘随机位置）
+            // 位置组件（屏幕边缘随机位置）
             Vector2 spawnPos = GetRandomSpawnPosition();
             world.AddComponent(enemyId, new PositionComponent(spawnPos.x, spawnPos.y));
-            // 移动意图组件（AI用）
+
+            // 速度组件（AI 用）
             world.AddComponent(enemyId, new VelocityComponent { speed = 0.5f });
 
             // 生命值组件
@@ -108,6 +109,10 @@ namespace ECS.Systems
                 max = enemyDef.Hp,
                 regen = 0
             });
+
+            // 分离行为组件（之前缺失，导致敌人完全重叠）
+            world.AddComponent(enemyId, new SeparationComponent(radius: 2.0f, strength: 1.5f));
+
             // 碰撞体组件
             world.AddComponent(enemyId, new ColliderComponent(0.5f));
 
@@ -117,7 +122,8 @@ namespace ECS.Systems
                 ClipSetName = enemyDef.ClipSetId,
                 DefaultAnim = "Run"
             });
-            // 精灵键组件（使用动画系统）
+
+            // 精灵键组件
             world.AddComponent(enemyId, new SpriteKeyComponent());
 
             // Debug.Log($"生成敌人: {enemyDef.ClipSetId} (HP: {enemyDef.Hp}) at ({spawnPos.x:F2}, {spawnPos.y:F2})");

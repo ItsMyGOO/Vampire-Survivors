@@ -8,6 +8,10 @@ namespace ECS.Systems
     {
         private const float KNOCKBACK_DURATION = 0.15f;
 
+        // 邻居缓冲区：预分配，QueryNeighbors 零 GC
+        // 128 可覆盖绝大多数密集场景；若出现截断可在此调大
+        private readonly int[] _neighborBuffer = new int[256];
+
         // 复用列表避免热路径分配
         private readonly List<(int entity, PositionComponent pos, ColliderComponent col,
             DamageSourceComponent dmg, VelocityComponent vel, bool hasVel)> _projectiles
@@ -15,6 +19,11 @@ namespace ECS.Systems
 
         public override void Update(World world, float deltaTime)
         {
+            // 查询共享的敌人空间索引服务（由 EnemySpatialIndexSystem 每帧构建）
+            if (!world.TryGetService<IEnemySpatialIndex>(out var enemyIndex))
+                return;
+
+            // ── 1. 收集投射物 ──────────────────────────────────────
             _projectiles.Clear();
 
             foreach (var (entity, damageSource) in world.GetComponents<DamageSourceComponent>())
@@ -31,18 +40,33 @@ namespace ECS.Systems
                 _projectiles.Add((entity, pos, col, damageSource, vel, hasVel));
             }
 
-            foreach (var (enemyId, _) in world.GetComponents<EnemyTagComponent>())
+            if (_projectiles.Count == 0) return;
+
+            // ── 2. 按投射物查询候选敌人，O(P×k) 碰撞检测 ─────────
+            for (int i = 0; i < _projectiles.Count; i++)
             {
-                if (!world.HasComponent<PositionComponent>(enemyId) ||
-                    !world.HasComponent<ColliderComponent>(enemyId))
-                    continue;
+                var proj = _projectiles[i];
+                float queryRadius = proj.col.radius + 1.0f; // 1.0f = 敌人最大碰撞半径上限
 
-                var enemyPos = world.GetComponent<PositionComponent>(enemyId);
-                var enemyCol = world.GetComponent<ColliderComponent>(enemyId);
+                int neighborCount = enemyIndex.QueryEnemies(proj.pos.x, proj.pos.y, queryRadius, _neighborBuffer);
 
-                for (int i = 0; i < _projectiles.Count; i++)
+#if UNITY_EDITOR
+                if (neighborCount >= _neighborBuffer.Length)
+                    UnityEngine.Debug.LogWarning(
+                        $"[AttackHitSystem] 邻居缓冲区已满（{_neighborBuffer.Length}），可能存在碰撞漏检，请增大 _neighborBuffer 大小。");
+#endif
+
+                for (int n = 0; n < neighborCount; n++)
                 {
-                    var proj = _projectiles[i];
+                    int enemyId = _neighborBuffer[n];
+
+                    if (!world.HasComponent<PositionComponent>(enemyId) ||
+                        !world.HasComponent<ColliderComponent>(enemyId))
+                        continue;
+
+                    var enemyPos = world.GetComponent<PositionComponent>(enemyId);
+                    var enemyCol = world.GetComponent<ColliderComponent>(enemyId);
+
                     if (CheckCollision(proj.pos, proj.col, enemyPos, enemyCol))
                         ApplyHit(world, proj.entity, proj.pos, proj.col, proj.dmg, proj.vel, proj.hasVel, enemyId);
                 }

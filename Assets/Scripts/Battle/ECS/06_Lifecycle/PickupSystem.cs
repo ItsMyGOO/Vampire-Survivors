@@ -1,4 +1,5 @@
 ﻿using ECS.Core;
+using ECS;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -7,9 +8,11 @@ namespace ECS.Systems
     /// <summary>
     /// 拾取系统
     /// 职责: 处理玩家拾取道具逻辑
+    /// 优化: 通过 IItemSpatialIndex 服务查询玩家附近道具，O(k) 代替 O(N)
     /// </summary>
     public class PickupSystem : SystemBase
     {
+        private readonly int[] _neighborBuffer = new int[64];
         private readonly List<int> _itemsToPickup = new List<int>();
 
         public override void Update(World world, float deltaTime)
@@ -21,14 +24,19 @@ namespace ECS.Systems
                 !world.HasComponent<PickupRangeComponent>(playerId))
                 return;
 
+            if (!world.TryGetService<IItemSpatialIndex>(out var itemIndex))
+                return;
+
             var playerPos = world.GetComponent<PositionComponent>(playerId);
             var pickupRange = world.GetComponent<PickupRangeComponent>(playerId);
             float rangeSq = pickupRange.radius * pickupRange.radius;
 
             _itemsToPickup.Clear();
 
-            foreach (var (itemId, pickupable) in world.GetComponents<PickupableComponent>())
+            int neighborCount = itemIndex.QueryItems(playerPos.x, playerPos.y, pickupRange.radius, _neighborBuffer);
+            for (int i = 0; i < neighborCount; i++)
             {
+                int itemId = _neighborBuffer[i];
                 if (!world.HasComponent<PositionComponent>(itemId)) continue;
 
                 var itemPos = world.GetComponent<PositionComponent>(itemId);
@@ -45,6 +53,7 @@ namespace ECS.Systems
 
         private void ProcessPickup(World world, int playerId, int itemId)
         {
+            if (!world.HasComponent<PickupableComponent>(itemId)) return;
             var pickupable = world.GetComponent<PickupableComponent>(itemId);
 
             switch (pickupable.item_type)
@@ -65,7 +74,7 @@ namespace ECS.Systems
                     break;
 
                 case "coin":
-                    Debug.Log($"Picked up {pickupable.value} coins");
+                    UnityEngine.Debug.Log($"Picked up {pickupable.value} coins");
                     break;
 
                 case "magnet":
