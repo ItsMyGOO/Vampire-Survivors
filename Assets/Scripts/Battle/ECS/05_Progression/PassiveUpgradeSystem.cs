@@ -1,4 +1,4 @@
-﻿using ConfigHandler;
+using ConfigHandler;
 using ECS.Core;
 using System.Collections.Generic;
 using UnityEngine;
@@ -80,14 +80,20 @@ namespace ECS.Systems
             ApplyPassiveEffect(world, entityId, intent.passiveId, def, currentLevel, newLevel);
         }
 
-        private void ApplyPassiveEffect(World world, int entityId, string passiveId,
+private void ApplyPassiveEffect(World world, int entityId, string passiveId,
             PassiveUpgradePoolDef def, int oldLevel, int newLevel)
         {
             AttributeModifierCollectionComponent modifierCollection;
             if (!world.TryGetComponent<AttributeModifierCollectionComponent>(entityId, out modifierCollection))
                 modifierCollection = AttributeModifierCollectionComponent.Create();
 
-            modifierCollection.modifiers.RemoveAll(m => m.sourceId == passiveId);
+            // 倒序移除同源修改器，避免 RemoveAll(lambda) 闭包分配
+            var mods = modifierCollection.modifiers;
+            for (int i = mods.Count - 1; i >= 0; i--)
+            {
+                if (mods[i].sourceId == passiveId)
+                    mods.RemoveAt(i);
+            }
 
             if (newLevel > 0)
             {
@@ -101,7 +107,7 @@ namespace ECS.Systems
                     modifierType: DetermineModifierType(def.attribute)
                 );
 
-                modifierCollection.modifiers.Add(modifier);
+                mods.Add(modifier);
 
                 Debug.Log($"[PassiveUpgradeSystem] 添加修改器: {attributeType} += {totalValue} (来源: {passiveId})");
             }
