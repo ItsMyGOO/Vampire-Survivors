@@ -9,15 +9,18 @@ namespace ECS.Systems
     /// </summary>
     public class AnimationCommandSystem : SystemBase
     {
+        // 预分配复用列表，避免每帧 new List 分配
+        private readonly List<int> _toRemove = new List<int>();
+
         public override void Update(World world, float deltaTime)
         {
-            var toRemove = new List<int>();
+            _toRemove.Clear();
 
             foreach (var (entity, command) in world.GetComponents<AnimationCommandComponent>())
             {
                 if (!world.HasComponent<AnimationComponent>(entity))
                 {
-                    toRemove.Add(entity);
+                    _toRemove.Add(entity);
                     continue;
                 }
 
@@ -36,14 +39,11 @@ namespace ECS.Systems
                         break;
                 }
 
-                toRemove.Add(entity);
+                _toRemove.Add(entity);
             }
 
-            // 移除已执行的指令
-            foreach (var entity in toRemove)
-            {
-                world.RemoveComponent<AnimationCommandComponent>(entity);
-            }
+            for (int i = 0; i < _toRemove.Count; i++)
+                world.RemoveComponent<AnimationCommandComponent>(_toRemove[i]);
         }
     }
 }
