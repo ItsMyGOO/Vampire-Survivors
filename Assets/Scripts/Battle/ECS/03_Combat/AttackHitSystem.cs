@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using ECS.Core;
 using UnityEngine;
 
@@ -83,7 +83,7 @@ namespace ECS.Systems
             return dx * dx + dy * dy <= radiusSum * radiusSum;
         }
 
-        private void ApplyHit(
+private void ApplyHit(
             World world,
             int projEntity,
             PositionComponent projPos,
@@ -93,6 +93,13 @@ namespace ECS.Systems
             bool hasVel,
             int enemyId)
         {
+            // 0. 命中冷却检查（无敌帧）：冷却中直接跳过
+            if (world.HasComponent<HitCooldownComponent>(enemyId))
+                return;
+
+            // 命中冷却持续时间：与击退时长对齐，保证手感一致
+            world.AddComponent(enemyId, new HitCooldownComponent(KNOCKBACK_DURATION));
+
             // 1. 伤害
             if (world.HasComponent<HealthComponent>(enemyId))
             {

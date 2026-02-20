@@ -37,6 +37,7 @@ namespace Battle
             world.RegisterService<IEnemySpatialIndex>(enemySpatialIndex);
 
             // --- 战斗 ---
+            world.RegisterSystem(new HitCooldownSystem()); // 必须在 AttackHitSystem 之前：先递减冷却，再做命中判定
             world.RegisterSystem(new WeaponFireSystem());
             world.RegisterSystem(new OrbitSystem());
             world.RegisterSystem(new AttackHitSystem());
