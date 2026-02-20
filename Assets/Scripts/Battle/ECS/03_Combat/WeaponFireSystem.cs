@@ -1,5 +1,4 @@
-﻿using Battle.Player;
-using Battle.Weapon;
+﻿using Battle.Weapon;
 using ECS.Core;
 using UnityEngine;
 using ConfigHandler;
@@ -8,6 +7,15 @@ namespace ECS.Systems
 {
     public class WeaponFireSystem : SystemBase
     {
+        /// <summary>
+        /// 目标搜索半径，与 AIMovementSystem.AI_ACTIVE_RADIUS 对齐。
+        /// 范围内无敌人时自动降级为全量扫描兜底。
+        /// </summary>
+        private const float TARGET_SEARCH_RADIUS = 30f;
+
+        // 预分配：QueryEnemies 结果写入此 buffer，零 GC
+        private readonly int[] _targetBuffer = new int[256];
+
         public override void Update(World world, float deltaTime)
         {
             foreach (var (owner, weaponStats) in world.GetComponents<WeaponRuntimeStatsComponent>())
@@ -92,17 +100,60 @@ namespace ECS.Systems
                 OrbitSpawnService.Spawn(world, owner, step * i, stats, cfg);
         }
 
-        // ===== Target =====
+        // ================= Target =================
 
         private int FindNearestEnemy(World world, PositionComponent playerPos)
+        {
+            // 优先用共享空间索引查询范围内候选，O(k) 而非 O(N)
+            if (world.TryGetService<IEnemySpatialIndex>(out var enemyIndex))
+            {
+                int candidateCount = enemyIndex.QueryEnemies(
+                    playerPos.x, playerPos.y, TARGET_SEARCH_RADIUS, _targetBuffer);
+
+                if (candidateCount > 0)
+                    return FindNearestInBuffer(world, playerPos, _targetBuffer, candidateCount);
+            }
+
+            // 降级兜底：空间索引未就绪或范围内无敌人，全量扫描
+            return FindNearestFallback(world, playerPos);
+        }
+
+        private int FindNearestInBuffer(World world, PositionComponent playerPos, int[] buffer, int count)
+        {
+            int nearest = -1;
+            float minDistSq = float.MaxValue;
+
+            for (int i = 0; i < count; i++)
+            {
+                int entity = buffer[i];
+                if (!world.HasComponent<PositionComponent>(entity)) continue;
+
+                var pos = world.GetComponent<PositionComponent>(entity);
+                float dx = pos.x - playerPos.x;
+                float dy = pos.y - playerPos.y;
+                float distSq = dx * dx + dy * dy;
+
+                if (distSq < minDistSq)
+                {
+                    minDistSq = distSq;
+                    nearest = entity;
+                }
+            }
+
+            return nearest;
+        }
+
+        /// <summary>
+        /// 全量扫描兜底：空间索引未就绪或搜索半径内无敌人时使用。
+        /// </summary>
+        private int FindNearestFallback(World world, PositionComponent playerPos)
         {
             int nearest = -1;
             float minDistSq = float.MaxValue;
 
             foreach (var (entity, _) in world.GetComponents<EnemyTagComponent>())
             {
-                if (!world.HasComponent<PositionComponent>(entity))
-                    continue;
+                if (!world.HasComponent<PositionComponent>(entity)) continue;
 
                 var pos = world.GetComponent<PositionComponent>(entity);
                 float dx = pos.x - playerPos.x;
