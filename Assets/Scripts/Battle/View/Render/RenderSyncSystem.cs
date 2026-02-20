@@ -21,21 +21,19 @@ namespace ECS
 
             foreach (var (entity, position) in world.GetComponents<PositionComponent>())
             {
-                bool hasVel      = world.HasComponent<VelocityComponent>(entity);
-                bool hasRot      = world.HasComponent<RotationComponent>(entity);
-                bool hasSpriteKey = world.HasComponent<SpriteKeyComponent>(entity);
-
-                var vel      = hasVel      ? world.GetComponent<VelocityComponent>(entity) : default;
-                var rot      = hasRot      ? world.GetComponent<RotationComponent>(entity) : default;
-                var spriteKey = hasSpriteKey ? world.GetComponent<SpriteKeyComponent>(entity) : null;
-
+                // TryGetComponent 合并 Has + Get 为单次字典查找
+                // 原实现：每实体 4×HasComponent + 4×GetComponent = 8 次查找
+                // 现实现：每实体 4×TryGetComponent = 4 次查找
+                bool hasVel      = world.TryGetComponent<VelocityComponent>(entity,  out var vel);
+                bool hasRot      = world.TryGetComponent<RotationComponent>(entity,  out var rot);
+                bool hasSpriteKey = world.TryGetComponent<SpriteKeyComponent>(entity, out var spriteKey);
                 bool isCameraFollow = world.HasComponent<CameraFollowComponent>(entity);
 
                 renderSystem.RenderEntity(
                     entity,
                     position,
-                    vel,      hasVel,
-                    rot,      hasRot,
+                    vel,       hasVel,
+                    rot,       hasRot,
                     spriteKey,
                     isCameraFollow
                 );
