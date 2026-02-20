@@ -6,7 +6,7 @@ namespace ECS
     /// Render 同步系统
     /// 只负责：把 ECS 状态推给 RenderSystem
     /// </summary>
-    public class RenderSyncSystem 
+    public class RenderSyncSystem
     {
         private readonly RenderSystem renderSystem;
 
@@ -19,30 +19,23 @@ namespace ECS
         {
             renderSystem.BeginFrame();
 
-            // 以 Position 作为 render 主键（等价你之前的 Collect）
             foreach (var (entity, position) in world.GetComponents<PositionComponent>())
             {
-                VelocityComponent velocity = null;
-                RotationComponent rotation = null;
-                SpriteKeyComponent spriteKey = null;
+                bool hasVel      = world.HasComponent<VelocityComponent>(entity);
+                bool hasRot      = world.HasComponent<RotationComponent>(entity);
+                bool hasSpriteKey = world.HasComponent<SpriteKeyComponent>(entity);
 
-                if (world.HasComponent<VelocityComponent>(entity))
-                    velocity = world.GetComponent<VelocityComponent>(entity);
+                var vel      = hasVel      ? world.GetComponent<VelocityComponent>(entity) : default;
+                var rot      = hasRot      ? world.GetComponent<RotationComponent>(entity) : default;
+                var spriteKey = hasSpriteKey ? world.GetComponent<SpriteKeyComponent>(entity) : null;
 
-                if (world.HasComponent<RotationComponent>(entity))
-                    rotation = world.GetComponent<RotationComponent>(entity);
+                bool isCameraFollow = world.HasComponent<CameraFollowComponent>(entity);
 
-                if (world.HasComponent<SpriteKeyComponent>(entity))
-                    spriteKey = world.GetComponent<SpriteKeyComponent>(entity);
-
-                bool isCameraFollow =
-                    world.HasComponent<CameraFollowComponent>(entity);
-                
                 renderSystem.RenderEntity(
                     entity,
                     position,
-                    velocity,
-                    rotation,
+                    vel,      hasVel,
+                    rot,      hasRot,
                     spriteKey,
                     isCameraFollow
                 );

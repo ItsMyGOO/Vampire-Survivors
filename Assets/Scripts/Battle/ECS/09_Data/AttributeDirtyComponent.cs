@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace ECS
 {
     /// <summary>
@@ -10,8 +8,7 @@ namespace ECS
     /// 设计模式：脏标记模式（Dirty Flag Pattern）
     /// 优点：避免每帧对所有实体重复计算属性，大幅提升性能
     /// </summary>
-    [Serializable]
-    public class AttributeDirtyComponent
+    public struct AttributeDirtyComponent
     {
         // Tag Component 无需字段
         // 仅用于标记实体状态

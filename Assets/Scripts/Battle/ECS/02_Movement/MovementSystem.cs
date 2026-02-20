@@ -12,13 +12,13 @@ namespace ECS.Systems
         {
             foreach (var (entity, velocity) in world.GetComponents<VelocityComponent>())
             {
-                if (world.HasComponent<PositionComponent>(entity))
-                {
-                    var position = world.GetComponent<PositionComponent>(entity);
+                if (!world.HasComponent<PositionComponent>(entity))
+                    continue;
 
-                    position.x += velocity.x * deltaTime;
-                    position.y += velocity.y * deltaTime;
-                }
+                var position = world.GetComponent<PositionComponent>(entity);
+                position.x += velocity.x * deltaTime;
+                position.y += velocity.y * deltaTime;
+                world.SetComponent(entity, position);
             }
         }
     }

@@ -4,21 +4,16 @@ using System.Collections.Generic;
 namespace ECS
 {
 // ============================================
-// 基础组件
+// 基础组件（struct - 纯数值，无引用类型字段）
 // ============================================
 
     /// <summary>
     /// 位置组件
     /// </summary>
-    [Serializable]
-    public class PositionComponent
+    public struct PositionComponent
     {
         public float x;
         public float y;
-
-        public PositionComponent()
-        {
-        }
 
         public PositionComponent(float x, float y)
         {
@@ -30,35 +25,26 @@ namespace ECS
     /// <summary>
     /// 速度组件
     /// </summary>
-    [Serializable]
-    public class VelocityComponent
+    public struct VelocityComponent
     {
         public float x;
         public float y;
-        public float speed = 1;
+        public float speed;
 
-        public VelocityComponent()
-        {
-        }
-
-        public VelocityComponent(float x, float y)
+        public VelocityComponent(float x, float y, float speed = 1f)
         {
             this.x = x;
             this.y = y;
+            this.speed = speed;
         }
     }
 
     /// <summary>
     /// 旋转组件
     /// </summary>
-    [Serializable]
-    public class RotationComponent
+    public struct RotationComponent
     {
         public float angle;
-
-        public RotationComponent()
-        {
-        }
 
         public RotationComponent(float angle)
         {
@@ -69,16 +55,11 @@ namespace ECS
     /// <summary>
     /// 生命值组件
     /// </summary>
-    [Serializable]
-    public class HealthComponent
+    public struct HealthComponent
     {
         public float current;
         public float max;
         public float regen; // 每秒回复
-
-        public HealthComponent()
-        {
-        }
 
         public HealthComponent(float current, float max, float regen = 0f)
         {
@@ -89,11 +70,11 @@ namespace ECS
     }
 
 // ============================================
-// 视觉组件
+// 视觉组件（class - 含 string 引用）
 // ============================================
 
     /// <summary>
-    /// 精灵键组件
+    /// 精灵键组件（保留 class：含 string 字段）
     /// </summary>
     [Serializable]
     public class SpriteKeyComponent
@@ -112,7 +93,7 @@ namespace ECS
     }
 
     /// <summary>
-    /// 动画组件
+    /// 动画组件（保留 class：含 string 字段）
     /// </summary>
     [Serializable]
     public class AnimationComponent
@@ -122,7 +103,6 @@ namespace ECS
         public int Frame;
         public float Time;
         public bool Playing;
-
         public string DefaultAnim;
 
         public AnimationComponent()
@@ -131,7 +111,7 @@ namespace ECS
     }
 
     /// <summary>
-    /// 动画指令组件
+    /// 动画指令组件（保留 class：含 string 字段）
     /// </summary>
     [Serializable]
     public class AnimationCommandComponent
@@ -151,36 +131,31 @@ namespace ECS
     }
 
 // ============================================
-// 战斗组件
+// 战斗组件（struct - 纯数值）
 // ============================================
 
     /// <summary>
     /// 伤害来源组件
     /// </summary>
-    [Serializable]
-    public class DamageSourceComponent
+    public struct DamageSourceComponent
     {
         public float damage;
         public float knockBack;
 
-        public DamageSourceComponent()
+        public DamageSourceComponent(float damage, float knockBack = 0f)
         {
+            this.damage = damage;
+            this.knockBack = knockBack;
         }
     }
 
     /// <summary>
     /// 碰撞体组件
     /// </summary>
-    [Serializable]
-    public class ColliderComponent
+    public struct ColliderComponent
     {
         public float radius;
         public bool is_trigger;
-
-        public ColliderComponent()
-        {
-            is_trigger = true;
-        }
 
         public ColliderComponent(float radius, bool isTrigger = true)
         {
@@ -192,15 +167,10 @@ namespace ECS
     /// <summary>
     /// 命中冷却组件
     /// </summary>
-    [Serializable]
-    public class HitCooldownComponent
+    public struct HitCooldownComponent
     {
         public float duration;
         public float timer;
-
-        public HitCooldownComponent()
-        {
-        }
 
         public HitCooldownComponent(float duration)
         {
@@ -212,35 +182,33 @@ namespace ECS
     /// <summary>
     /// 击退组件
     /// </summary>
-    [Serializable]
-    public class KnockBackComponent
+    public struct KnockBackComponent
     {
-        public float forceX, forceY;
+        public float forceX;
+        public float forceY;
         public float time;
 
-        public KnockBackComponent()
+        public KnockBackComponent(float forceX, float forceY, float time)
         {
+            this.forceX = forceX;
+            this.forceY = forceY;
+            this.time = time;
         }
     }
 
 // ============================================
-// 武器/投射物组件
+// 武器/投射物组件（struct - 纯数值）
 // ============================================
 
     /// <summary>
     /// 投射物组件
     /// </summary>
-    [Serializable]
-    public class ProjectileComponent
+    public struct ProjectileComponent
     {
         public float speed;
-        public int pierce; // 穿透次数
-        public int hit_count; // 已命中次数
+        public int pierce;     // 穿透次数
+        public int hit_count;  // 已命中次数
         public float lifetime;
-
-        public ProjectileComponent()
-        {
-        }
 
         public ProjectileComponent(float speed, int pierce = 1, float lifetime = 5.0f)
         {
@@ -254,31 +222,29 @@ namespace ECS
     /// <summary>
     /// 轨道运动组件
     /// </summary>
-    [Serializable]
-    public class OrbitComponent
+    public struct OrbitComponent
     {
         public int centerEntity;
         public float radius;
         public float angularSpeed;
         public float currentAngle;
 
-        public OrbitComponent()
+        public OrbitComponent(int centerEntity, float radius, float angularSpeed, float currentAngle)
         {
+            this.centerEntity = centerEntity;
+            this.radius = radius;
+            this.angularSpeed = angularSpeed;
+            this.currentAngle = currentAngle;
         }
     }
 
     /// <summary>
     /// 追踪目标组件
     /// </summary>
-    [Serializable]
-    public class SeekComponent
+    public struct SeekComponent
     {
         public int target_id;
         public float turn_speed;
-
-        public SeekComponent()
-        {
-        }
 
         public SeekComponent(int targetId, float turnSpeed = 5.0f)
         {
@@ -288,22 +254,17 @@ namespace ECS
     }
 
 // ============================================
-// 特殊效果组件
+// 特殊效果组件（struct - 纯数值）
 // ============================================
 
     /// <summary>
     /// AOE 爆炸组件
     /// </summary>
-    [Serializable]
-    public class AoeExplosionComponent
+    public struct AoeExplosionComponent
     {
         public float radius;
         public float damage;
         public bool triggered;
-
-        public AoeExplosionComponent()
-        {
-        }
 
         public AoeExplosionComponent(float radius, float damage)
         {
@@ -316,15 +277,10 @@ namespace ECS
     /// <summary>
     /// 生命周期组件
     /// </summary>
-    [Serializable]
-    public class LifeTimeComponent
+    public struct LifeTimeComponent
     {
         public float duration;
         public float elapsed;
-
-        public LifeTimeComponent()
-        {
-        }
 
         public LifeTimeComponent(float duration)
         {
@@ -334,29 +290,36 @@ namespace ECS
     }
 
 // ============================================
-// 标签组件
+// 标签组件（struct - 空标记）
 // ============================================
 
     /// <summary>
     /// 玩家标签组件
     /// </summary>
-    [Serializable]
-    public class PlayerTagComponent
+    public struct PlayerTagComponent
     {
-        // 空组件，仅用于标记
     }
 
     /// <summary>
     /// 敌人标签组件
     /// </summary>
-    [Serializable]
-    public class EnemyTagComponent
+    public struct EnemyTagComponent
     {
-        // 空组件，仅用于标记
     }
 
     /// <summary>
-    /// 道具组件
+    /// 相机跟随标签组件
+    /// </summary>
+    public struct CameraFollowComponent
+    {
+    }
+
+// ============================================
+// 道具组件（class - 含 string）
+// ============================================
+
+    /// <summary>
+    /// 道具组件（保留 class：含 string 字段）
     /// </summary>
     [Serializable]
     public class PropComponent
@@ -378,8 +341,9 @@ namespace ECS
 // ============================================
 // AI 组件
 // ============================================
+
     /// <summary>
-    /// 转向行为组件
+    /// 转向行为组件（保留 class：含 List 和嵌套 class）
     /// </summary>
     [Serializable]
     public class SteeringComponent
@@ -411,21 +375,14 @@ namespace ECS
     }
 
     /// <summary>
-    /// 分离行为组件
+    /// 分离行为组件（struct - 纯数值）
     /// </summary>
-    [Serializable]
-    public class SeparationComponent
+    public struct SeparationComponent
     {
         public float radius;
         public float strength;
 
-        public SeparationComponent()
-        {
-            radius = 2.0f;
-            strength = 1.0f;
-        }
-
-        public SeparationComponent(float radius, float strength)
+        public SeparationComponent(float radius = 2.0f, float strength = 1.0f)
         {
             this.radius = radius;
             this.strength = strength;
@@ -437,27 +394,20 @@ namespace ECS
 // ============================================
 
     /// <summary>
-    /// 拾取范围组件
+    /// 拾取范围组件（struct - 纯数值）
     /// </summary>
-    [Serializable]
-    public class PickupRangeComponent
+    public struct PickupRangeComponent
     {
         public float radius;
 
-        public PickupRangeComponent()
-        {
-            radius = 1.0f;
-        }
-
-        public PickupRangeComponent(float radius)
+        public PickupRangeComponent(float radius = 1.0f)
         {
             this.radius = radius;
         }
     }
 
-
     /// <summary>
-    /// 可拾取组件
+    /// 可拾取组件（保留 class：含 string 字段）
     /// </summary>
     [Serializable]
     public class PickupableComponent
@@ -479,34 +429,20 @@ namespace ECS
         }
     }
 
-
     /// <summary>
-    /// 磁铁组件 - 吸引物品
+    /// 磁铁组件（struct - 纯数值）
     /// </summary>
-    [Serializable]
-    public class MagnetComponent
+    public struct MagnetComponent
     {
         public float radius;
         public float strength;
         public bool active;
 
-        public MagnetComponent()
-        {
-            radius = 5.0f;
-            strength = 10.0f;
-            active = true;
-        }
-
-        public MagnetComponent(float radius, float strength)
+        public MagnetComponent(float radius = 5.0f, float strength = 10.0f)
         {
             this.radius = radius;
             this.strength = strength;
             this.active = true;
         }
-    }
-
-    public class CameraFollowComponent
-    {
-        
     }
 }

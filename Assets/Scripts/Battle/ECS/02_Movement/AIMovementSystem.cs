@@ -11,49 +11,44 @@ namespace ECS.Systems
     {
         public override void Update(World world, float deltaTime)
         {
-            // 找到玩家
             int playerId = FindPlayer(world);
             if (playerId == -1) return;
-
             if (!world.HasComponent<PositionComponent>(playerId)) return;
 
             var playerPos = world.GetComponent<PositionComponent>(playerId);
 
-            // 更新所有敌人的移动意图
             foreach (var (entity, _) in world.GetComponents<EnemyTagComponent>())
             {
                 if (!world.HasComponent<PositionComponent>(entity) ||
                     !world.HasComponent<VelocityComponent>(entity))
-                {
                     continue;
-                }
 
                 var enemyPos = world.GetComponent<PositionComponent>(entity);
                 var vel = world.GetComponent<VelocityComponent>(entity);
 
-                // 计算朝向玩家的方向
                 float dx = playerPos.x - enemyPos.x;
                 float dy = playerPos.y - enemyPos.y;
                 float dist = Mathf.Sqrt(dx * dx + dy * dy);
 
                 if (dist > 0.1f)
                 {
-                    vel.x = dx / dist;
-                    vel.y = dy / dist;
+                    vel.x = (dx / dist) * vel.speed;
+                    vel.y = (dy / dist) * vel.speed;
+                }
+                else
+                {
+                    vel.x = 0f;
+                    vel.y = 0f;
                 }
 
-                vel.x *= vel.speed;
-                vel.y *= vel.speed;
+                world.SetComponent(entity, vel);
             }
         }
 
         private int FindPlayer(World world)
         {
             foreach (var (entity, _) in world.GetComponents<PlayerTagComponent>())
-            {
                 return entity;
-            }
-
             return -1;
         }
     }

@@ -9,24 +9,24 @@ namespace ECS.Systems
     /// </summary>
     public class LifeTimeSystem : SystemBase
     {
+        private readonly List<int> _toDestroy = new List<int>();
+
         public override void Update(World world, float deltaTime)
         {
-            var toDestroy = new List<int>();
+            _toDestroy.Clear();
 
             foreach (var (entity, lifetime) in world.GetComponents<LifeTimeComponent>())
             {
-                lifetime.elapsed += deltaTime;
+                var lt = lifetime;
+                lt.elapsed += deltaTime;
+                world.SetComponent(entity, lt);
 
-                if (lifetime.elapsed >= lifetime.duration)
-                {
-                    toDestroy.Add(entity);
-                }
+                if (lt.elapsed >= lt.duration)
+                    _toDestroy.Add(entity);
             }
 
-            foreach (var entity in toDestroy)
-            {
-                world.DestroyEntity(entity);
-            }
+            for (int i = 0; i < _toDestroy.Count; i++)
+                world.DestroyEntity(_toDestroy[i]);
         }
     }
 }

@@ -10,31 +10,25 @@ namespace ECS.Systems
     /// </summary>
     public class EnemyDeathSystem : SystemBase
     {
+        private readonly List<int> _deadEnemies = new List<int>();
+
         public override void Update(World world, float deltaTime)
         {
-            var deadEnemies = new List<int>();
+            _deadEnemies.Clear();
 
             foreach (var (entity, _) in world.GetComponents<EnemyTagComponent>())
             {
                 if (!world.HasComponent<HealthComponent>(entity)) continue;
 
                 var health = world.GetComponent<HealthComponent>(entity);
-
                 if (health.current <= 0)
-                {
-                    deadEnemies.Add(entity);
-                }
+                    _deadEnemies.Add(entity);
             }
 
-            // 处理死亡敌人
-            foreach (var enemyId in deadEnemies)
+            for (int i = 0; i < _deadEnemies.Count; i++)
             {
-                // 掉落经验宝石
+                int enemyId = _deadEnemies[i];
                 SpawnExpGem(world, enemyId);
-
-                // 播放死亡特效（TODO）
-
-                // 销毁实体
                 world.DestroyEntity(enemyId);
             }
         }
@@ -47,13 +41,10 @@ namespace ECS.Systems
 
             int gemId = world.CreateEntity();
 
-            // 位置
             world.AddComponent(gemId, new PositionComponent(enemyPos.x, enemyPos.y));
 
             var prop = DropItemConfigDB.Instance.Get("exp_small");
-            // 可拾取组件（使用新的系统）
             world.AddComponent(gemId, new PickupableComponent("exp", prop.exp, true));
-            // 精灵
             world.AddComponent(gemId, new SpriteKeyComponent()
             {
                 sheet = prop.sheet,

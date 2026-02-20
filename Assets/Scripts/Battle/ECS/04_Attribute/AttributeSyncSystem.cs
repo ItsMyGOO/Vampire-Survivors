@@ -1,4 +1,4 @@
-﻿using Battle.Upgrade;
+using Battle.Upgrade;
 using ECS.Core;
 using System.Collections.Generic;
 
@@ -11,13 +11,11 @@ namespace ECS.Systems
     /// </summary>
     public class AttributeSyncSystem : SystemBase
     {
-        public override void Update(World world, float deltaTime)
+public override void Update(World world, float deltaTime)
         {
-            // GetComponents 返回 Dictionary<int,T>，foreach 不经接口，无装箱
-            Dictionary<int, PlayerAttributeComponent> components = world.GetComponents<PlayerAttributeComponent>();
-            foreach (KeyValuePair<int, PlayerAttributeComponent> kvp in components)
+            foreach (var (entityId, component) in world.GetComponents<PlayerAttributeComponent>())
             {
-                SyncAttributes(world, kvp.Key, kvp.Value);
+                SyncAttributes(world, entityId, component);
             }
         }
 
@@ -29,13 +27,16 @@ namespace ECS.Systems
             SyncExpGain(world, final);
         }
 
-        private void SyncMoveSpeed(World world, int entityId, PlayerAttributeComponent player)
+private void SyncMoveSpeed(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<VelocityComponent>(entityId, out var velocity))
+            {
                 velocity.speed = player.moveSpeed;
+                world.SetComponent(entityId, velocity);
+            }
         }
 
-        private void SyncHealth(World world, int entityId, PlayerAttributeComponent player)
+private void SyncHealth(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<HealthComponent>(entityId, out var health))
             {
@@ -43,13 +44,17 @@ namespace ECS.Systems
                 health.max = player.maxHealth;
                 health.regen = player.healthRegen;
                 health.current = health.max * healthPercent;
+                world.SetComponent(entityId, health);
             }
         }
 
-        private void SyncPickupRange(World world, int entityId, PlayerAttributeComponent player)
+private void SyncPickupRange(World world, int entityId, PlayerAttributeComponent player)
         {
             if (world.TryGetComponent<PickupRangeComponent>(entityId, out var pickup))
+            {
                 pickup.radius = player.pickupRange;
+                world.SetComponent(entityId, pickup);
+            }
         }
 
         private void SyncExpGain(World world, PlayerAttributeComponent player)

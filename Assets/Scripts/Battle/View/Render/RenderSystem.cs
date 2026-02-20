@@ -24,7 +24,7 @@ public class RenderSystem
 
     private int totalRenderedThisFrame;
     private int totalErrorsThisFrame;
-    
+
     private int currentCameraTarget = -1;
 
     public Action<Transform> OnCameraTargetChanged;
@@ -56,7 +56,7 @@ public class RenderSystem
                 $"[RenderSystem] 本帧渲染 {totalRenderedThisFrame} 个实体，错误 {totalErrorsThisFrame}");
         }
     }
-    
+
     // =========================================================
     // ECS → Render 同步入口
     // =========================================================
@@ -64,8 +64,8 @@ public class RenderSystem
     public void RenderEntity(
         int eid,
         PositionComponent position,
-        VelocityComponent velocity,
-        RotationComponent rotation,
+        VelocityComponent velocity,  bool hasVelocity,
+        RotationComponent rotation,  bool hasRotation,
         SpriteKeyComponent spriteKey,
         bool isCameraFollowTarget)
     {
@@ -75,18 +75,13 @@ public class RenderSystem
         try
         {
             if (!transforms.TryGetValue(eid, out var transform))
-            {
                 CreateRenderObject(eid, out transform);
-            }
 
-            UpdateTransform(transform, position, rotation);
-            UpdateRenderer(renderers[eid], position, velocity, spriteKey, eid);
+            UpdateTransform(transform, position, rotation, hasRotation);
+            UpdateRenderer(renderers[eid], position, velocity, hasVelocity, spriteKey, eid);
 
-            // ⭐ 只记录，不立刻绑定
             if (isCameraFollowTarget)
-            {
                 TryMarkCameraTarget(eid);
-            }
 
             entityErrorCount.Remove(eid);
         }
@@ -98,9 +93,7 @@ public class RenderSystem
 
     private void TryMarkCameraTarget(int eid)
     {
-        if (currentCameraTarget == eid)
-            return;
-
+        if (currentCameraTarget == eid) return;
         currentCameraTarget = eid;
         OnCameraTargetChanged?.Invoke(transforms[eid]);
     }
@@ -113,13 +106,10 @@ public class RenderSystem
     {
         var go = pool.Get(eid.ToString());
         transform = go.transform;
-
         transforms[eid] = transform;
 
         if (!go.TryGetComponent(out SpriteRenderer renderer))
-        {
             renderer = go.AddComponent<SpriteRenderer>();
-        }
 
         renderers[eid] = renderer;
     }
@@ -127,11 +117,12 @@ public class RenderSystem
     private void UpdateTransform(
         Transform transform,
         PositionComponent pos,
-        RotationComponent rotation)
+        RotationComponent rotation,
+        bool hasRotation)
     {
         transform.position = new Vector3(pos.x, pos.y, 0);
 
-        if (rotation != null)
+        if (hasRotation)
         {
             float z = rotation.angle * Mathf.Rad2Deg + FORWARD_OFFSET;
             transform.rotation = Quaternion.Euler(0, 0, z);
@@ -142,32 +133,27 @@ public class RenderSystem
         SpriteRenderer renderer,
         PositionComponent pos,
         VelocityComponent velocity,
+        bool hasVelocity,
         SpriteKeyComponent spriteKey,
         int eid)
     {
         renderer.sortingOrder = -(int)(pos.y * 100);
 
-        if (velocity != null)
+        if (hasVelocity)
         {
             if (velocity.x > 0) renderer.flipX = false;
             else if (velocity.x < 0) renderer.flipX = true;
         }
 
         if (spriteKey != null)
-        {
             LoadSprite(renderer, spriteKey.sheet, spriteKey.key, eid);
-        }
     }
 
     // =========================================================
     // Sprite 加载
     // =========================================================
 
-    private void LoadSprite(
-        SpriteRenderer renderer,
-        string sheet,
-        string key,
-        int eid)
+    private void LoadSprite(SpriteRenderer renderer, string sheet, string key, int eid)
     {
         if (string.IsNullOrEmpty(sheet) || string.IsNullOrEmpty(key))
             return;
@@ -176,13 +162,9 @@ public class RenderSystem
         {
             spriteProvider.Get(sheet, key, sprite =>
             {
-                if (!renderers.ContainsKey(eid))
-                    return;
-
+                if (!renderers.ContainsKey(eid)) return;
                 if (renderer != null && renderer.sprite != sprite)
-                {
                     renderer.sprite = sprite;
-                }
             });
         }
         catch (Exception e)
@@ -211,9 +193,7 @@ public class RenderSystem
         if (dead == null) return;
 
         foreach (var eid in dead)
-        {
             RecycleEntity(eid);
-        }
     }
 
     private void RecycleEntity(int eid)
@@ -224,7 +204,6 @@ public class RenderSystem
         renderer.sprite = null;
         renderer.flipX = false;
         renderer.sortingOrder = 0;
-
         transform.rotation = Quaternion.identity;
 
         pool.Release(transform.gameObject);

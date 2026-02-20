@@ -1,4 +1,4 @@
-using Battle.Player;
+﻿using Battle.Player;
 using Battle.Weapon;
 using ECS.Core;
 using UnityEngine;
@@ -20,9 +20,9 @@ namespace ECS.Systems
                 var playerAttr = world.HasComponent<PlayerAttributeComponent>(owner)
                     ? world.GetComponent<PlayerAttributeComponent>(owner)
                     : null;
-                float pDamageMul = playerAttr?.damageMul ?? 1f;
+                float pDamageMul   = playerAttr?.damageMul ?? 1f;
                 float pCooldownMul = playerAttr?.cooldownMul ?? 1f;
-                float pSpeedMul = playerAttr?.projectileSpeedMul ?? 1f;
+                float pSpeedMul    = playerAttr?.projectileSpeedMul ?? 1f;
 
                 foreach (var (weaponId, weapon) in weaponStats.GetAllWeapons())
                 {
@@ -70,14 +70,7 @@ namespace ECS.Systems
                 var dir = ProjectileSpawnService.Calculate(
                     baseDir, i, stats.projectile.count, 5f);
 
-                ProjectileSpawnService.Spawn(
-                    world,
-                    owner,
-                    ownerPos,
-                    dir,
-                    stats,
-                    cfg
-                );
+                ProjectileSpawnService.Spawn(world, owner, ownerPos, dir, stats, cfg);
             }
         }
 
@@ -90,26 +83,17 @@ namespace ECS.Systems
             WeaponFinalStats stats,
             WeaponConfig cfg)
         {
-            if (weapon.orbitSpawned)
-                return;
-
+            if (weapon.orbitSpawned) return;
             weapon.orbitSpawned = true;
 
             float step = Mathf.PI * 2f / stats.orbit.count;
 
             for (int i = 0; i < stats.orbit.count; i++)
-            {
-                OrbitSpawnService.Spawn(
-                    world,
-                    owner,
-                    step * i,
-                    stats,
-                    cfg
-                );
-            }
+                OrbitSpawnService.Spawn(world, owner, step * i, stats, cfg);
         }
 
         // ===== Target =====
+
         private int FindNearestEnemy(World world, PositionComponent playerPos)
         {
             int nearest = -1;
@@ -140,18 +124,13 @@ namespace ECS.Systems
             if (target == -1)
                 return Vector2.right;
 
-            var targetPos = world.GetComponent<PositionComponent>(target);
-            if (targetPos == null)
+            if (!world.HasComponent<PositionComponent>(target))
                 return Vector2.right;
 
-            Vector2 dir = new Vector2(
-                targetPos.x - ownerPos.x,
-                targetPos.y - ownerPos.y
-            );
+            var targetPos = world.GetComponent<PositionComponent>(target);
+            Vector2 dir = new Vector2(targetPos.x - ownerPos.x, targetPos.y - ownerPos.y);
 
-            return dir.sqrMagnitude < 0.0001f
-                ? Vector2.right
-                : dir.normalized;
+            return dir.sqrMagnitude < 0.0001f ? Vector2.right : dir.normalized;
         }
     }
 }
