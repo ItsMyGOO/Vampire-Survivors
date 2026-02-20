@@ -21,6 +21,9 @@ namespace ECS.Core
         // 系统列表
         private readonly List<ISystem> _systems = new List<ISystem>();
 
+        // ComponentStore 顺序列表：供 ProcessDestroyQueue 用 for 索引遍历，避免 Dictionary.Values 枚举器分配
+        private readonly List<IComponentStore> _storeList = new List<IComponentStore>();
+
         // 服务注册表
         private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
@@ -190,6 +193,7 @@ namespace ECS.Core
             {
                 var newStore = new ComponentStore<T>();
                 _componentStores[type] = newStore;
+                _storeList.Add(newStore);
                 return newStore;
             }
             return (ComponentStore<T>)store;
@@ -206,10 +210,10 @@ namespace ECS.Core
 
                 _activeEntities.Remove(entityId);
 
-                foreach (var store in _componentStores.Values)
+                for (int s = 0; s < _storeList.Count; s++)
                 {
-                    if (store.HasComponent(entityId))
-                        store.RemoveComponent(entityId);
+                    if (_storeList[s].HasComponent(entityId))
+                        _storeList[s].RemoveComponent(entityId);
                 }
             }
         }
@@ -247,6 +251,7 @@ namespace ECS.Core
             _activeEntities.Clear();
             _entitiesToDestroy.Clear();
             _componentStores.Clear();
+            _storeList.Clear();
             _nextEntityId = 1;
         }
     }
