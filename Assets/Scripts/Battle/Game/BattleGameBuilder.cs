@@ -20,6 +20,10 @@ namespace Battle
             // Player
             int playerId = PlayerFactory.CreatePlayer(world);
 
+            // SpawnController 全局实体：持有生成状态，供 EnemySpawnSystem 读写
+            int spawnControllerId = world.CreateEntity();
+            world.AddComponent(spawnControllerId, new ECS.SpawnStateComponent(spawnInterval: 1.0f));
+
             // Core Systems
             ECSSystemInstaller.Install(world);
 

@@ -445,4 +445,26 @@ namespace ECS
             active = true;
         }
     }
+// ============================================
+// 生成状态组件
+// ============================================
+
+    /// <summary>
+    /// 敌人生成状态组件（struct - 纯数值）
+    /// 挂在全局 SpawnController 实体上，供 EnemySpawnSystem 读写。
+    /// 将运行时状态从 System 内部移出，符合 ECS 架构规范。
+    /// </summary>
+    public struct SpawnStateComponent
+    {
+        public float gameTime;    // 累计游戏时间，用于难度递增
+        public float spawnTimer;  // 距下次生成的计时器
+        public float spawnInterval; // 当前生成间隔
+
+        public SpawnStateComponent(float spawnInterval)
+        {
+            gameTime = 0f;
+            spawnTimer = 0f;
+            this.spawnInterval = spawnInterval;
+        }
+    }
 }
