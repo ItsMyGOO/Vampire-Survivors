@@ -1,211 +1,149 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
-using Battle;
-using Battle.Player;
 
 namespace Game
 {
     /// <summary>
-    /// 游戏场景管理器 - 单例
-    /// 负责场景切换和游戏状态管理
+    /// 场景管理器 - 单例，DontDestroyOnLoad
+    /// 负责所有场景切换，不持有任何战斗/ECS 状态
     /// </summary>
     public class GameSceneManager : MonoBehaviour
     {
         public static GameSceneManager Instance { get; private set; }
 
-        // 场景名称常量
-        public const string MAIN_MENU_SCENE = "MainMenuScene";
+        // ── 场景名称常量 ───────────────────────────────────────
+        public const string MAIN_MENU_SCENE        = "MainMenuScene";
         public const string CHARACTER_SELECT_SCENE = "CharacterSelectScene";
-        public const string BATTLE_SCENE = "BattleScene";
+        public const string BATTLE_SCENE           = "BattleScene";
 
-        // 当前游戏状态
-        public enum GameState
-        {
-            MainMenu,
-            InBattle,
-            Paused,
-            Loading
-        }
+        // ── 游戏状态 ───────────────────────────────────────────
+        public enum GameState { MainMenu, CharacterSelect, Loading, InBattle, Paused }
 
-        private GameState currentState = GameState.MainMenu;
+        private GameState _currentState = GameState.MainMenu;
 
-        // 事件
-        public event Action OnBattleStarted;
-        public event Action OnBattleEnded;
+        // ── 事件 ───────────────────────────────────────────────
         public event Action<GameState> OnStateChanged;
+        public event Action            OnBattleStarted;
+        public event Action            OnBattleEnded;
 
+        // ── Unity 生命周期 ─────────────────────────────────────
         private void Awake()
         {
-            // 单例模式
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
 
-        /// <summary>
-        /// 开始战斗
-        /// </summary>
-        public void StartBattle()
+        private void OnDestroy()
         {
-            if (currentState == GameState.Loading || currentState == GameState.InBattle)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Time.timeScale = 1f;
+        }
+
+        // ── 通用场景加载 ───────────────────────────────────────
+        private string    _pendingScene;
+        private GameState _pendingState;
+
+        private void LoadScene(string sceneName, GameState stateAfterLoad)
+        {
+            if (_currentState == GameState.Loading)
             {
-                Debug.LogWarning("[GameSceneManager] 已经在战斗中或正在加载");
+                Debug.LogWarning($"[GameSceneManager] 已在加载中，忽略: {sceneName}");
                 return;
             }
 
-            Debug.Log("[GameSceneManager] 开始战斗");
+            _pendingScene = sceneName;
+            _pendingState = stateAfterLoad;
             ChangeState(GameState.Loading);
 
-            // 加载战斗场景
-            SceneManager.LoadScene(BATTLE_SCENE, LoadSceneMode.Single);
-            
-            // 场景加载完成后的回调
-            SceneManager.sceneLoaded += OnBattleSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
 
-        /// <summary>
-        /// 战斗场景加载完成
-        /// </summary>
-        private void OnBattleSceneLoaded(Scene scene, LoadSceneMode mode)
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name != BATTLE_SCENE)
+            if (scene.name != _pendingScene)
                 return;
 
-            SceneManager.sceneLoaded -= OnBattleSceneLoaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Debug.Log($"[GameSceneManager] 场景加载完成: {scene.name}");
+            ChangeState(_pendingState);
 
-            Debug.Log("[GameSceneManager] 战斗场景加载完成");
-            ChangeState(GameState.InBattle);
-            
-            OnBattleStarted?.Invoke();
+            if (_pendingState == GameState.InBattle)
+                OnBattleStarted?.Invoke();
         }
 
-        /// <summary>
-        /// 退出战斗
-        /// </summary>
+        // ── 公开场景切换接口 ───────────────────────────────────
+
+        /// <summary>主菜单</summary>
+        public void LoadMainMenu()
+        {
+            Session.GameSessionData.Reset();
+            LoadScene(MAIN_MENU_SCENE, GameState.MainMenu);
+        }
+
+        /// <summary>角色选择</summary>
+        public void LoadCharacterSelect()
+        {
+            LoadScene(CHARACTER_SELECT_SCENE, GameState.CharacterSelect);
+        }
+
+        /// <summary>开始战斗（需先调用 GameSessionData.SelectCharacter）</summary>
+        public void StartBattle()
+        {
+            if (!Session.GameSessionData.HasSelection)
+            {
+                Debug.LogWarning("[GameSceneManager] 未选择角色，无法开始战斗");
+                return;
+            }
+            LoadScene(BATTLE_SCENE, GameState.InBattle);
+        }
+
+/// <summary>重新开始战斗（从角色选择重新进入）</summary>
+        public void RestartBattle()
+        {
+            LoadScene(BATTLE_SCENE, GameState.InBattle);
+        }
+
+
+        /// <summary>退出战斗，返回主菜单</summary>
         public void ExitBattle()
         {
-            if (currentState != GameState.InBattle && currentState != GameState.Paused)
+            if (_currentState != GameState.InBattle && _currentState != GameState.Paused)
             {
                 Debug.LogWarning("[GameSceneManager] 当前不在战斗中");
                 return;
             }
-
-            Debug.Log("[GameSceneManager] 退出战斗");
-            ChangeState(GameState.Loading);
-
-            // 清理战斗数据
-            CleanupBattleData();
-
-            // 返回主菜单
-            SceneManager.LoadScene(MAIN_MENU_SCENE, LoadSceneMode.Single);
-            
-            // 场景加载完成后的回调
-            SceneManager.sceneLoaded += OnMainMenuSceneLoaded;
-        }
-
-        /// <summary>
-        /// 主菜单场景加载完成
-        /// </summary>
-        private void OnMainMenuSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (scene.name != MAIN_MENU_SCENE)
-                return;
-
-            SceneManager.sceneLoaded -= OnMainMenuSceneLoaded;
-
-            Debug.Log("[GameSceneManager] 主菜单场景加载完成");
-            ChangeState(GameState.MainMenu);
-            
             OnBattleEnded?.Invoke();
+            LoadMainMenu();
         }
 
-        /// <summary>
-        /// 清理战斗数据
-        /// </summary>
-        private void CleanupBattleData()
-        {
-            Debug.Log("[GameSceneManager] 清理战斗数据");
+        // ── 暂停 / 恢复 ────────────────────────────────────────
 
-            // // 1. 清理 ECSGameManager
-            // if (ECSGameManager.Instance != null)
-            // {
-            //     // ECSGameManager 会在 OnDestroy 中自动清理 World
-            //     Destroy(ECSGameManager.Instance.gameObject);
-            // }
-            //
-            // // 2. 清理 PlayerContext
-            // if (PlayerContext.Instance != null)
-            // {
-            //     PlayerContext.Instance.Clear();
-            // }
-            //
-            // // 3. 清理 LuaMain (如果还在用)
-            // var luaMain = FindObjectOfType<Lua.LuaMain>();
-            // if (luaMain != null)
-            // {
-            //     Destroy(luaMain.gameObject);
-            // }
-            //
-            // // 4. 强制垃圾回收
-            // System.GC.Collect();
-            // Resources.UnloadUnusedAssets();
-
-            Debug.Log("[GameSceneManager] 战斗数据清理完成");
-        }
-
-        /// <summary>
-        /// 暂停游戏
-        /// </summary>
         public void PauseGame()
         {
-            if (currentState != GameState.InBattle)
-                return;
-
+            if (_currentState != GameState.InBattle) return;
             ChangeState(GameState.Paused);
             Time.timeScale = 0f;
-            Debug.Log("[GameSceneManager] 游戏暂停");
         }
 
-        /// <summary>
-        /// 恢复游戏
-        /// </summary>
         public void ResumeGame()
         {
-            if (currentState != GameState.Paused)
-                return;
-
+            if (_currentState != GameState.Paused) return;
             ChangeState(GameState.InBattle);
             Time.timeScale = 1f;
-            Debug.Log("[GameSceneManager] 游戏恢复");
         }
 
-        /// <summary>
-        /// 重新开始战斗
-        /// </summary>
-        public void RestartBattle()
-        {
-            if (currentState == GameState.InBattle || currentState == GameState.Paused)
-            {
-                // 先清理,再重新开始
-                CleanupBattleData();
-            }
+        // ── 退出游戏 ───────────────────────────────────────────
 
-            StartBattle();
-        }
-
-        /// <summary>
-        /// 退出游戏
-        /// </summary>
         public void QuitGame()
         {
             Debug.Log("[GameSceneManager] 退出游戏");
-
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -213,63 +151,21 @@ namespace Game
 #endif
         }
 
-        /// <summary>
-        /// 改变游戏状态
-        /// </summary>
-        private void ChangeState(GameState newState)
+        // ── 属性 ───────────────────────────────────────────────
+
+        public GameState CurrentState => _currentState;
+        public bool IsInBattle        => _currentState == GameState.InBattle;
+        public bool IsPaused          => _currentState == GameState.Paused;
+
+        // ── 私有工具 ───────────────────────────────────────────
+
+        private void ChangeState(GameState next)
         {
-            if (currentState == newState)
-                return;
-
-            GameState oldState = currentState;
-            currentState = newState;
-
-            Debug.Log($"[GameSceneManager] 状态切换: {oldState} → {newState}");
-            OnStateChanged?.Invoke(newState);
+            if (_currentState == next) return;
+            var prev = _currentState;
+            _currentState = next;
+            Debug.Log($"[GameSceneManager] {prev} -> {next}");
+            OnStateChanged?.Invoke(next);
         }
-
-        // ========== 属性 ==========
-        public GameState CurrentState => currentState;
-        public bool IsInBattle => currentState == GameState.InBattle;
-        public bool IsPaused => currentState == GameState.Paused;
-
-        private void OnDestroy()
-        {
-            // 清理事件
-            SceneManager.sceneLoaded -= OnBattleSceneLoaded;
-            SceneManager.sceneLoaded -= OnMainMenuSceneLoaded;
-            
-            // 恢复时间缩放
-            Time.timeScale = 1f;
-        }
-    
-
-/// <summary>
-        /// 跳转到角色选择界面
-        /// </summary>
-        public void LoadCharacterSelect()
-        {
-            if (currentState == GameState.Loading)
-            {
-                Debug.LogWarning("[GameSceneManager] 正在加载中");
-                return;
-            }
-
-            Debug.Log("[GameSceneManager] 跳转角色选择");
-            ChangeState(GameState.Loading);
-
-            SceneManager.LoadScene(CHARACTER_SELECT_SCENE, LoadSceneMode.Single);
-            SceneManager.sceneLoaded += OnCharacterSelectSceneLoaded;
-        }
-
-private void OnCharacterSelectSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (scene.name != CHARACTER_SELECT_SCENE)
-                return;
-
-            SceneManager.sceneLoaded -= OnCharacterSelectSceneLoaded;
-            Debug.Log("[GameSceneManager] 角色选择场景加载完成");
-            ChangeState(GameState.MainMenu);
-        }
-}
+    }
 }
