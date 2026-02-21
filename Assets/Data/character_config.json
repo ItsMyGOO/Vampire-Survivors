@@ -1,0 +1,80 @@
+﻿{
+  "characters": [
+    {
+      "id": "Knight",
+      "displayName": "铁甲骑士",
+      "description": "身披重甲的战场老兵，生命值极高，移速稍慢，天生的生存机器。",
+      "clipSetId": "Player",
+      "spriteKey": "",
+      "maxHealth": 150.0,
+      "healthRegen": 0.5,
+      "moveSpeed": 1.7,
+      "armor": 10.0,
+      "attackDamage": 0.0,
+      "attackSpeed": 1.0,
+      "criticalChance": 0.0,
+      "criticalDamage": 1.5,
+      "pickupRange": 2.0,
+      "traits": [
+        "生命值 +50%",
+        "生命回复 +0.5/s",
+        "护甲 +10（减少受到的伤害）",
+        "移动速度 -15%"
+      ],
+      "startingWeapons": [
+        { "weaponId": "ProjectileKnife", "level": 1 }
+      ]
+    },
+    {
+      "id": "Witch",
+      "displayName": "暗影女巫",
+      "description": "掌控魔法的神秘法师，冷却缩短、技能范围更大，但体质脆弱。",
+      "clipSetId": "Player",
+      "spriteKey": "",
+      "maxHealth": 80.0,
+      "healthRegen": 0.0,
+      "moveSpeed": 2.2,
+      "armor": 0.0,
+      "attackDamage": 0.0,
+      "attackSpeed": 1.2,
+      "criticalChance": 0.05,
+      "criticalDamage": 2.0,
+      "pickupRange": 2.5,
+      "traits": [
+        "生命值 -20%",
+        "攻击速度 +20%",
+        "暴击率 +5%",
+        "暴击倍率 +50%",
+        "拾取范围 +25%"
+      ],
+      "startingWeapons": [
+        { "weaponId": "OrbitKnife", "level": 1 }
+      ]
+    },
+    {
+      "id": "Ranger",
+      "displayName": "疾风游侠",
+      "description": "来去如风的猎手，移速飞快、拾取范围广，适合不断走位的玩家。",
+      "clipSetId": "Player",
+      "spriteKey": "",
+      "maxHealth": 100.0,
+      "healthRegen": 0.0,
+      "moveSpeed": 2.8,
+      "armor": 0.0,
+      "attackDamage": 0.0,
+      "attackSpeed": 1.0,
+      "criticalChance": 0.1,
+      "criticalDamage": 1.5,
+      "pickupRange": 3.5,
+      "traits": [
+        "移动速度 +40%",
+        "拾取范围 +75%",
+        "暴击率 +10%"
+      ],
+      "startingWeapons": [
+        { "weaponId": "ProjectileKnife", "level": 1 },
+        { "weaponId": "OrbitKnife", "level": 1 }
+      ]
+    }
+  ]
+}

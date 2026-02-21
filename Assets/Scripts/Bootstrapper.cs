@@ -8,11 +8,10 @@ public class Bootstrapper : MonoBehaviour
     public LuaMain LuaPrefab;
     public UIManager UIManager;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Instantiate(LuaPrefab);
         Instantiate(UIManager);
-        Addressables.LoadSceneAsync("Assets/Scene/BattleScene.unity");
+        Addressables.LoadSceneAsync("Assets/Scene/MainMenuScene.unity");
     }
 }

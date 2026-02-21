@@ -1,4 +1,4 @@
-﻿using ECS.Core;
+using ECS.Core;
 using ECS;
 using Battle.Weapon;
 using Battle.Upgrade;
@@ -7,45 +7,74 @@ namespace Battle.Player
 {
     public static class PlayerFactory
     {
-        public static int CreatePlayer(World world)
+public static int CreatePlayer(World world, ConfigHandler.CharacterDef characterDef = null)
         {
             int id = world.CreateEntity();
 
             world.AddComponent(id, new PlayerTagComponent());
             world.AddComponent(id, new PositionComponent());
-            world.AddComponent(id, new VelocityComponent { speed = 2 });
-            world.AddComponent(id, new HealthComponent(100, 100, 1f));
+
+            // 从角色配置读取移速，fallback 到默认值
+            float moveSpeed = characterDef?.moveSpeed ?? 2f;
+            world.AddComponent(id, new VelocityComponent { speed = moveSpeed });
+
+            // 从角色配置读取 HP，fallback 到默认值
+            float maxHp = characterDef?.maxHealth ?? 100f;
+            float hpRegen = characterDef?.healthRegen ?? 0f;
+            world.AddComponent(id, new HealthComponent(maxHp, maxHp, hpRegen));
+
             world.AddComponent(id, new ColliderComponent(0.5f));
-            world.AddComponent(id, new PickupRangeComponent(1f));
+
+            float pickupRange = characterDef?.pickupRange ?? 1f;
+            world.AddComponent(id, new PickupRangeComponent(pickupRange));
             world.AddComponent(id, new MagnetComponent(5f, 10f));
             world.AddComponent(id, new SpriteKeyComponent());
             world.AddComponent(id, new CameraFollowComponent());
+
+            string clipSetId = characterDef?.clipSetId ?? "Player";
             world.AddComponent(id, new AnimationComponent
             {
-                ClipSetName = "Player",
+                ClipSetName = clipSetId,
                 DefaultAnim = "Idle"
             });
 
-            // 玩家属性组件 - 重构版
+            // 玩家属性组件 — 从角色配置覆盖基础属性
             var baseAttr = BaseAttributeComponent.CreateDefault();
-            baseAttr.moveSpeed = 2f;  // 与 VelocityComponent 保持一致
-            baseAttr.maxHealth = 100f; // 与 HealthComponent 保持一致
+            baseAttr.moveSpeed      = moveSpeed;
+            baseAttr.maxHealth      = maxHp;
+            baseAttr.healthRegen    = hpRegen;
+            baseAttr.armor          = characterDef?.armor          ?? 0f;
+            baseAttr.attackDamage   = characterDef?.attackDamage   ?? 0f;
+            baseAttr.attackSpeed    = characterDef?.attackSpeed    ?? 1f;
+            baseAttr.criticalChance = characterDef?.criticalChance ?? 0f;
+            baseAttr.criticalDamage = characterDef?.criticalDamage ?? 1.5f;
+            baseAttr.pickupRange    = pickupRange;
+            baseAttr.expGain        = characterDef?.expGain        ?? 1f;
+            baseAttr.cooldownReduction = characterDef?.cooldownReduction ?? 0f;
+            baseAttr.damageReduction   = characterDef?.damageReduction   ?? 0f;
+            baseAttr.dodgeChance       = characterDef?.dodgeChance       ?? 0f;
             world.AddComponent(id, baseAttr);
-            
-            // 修改器集合
+
             var modifierCollection = AttributeModifierCollectionComponent.Create();
             world.AddComponent(id, modifierCollection);
-            
-            // 被动状态
+
             var passiveState = PassiveUpgradeStateComponent.Create();
             world.AddComponent(id, passiveState);
-            
-            // 标记需要初始化计算属性（脏标记模式）
+
             world.AddComponent(id, new AttributeDirtyComponent());
-            
+
+            // 从角色配置加载初始武器，fallback 到默认配置
             var weaponStats = new WeaponRuntimeStatsComponent();
-            weaponStats.AddWeapon("ProjectileKnife", 1);
-            weaponStats.AddWeapon("OrbitKnife", 1);
+            if (characterDef?.startingWeapons != null && characterDef.startingWeapons.Count > 0)
+            {
+                foreach (var w in characterDef.startingWeapons)
+                    weaponStats.AddWeapon(w.weaponId, w.level);
+            }
+            else
+            {
+                weaponStats.AddWeapon("ProjectileKnife", 1);
+                weaponStats.AddWeapon("OrbitKnife", 1);
+            }
             world.AddComponent(id, weaponStats);
 
             return id;

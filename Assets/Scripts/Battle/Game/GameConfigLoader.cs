@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using ConfigHandler;
+using ConfigHandler;
+
 using UnityEngine;
 
 namespace Battle
@@ -8,6 +10,7 @@ namespace Battle
     {
         public static void LoadAll()
         {
+            ConfigLoader.Load(CharacterConfigDB.Load, CharacterConfigDB.Initialize, "Character");
             ConfigLoader.Load(AnimationConfigDB.Load, AnimationConfigDB.Initialize, "Animation");
             ConfigLoader.Load(EnemyConfigDB.Load, EnemyConfigDB.Initialize, "Enemy");
             ConfigLoader.Load(WeaponConfigDB.Load, WeaponConfigDB.Initialize, "Weapon");

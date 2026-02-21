@@ -1,4 +1,4 @@
-﻿using Battle.Player;
+using Battle.Player;
 using Battle.Upgrade;
 using Battle.View;
 using Cinemachine;
@@ -11,14 +11,23 @@ namespace Battle
 {
     public static class BattleGameBuilder
     {
-        public static BattleWorldContext Build(CinemachineVirtualCamera vCam)
+public static BattleWorldContext Build(CinemachineVirtualCamera vCam)
         {
             GameConfigLoader.LoadAll();
 
             var world = new World();
 
+            // 从会话数据读取选中的角色配置
+            ConfigHandler.CharacterDef characterDef = null;
+            string selectedId = Session.GameSessionData.SelectedCharacterId;
+            if (!string.IsNullOrEmpty(selectedId))
+            {
+                ConfigHandler.CharacterConfigDB.Instance?.TryGetCharacter(selectedId, out characterDef);
+            }
+            // 如果没有选择或读取失败，characterDef 为 null，PlayerFactory 会自动使用默认值
+
             // Player
-            int playerId = PlayerFactory.CreatePlayer(world);
+            int playerId = PlayerFactory.CreatePlayer(world, characterDef);
 
             // SpawnController 全局实体：持有生成状态，供 EnemySpawnSystem 读写
             int spawnControllerId = world.CreateEntity();

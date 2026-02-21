@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UI.Core;
@@ -33,12 +33,12 @@ namespace UI.Panel
             SetButtonsInteractable(true);
         }
 
-        private void OnStartButtonClicked()
+private void OnStartButtonClicked()
         {
             SetButtonsInteractable(false);
             
             if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.StartBattle();
+                Game.GameSceneManager.Instance.LoadCharacterSelect();
         }
 
         private void OnQuitButtonClicked()

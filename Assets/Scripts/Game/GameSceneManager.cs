@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using Battle;
@@ -15,7 +15,8 @@ namespace Game
         public static GameSceneManager Instance { get; private set; }
 
         // 场景名称常量
-        public const string MAIN_MENU_SCENE = "MainScene";
+        public const string MAIN_MENU_SCENE = "MainMenuScene";
+        public const string CHARACTER_SELECT_SCENE = "CharacterSelectScene";
         public const string BATTLE_SCENE = "BattleScene";
 
         // 当前游戏状态
@@ -241,5 +242,34 @@ namespace Game
             // 恢复时间缩放
             Time.timeScale = 1f;
         }
-    }
+    
+
+/// <summary>
+        /// 跳转到角色选择界面
+        /// </summary>
+        public void LoadCharacterSelect()
+        {
+            if (currentState == GameState.Loading)
+            {
+                Debug.LogWarning("[GameSceneManager] 正在加载中");
+                return;
+            }
+
+            Debug.Log("[GameSceneManager] 跳转角色选择");
+            ChangeState(GameState.Loading);
+
+            SceneManager.LoadScene(CHARACTER_SELECT_SCENE, LoadSceneMode.Single);
+            SceneManager.sceneLoaded += OnCharacterSelectSceneLoaded;
+        }
+
+private void OnCharacterSelectSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (scene.name != CHARACTER_SELECT_SCENE)
+                return;
+
+            SceneManager.sceneLoaded -= OnCharacterSelectSceneLoaded;
+            Debug.Log("[GameSceneManager] 角色选择场景加载完成");
+            ChangeState(GameState.MainMenu);
+        }
+}
 }
