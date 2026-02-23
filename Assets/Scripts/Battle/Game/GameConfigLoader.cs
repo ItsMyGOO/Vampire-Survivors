@@ -1,6 +1,5 @@
 using System;
 using ConfigHandler;
-using ConfigHandler;
 
 using UnityEngine;
 
@@ -10,16 +9,16 @@ namespace Battle
     {
         public static void LoadAll()
         {
-            ConfigLoader.Load(CharacterConfigDB.Load, CharacterConfigDB.Initialize, "Character");
-            ConfigLoader.Load(AnimationConfigDB.Load, AnimationConfigDB.Initialize, "Animation");
-            ConfigLoader.Load(EnemyConfigDB.Load, EnemyConfigDB.Initialize, "Enemy");
-            ConfigLoader.Load(WeaponConfigDB.Load, WeaponConfigDB.Initialize, "Weapon");
-            ConfigLoader.Load(DropItemConfigDB.Load, DropItemConfigDB.Initialize, "DropItem");
-            ConfigLoader.Load(WeaponUpgradeRuleConfigDB.Load, WeaponUpgradeRuleConfigDB.Initialize, "WeaponUpgradeRule");
-            ConfigLoader.Load(WeaponUpgradePoolConfigDB.Load, WeaponUpgradePoolConfigDB.Initialize, "WeaponUpgradePool");
+            ConfigLoader.Load(CharacterConfigDB.Load,          CharacterConfigDB.Initialize,          "Character");
+            ConfigLoader.Load(AnimationConfigDB.Load,          AnimationConfigDB.Initialize,          "Animation");
+            ConfigLoader.Load(EnemyConfigDB.Load,              EnemyConfigDB.Initialize,              "Enemy");
+            ConfigLoader.Load(WeaponConfigDB.Load,             WeaponConfigDB.Initialize,             "Weapon");
+            ConfigLoader.Load(DropItemConfigDB.Load,           DropItemConfigDB.Initialize,           "DropItem");
+            ConfigLoader.Load(WeaponUpgradeRuleConfigDB.Load,  WeaponUpgradeRuleConfigDB.Initialize,  "WeaponUpgradeRule");
+            ConfigLoader.Load(WeaponUpgradePoolConfigDB.Load,  WeaponUpgradePoolConfigDB.Initialize,  "WeaponUpgradePool");
             ConfigLoader.Load(PassiveUpgradePoolConfigDB.Load, PassiveUpgradePoolConfigDB.Initialize, "PassiveUpgradePool");
 
-            Debug.Log("Configs loaded");
+            Debug.Log("[GameConfigLoader] 所有配置加载完成");
         }
     }
     

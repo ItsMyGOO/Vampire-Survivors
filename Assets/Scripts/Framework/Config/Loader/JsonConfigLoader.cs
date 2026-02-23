@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -15,24 +15,25 @@ namespace Framework.Config
         /// 从 JSON 文件加载配置
         /// </summary>
         /// <param name="fileName">文件名（例如: "animation_config.json"）</param>
-        public static T Load<T>(string fileName) where T : class
+public static T Load<T>(string fileName) where T : class
         {
             try
             {
-                string path = Path.Combine(ConfigBasePath, fileName);
+                // 去掉扩展名，用 Resources.Load 读取（路径相对于 Resources/）
+                string resourcePath = "Data/" + System.IO.Path.GetFileNameWithoutExtension(fileName);
+                var textAsset = Resources.Load<TextAsset>(resourcePath);
 
-                if (!File.Exists(path))
+                if (textAsset == null)
                 {
-                    Debug.LogError($"配置文件不存在: {path}");
+                    Debug.LogError($"[JsonConfigLoader] Resources 中找不到配置: {resourcePath}");
                     return null;
                 }
 
-                string json = File.ReadAllText(path);
-                T data = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+                T data = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(textAsset.text);
 
                 if (data == null)
                 {
-                    Debug.LogError($"配置文件解析失败: {path}");
+                    Debug.LogError($"[JsonConfigLoader] 配置解析失败: {resourcePath}");
                     return null;
                 }
 
@@ -41,7 +42,7 @@ namespace Framework.Config
             }
             catch (Exception e)
             {
-                Debug.LogError($"配置加载异常: {fileName}\n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"[JsonConfigLoader] 配置加载异常: {fileName}\n{e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
