@@ -17,7 +17,7 @@ namespace Editor.SceneBuilder
         private const string SCENE_PATH = "Assets/Scene/MainMenuScene.unity";
 
         [MenuItem("Game/Build Scenes/Build MainMenuScene")]
-        public static void BuildMainMenuScene()
+public static void BuildMainMenuScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
@@ -30,17 +30,19 @@ namespace Editor.SceneBuilder
             esGo.AddComponent<EventSystem>();
             esGo.AddComponent<StandaloneInputModule>();
 
-            // ── Canvas ────────────────────────────────────────────────────────
+            // ── UICanvas（DontDestroyOnLoad 根）──────────────────────────────
+            // UICanvas 是全局唯一 Canvas，UIManager 挂在此处。
+            // 跨场景切换时 Canvas 保留，各 Scene 通过 UIManager.LoadPanel 挂载 Panel prefab。
             var canvasGo = new GameObject("UICanvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 0;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasGo.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
-            canvasGo.GetComponent<CanvasScaler>().matchWidthOrHeight = 0.5f;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
             canvasGo.AddComponent<GraphicRaycaster>();
 
-            // 添加 UIManager
             var uiManager = canvasGo.AddComponent<UI.Core.UIManager>();
 
             // ── Panels 容器 ───────────────────────────────────────────────────
@@ -52,18 +54,34 @@ namespace Editor.SceneBuilder
             panelsRect.offsetMin = Vector2.zero;
             panelsRect.offsetMax = Vector2.zero;
 
-            // 通过反射设置 UIManager 的 panelContainer 字段
+            // 通过反射绑定 UIManager 字段
             var uiManagerType = typeof(UI.Core.UIManager);
-            var panelContainerField = uiManagerType.GetField("panelContainer",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            panelContainerField?.SetValue(uiManager, panelsGo.transform);
+            uiManagerType.GetField("panelContainer",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(uiManager, panelsGo.transform);
+            uiManagerType.GetField("mainCanvas",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(uiManager, canvas);
 
-            var mainCanvasField = uiManagerType.GetField("mainCanvas",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            mainCanvasField?.SetValue(uiManager, canvas);
+            // ── MainMenuLoader ────────────────────────────────────────────────
+            // 在运行时从 Prefab 加载 MainMenuPanel，不直接内嵌 Panel 到场景。
+            var loaderGo = new GameObject("MainMenuLoader");
+            var loader = loaderGo.AddComponent<UI.Loader.MainMenuLoader>();
 
-            // ── MainMenuPanel ─────────────────────────────────────────────────
-            BuildMainMenuPanel(panelsGo.transform);
+            var panelPrefab = AssetDatabase.LoadAssetAtPath<UI.Core.UIPanel>(
+                "Assets/Prefabs/UIPanel/MainMenuPanel.prefab");
+            if (panelPrefab != null)
+            {
+                typeof(UI.Loader.MainMenuLoader)
+                    .GetField("mainMenuPanelPrefab",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.SetValue(loader, panelPrefab);
+                Debug.Log("[MainMenuSceneBuilder] 已绑定 MainMenuPanel prefab");
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenuSceneBuilder] 未找到 MainMenuPanel prefab，请手动绑定");
+            }
 
             // ── 背景 Camera ───────────────────────────────────────────────────
             var cameraGo = new GameObject("Main Camera");
@@ -77,9 +95,8 @@ namespace Editor.SceneBuilder
             EditorSceneManager.SaveScene(scene, SCENE_PATH);
             Debug.Log($"[MainMenuSceneBuilder] MainMenuScene 已保存到 {SCENE_PATH}");
 
-            // 加入 Build Settings
             AddSceneToBuildSettings(SCENE_PATH);
-            AddSceneToBuildSettings("Assets/Scene/CharacterSelectScene.unity");
+            // CharacterSelectScene 已废弃，选人功能改为 Panel 内嵌切换cene.unity");
             AddSceneToBuildSettings("Assets/Scene/BattleScene.unity");
         }
 

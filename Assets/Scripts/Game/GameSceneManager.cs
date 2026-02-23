@@ -88,9 +88,16 @@ namespace Game
         }
 
         /// <summary>角色选择</summary>
+/// <summary>
+        /// 已废弃：角色选择现在通过 UIManager 在主菜单场景内切换 Panel，无需跳转场景
+        /// 保留此方法仅为兼容旧调用点
+        /// </summary>
+        [System.Obsolete("CharacterSelect 现在是 Panel 切换，请改为 UIManager.Instance.ShowPanel<CharacterSelectPanel>()")]
         public void LoadCharacterSelect()
         {
-            LoadScene(CHARACTER_SELECT_SCENE, GameState.CharacterSelect);
+            Debug.LogWarning("[GameSceneManager] LoadCharacterSelect 已废弃，请改为 UIManager Panel 切换");
+            if (UI.Core.UIManager.Instance != null)
+                UI.Core.UIManager.Instance.ShowPanel<UI.Panel.CharacterSelectPanel>(hideOthers: true, addToStack: true);
         }
 
         /// <summary>开始战斗（需先调用 GameSessionData.SelectCharacter）</summary>

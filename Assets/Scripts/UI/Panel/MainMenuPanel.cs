@@ -1,3 +1,4 @@
+using UI.Panel;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -36,9 +37,17 @@ namespace UI.Panel
 private void OnStartButtonClicked()
         {
             SetButtonsInteractable(false);
-            
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.LoadCharacterSelect();
+
+            // 直接在同一 Canvas 内显示 CharacterSelectPanel，不再跳场景
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPanel<CharacterSelectPanel>(hideOthers: true, addToStack: true);
+            }
+            else
+            {
+                Debug.LogError("[MainMenuPanel] UIManager 不存在");
+                SetButtonsInteractable(true);
+            }
         }
 
         private void OnQuitButtonClicked()

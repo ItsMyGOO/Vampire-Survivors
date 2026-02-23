@@ -165,9 +165,13 @@ namespace UI.Panel
             Game.GameSceneManager.Instance?.StartBattle();
         }
 
-        private void OnBackClicked()
+private void OnBackClicked()
         {
-            Game.GameSceneManager.Instance?.LoadMainMenu();
+            // 直接切回 MainMenuPanel，不跳到新场景
+            if (UIManager.Instance != null)
+                UIManager.Instance.ShowPanel<MainMenuPanel>(hideOthers: true, addToStack: false);
+            else
+                Game.GameSceneManager.Instance?.LoadMainMenu();
         }
 
         // ── 清理 ────────────────────────────────────────────────

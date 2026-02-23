@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -79,7 +79,7 @@ namespace UI.Core
 
         #region Initialization
 
-        private void InitializeManager()
+private void InitializeManager()
         {
             if (panelContainer == null) return;
 
@@ -121,6 +121,38 @@ namespace UI.Core
 
             Debug.Log($"[UIManager] 注册面板: {type.Name}");
         }
+
+/// <summary>
+        /// 从 Prefab 动态加载并注册面板
+        /// 若面板已注册则直接返回已有实例
+        /// </summary>
+        public T LoadPanel<T>(UIPanel prefab) where T : UIPanel
+        {
+            if (panels.TryGetValue(typeof(T), out var existing))
+                return existing as T;
+
+            if (prefab == null)
+            {
+                Debug.LogError($"[UIManager] LoadPanel<{typeof(T).Name}> prefab 为 null");
+                return null;
+            }
+
+            Transform parent = panelContainer != null ? panelContainer : mainCanvas != null ? mainCanvas.transform : transform;
+
+            var instance = Instantiate(prefab, parent);
+            var rectTransform = instance.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
+            }
+
+            RegisterPanel(instance);
+            return instance as T;
+        }
+
 
         #endregion
 
