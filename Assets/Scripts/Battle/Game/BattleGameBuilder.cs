@@ -22,9 +22,18 @@ public static BattleWorldContext Build(CinemachineVirtualCamera vCam)
             string selectedId = Session.GameSessionData.SelectedCharacterId;
             if (!string.IsNullOrEmpty(selectedId))
             {
-                ConfigHandler.CharacterConfigDB.Instance?.TryGetCharacter(selectedId, out characterDef);
+                bool found = ConfigHandler.CharacterConfigDB.Instance?.TryGetCharacter(selectedId, out characterDef) ?? false;
+                if (!found || characterDef == null)
+                    UnityEngine.Debug.LogWarning($"[BattleGameBuilder] 未找到角色配置 id='{selectedId}'，CharacterConfigDB 中不存在该 ID，将 fallback 到默认属性。请检查 CharacterRegistry 或角色 ScriptableObject 配置。");
+                else
+                    UnityEngine.Debug.Log($"[BattleGameBuilder] 角色配置读取成功: {characterDef.id} ({characterDef.displayName})");
             }
-            // 如果没有选择或读取失败，characterDef 为 null，PlayerFactory 会自动使用默认值
+            else
+            {
+                UnityEngine.Debug.LogWarning("[BattleGameBuilder] GameSessionData 中无角色选择，将使用默认属性");
+            }
+            // characterDef 为 null 时 PlayerFactory 自动 fallback 到默认值
+                        // 如果没有选择或读取失败，characterDef 为 null，PlayerFactory 会自动使用默认值
 
             // Player
             int playerId = PlayerFactory.CreatePlayer(world, characterDef);

@@ -41,15 +41,18 @@ namespace UI.Panel
 
         // ── UIPanel 生命周期 ────────────────────────────────────
 
-        protected override void OnInit()
+protected override void OnInit()
         {
             if (startButton != null)
+            {
                 startButton.onClick.AddListener(OnStartClicked);
+                // 初始状态：隐藏且不可交互，防止设备快速单击穿透
+                startButton.gameObject.SetActive(false);
+                startButton.interactable = false;
+            }
 
             if (backButton != null)
                 backButton.onClick.AddListener(OnBackClicked);
-
-            startButton?.gameObject.SetActive(false);
         }
 
         protected override void OnAfterShow()
@@ -59,51 +62,57 @@ namespace UI.Panel
 
         // ── 卡片构建 ────────────────────────────────────────────
 
-        private void BuildCardList()
+private void BuildCardList()
         {
-            // 清空旧卡片
+            // Clear old cards
             foreach (var c in _cards)
                 if (c != null) Destroy(c.gameObject);
             _cards.Clear();
 
-            _selectedDef = null;
+            _selectedDef  = null;
             _selectedCard = null;
             startButton?.gameObject.SetActive(false);
             ClearDetail();
 
             if (cardItemPrefab == null || cardContainer == null)
             {
-                Debug.LogError("[CharacterSelectPanel] cardItemPrefab 或 cardContainer 未赋值");
+                Debug.LogError("[CharacterSelectPanel] cardItemPrefab or cardContainer not assigned");
                 return;
             }
 
-            // 确保配置已加载
+            // Ensure config is loaded
             if (CharacterConfigDB.Instance == null)
-                GameConfigLoader.LoadAll();
+                Battle.GameConfigLoader.LoadAll();
 
             var db = CharacterConfigDB.Instance;
             if (db == null)
             {
-                Debug.LogError("[CharacterSelectPanel] CharacterConfigDB 加载失败");
+                Debug.LogError("[CharacterSelectPanel] CharacterConfigDB load failed");
                 return;
             }
+
+            // Optional registry for Sprite lookup
+            var registry = Game.CharacterRegistryLoader.Instance;
 
             var allChars = db.GetAllCharacters();
             foreach (var def in allChars)
             {
-                var card = Instantiate(cardItemPrefab, cardContainer);
-                card.Bind(def, OnCardSelected);
+                var card    = Instantiate(cardItemPrefab, cardContainer);
+                var portrait = registry != null
+                    ? registry.GetDefinition(def.id)?.CardSprite
+                    : null;
+                card.Bind(def, OnCardSelected, portrait);
                 _cards.Add(card);
             }
 
-            // 默认选中第一个
+            // Select first by default
             if (_cards.Count > 0)
                 OnCardSelected(_cards[0].Data);
         }
 
         // ── 卡片选中回调 ────────────────────────────────────────
 
-        private void OnCardSelected(CharacterDef def)
+private void OnCardSelected(CharacterDef def)
         {
             _selectedDef = def;
 
@@ -118,7 +127,12 @@ namespace UI.Panel
             // 更新详情
             RefreshDetail(def);
 
-            startButton?.gameObject.SetActive(true);
+            // 有选择才开启按钮
+            if (startButton != null)
+            {
+                startButton.gameObject.SetActive(true);
+                startButton.interactable = true;
+            }
         }
 
         // ── 详情面板 ────────────────────────────────────────────
@@ -149,14 +163,15 @@ namespace UI.Panel
 
         // ── 按钮回调 ────────────────────────────────────────────
 
-        private void OnStartClicked()
+private void OnStartClicked()
         {
             if (_selectedDef == null)
             {
-                Debug.LogWarning("[CharacterSelectPanel] 未选择角色");
+                Debug.LogWarning("[CharacterSelectPanel] 未选择角色，无法开始战斗");
                 return;
             }
 
+            // 立即禁用，防止重复点击
             startButton.interactable = false;
 
             Session.GameSessionData.SelectCharacter(_selectedDef.id);

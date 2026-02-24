@@ -1,4 +1,4 @@
-﻿using Battle.Upgrade;
+using Battle.Upgrade;
 using Cinemachine;
 using UI.Core;
 using UI.Model;
@@ -15,6 +15,9 @@ namespace Battle
 
         private void Start()
         {
+            if (!Session.GameSessionData.HasSelection)
+                Debug.LogWarning("[ECSGameManager] GameSessionData 中无角色选择，BattleScene 被加载但未经过角色选择流程。玩家实体将使用默认属性创建。");
+
             _context = BattleGameBuilder.Build(vCam);
             UIManager.Instance.ShowPanel<BattleHUDPanel>();
 

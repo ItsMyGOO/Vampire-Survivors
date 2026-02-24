@@ -6,7 +6,8 @@ namespace Game
 {
     /// <summary>
     /// 场景管理器 - 单例，DontDestroyOnLoad
-    /// 负责所有场景切换，不持有任何战斗/ECS 状态
+    /// 负责所有场景切换和游戏状态跟踪，不持有任何战斗/ECS 状态
+    /// 场景加载委托给 SceneLoader（异步）
     /// </summary>
     public class GameSceneManager : MonoBehaviour
     {
@@ -41,15 +42,11 @@ namespace Game
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             Time.timeScale = 1f;
         }
 
-        // ── 通用场景加载 ───────────────────────────────────────
-        private string    _pendingScene;
-        private GameState _pendingState;
-
-        private void LoadScene(string sceneName, GameState stateAfterLoad)
+        // ── 通用场景加载（异步）───────────────────────────────
+private void LoadScene(string sceneName, GameState stateAfterLoad)
         {
             if (_currentState == GameState.Loading)
             {
@@ -57,25 +54,24 @@ namespace Game
                 return;
             }
 
-            _pendingScene = sceneName;
-            _pendingState = stateAfterLoad;
             ChangeState(GameState.Loading);
 
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        }
+            // 确保 SceneTransition 存在（若场景中未预置则自动创建）
+            var transition = SceneTransition.GetOrCreate();
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (scene.name != _pendingScene)
-                return;
+            transition.FadeOut(onComplete: () =>
+            {
+                SceneLoader.LoadAsync(sceneName, onComplete: () =>
+                {
+                    Debug.Log($"[GameSceneManager] 场景加载完成: {sceneName}");
+                    ChangeState(stateAfterLoad);
 
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            Debug.Log($"[GameSceneManager] 场景加载完成: {scene.name}");
-            ChangeState(_pendingState);
+                    if (stateAfterLoad == GameState.InBattle)
+                        OnBattleStarted?.Invoke();
 
-            if (_pendingState == GameState.InBattle)
-                OnBattleStarted?.Invoke();
+                    transition.FadeIn();
+                });
+            });
         }
 
         // ── 公开场景切换接口 ───────────────────────────────────
@@ -87,8 +83,7 @@ namespace Game
             LoadScene(MAIN_MENU_SCENE, GameState.MainMenu);
         }
 
-        /// <summary>角色选择</summary>
-/// <summary>
+        /// <summary>
         /// 已废弃：角色选择现在通过 UIManager 在主菜单场景内切换 Panel，无需跳转场景
         /// 保留此方法仅为兼容旧调用点
         /// </summary>
@@ -111,12 +106,11 @@ namespace Game
             LoadScene(BATTLE_SCENE, GameState.InBattle);
         }
 
-/// <summary>重新开始战斗（从角色选择重新进入）</summary>
+        /// <summary>重新开始战斗</summary>
         public void RestartBattle()
         {
             LoadScene(BATTLE_SCENE, GameState.InBattle);
         }
-
 
         /// <summary>退出战斗，返回主菜单</summary>
         public void ExitBattle()

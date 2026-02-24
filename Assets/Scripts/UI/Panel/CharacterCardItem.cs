@@ -12,7 +12,8 @@ namespace UI.Panel
     public class CharacterCardItem : MonoBehaviour
     {
         [Header("UI References")]
-        [SerializeField] private Button selectButton;
+                [SerializeField] private Image portraitImage;
+[SerializeField] private Button selectButton;
         [SerializeField] private Image highlightBorder;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI descriptionText;
@@ -31,7 +32,11 @@ namespace UI.Panel
         /// <summary>
         /// 由 CharacterSelectPanel 调用，绑定数据和回调
         /// </summary>
-        public void Bind(CharacterDef def, System.Action<CharacterDef> onSelected)
+/// <summary>
+        /// Bind character data and optional portrait sprite.
+        /// Called by CharacterSelectPanel for each card.
+        /// </summary>
+        public void Bind(CharacterDef def, System.Action<CharacterDef> onSelected, Sprite portrait = null)
         {
             _data = def;
             _onSelected = onSelected;
@@ -41,6 +46,12 @@ namespace UI.Panel
 
             if (descriptionText != null)
                 descriptionText.text = def.description;
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = portrait;
+                portraitImage.enabled = portrait != null;
+            }
 
             SetHighlight(false);
         }
