@@ -17,13 +17,13 @@ public class Bootstrapper : MonoBehaviour
         // 2. 加载所有配置数据库
         GameConfigLoader.LoadAll();
 
-        // 3. 异步叠加加载 MainMenuScene，加载完成后将其设为激活场景并卸载 Bootstrapper
+        // 3. 异步叠加加载 BattleScene，加载完成后将其设为激活场景并卸载 Bootstrapper
         SceneLoader.LoadAdditiveAsync(
-            GameSceneManager.MAIN_MENU_SCENE,
+            GameSceneManager.BATTLE_SCENE,
             onComplete: () =>
             {
                 SceneManager.SetActiveScene(
-                    SceneManager.GetSceneByName(GameSceneManager.MAIN_MENU_SCENE));
+                    SceneManager.GetSceneByName(GameSceneManager.BATTLE_SCENE));
 
                 SceneLoader.UnloadAsync("Bootstrapper");
             });

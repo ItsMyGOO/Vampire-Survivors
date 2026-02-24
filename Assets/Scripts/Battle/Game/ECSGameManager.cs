@@ -1,9 +1,6 @@
-using Battle.Mode;
+﻿using Battle.Mode;
 using Cinemachine;
-using Session;
-using UI.Core;
-using UI.Model;
-using UI.Panel;
+using Game;
 using UnityEngine;
 
 namespace Battle
@@ -14,26 +11,26 @@ namespace Battle
 
         private BattleModeController _controller;
 
-private void Start()
+        private void Start()
         {
-            if (!GameSessionData.HasSelection)
-                Debug.LogWarning("[ECSGameManager] GameSessionData 中无角色选择，BattleScene 被加载但未经过角色选择流程。玩家实体将使用默认属性创建。");
-
             _controller = new BattleModeController();
-            _controller.SwitchTo(new ECSBattleMode(vCam));
+            _controller.SwitchTo(new PlaceholderBattleMode());
+
+            GameEvents.OnBattleStartRequested += HandleBattleStartRequested;
         }
 
-private void Update()
+        private void Update()
         {
             _controller?.Update(Time.deltaTime);
         }
 
-private void OnDestroy()
+        private void OnDestroy()
         {
+            GameEvents.OnBattleStartRequested -= HandleBattleStartRequested;
             _controller?.Exit();
         }
 
-/// <summary>
+        /// <summary>
         /// 切换战斗模式，供调试工具或外部逻辑调用。
         /// 内部保证旧模式完整退出后再进入新模式。
         /// </summary>
@@ -42,5 +39,9 @@ private void OnDestroy()
             _controller?.SwitchTo(mode);
         }
 
+        private void HandleBattleStartRequested()
+        {
+            _controller.SwitchTo(new ECSBattleMode(vCam));
+        }
     }
 }

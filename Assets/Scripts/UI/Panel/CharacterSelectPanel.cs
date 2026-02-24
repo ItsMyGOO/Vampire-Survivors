@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using Battle;
 using ConfigHandler;
@@ -11,11 +12,12 @@ using UnityEngine.UI;
 namespace UI.Panel
 {
     /// <summary>
-    /// 角色选择面板
+    /// 角色选择面板（Panel 模式，内嵌于 BattleScene）
     /// 职责：
     ///   1. 从 CharacterConfigDB 读取角色列表，动态生成卡片
     ///   2. 点击卡片 → 更新详情面板 + 高亮选中卡
-    ///   3. 点击"开始"→ 写 GameSessionData → GameSceneManager.StartBattle
+    ///   3. 点击"确认" → 写 GameSessionData → invoke GameEvents.OnBattleStartRequested
+    ///   4. 点击"返回" → 回到 StartMenuPanel
     /// 不持有任何 ECS / 战斗逻辑
     /// </summary>
     public class CharacterSelectPanel : UIPanel
@@ -40,6 +42,12 @@ namespace UI.Panel
         private CharacterDef _selectedDef;
         private CharacterCardItem _selectedCard;
 
+        /// <summary>
+        /// 选角确认后触发（已写入 GameSessionData）。
+        /// 供外部（PlaceholderBattleMode 或 ECSGameManager）监听。
+        /// </summary>
+        public event Action OnConfirmed;
+
         // ── UIPanel 生命周期 ────────────────────────────────────
 
         protected override void OnInit()
@@ -47,7 +55,6 @@ namespace UI.Panel
             if (startButton != null)
             {
                 startButton.onClick.AddListener(OnStartClicked);
-                // 初始状态：隐藏且不可交互，防止设备快速单击穿透
                 startButton.gameObject.SetActive(false);
                 startButton.interactable = false;
             }
@@ -65,7 +72,6 @@ namespace UI.Panel
 
         private void BuildCardList()
         {
-            // Clear old cards
             foreach (var c in _cards)
                 if (c != null)
                     Destroy(c.gameObject);
@@ -82,7 +88,6 @@ namespace UI.Panel
                 return;
             }
 
-            // Ensure config is loaded
             if (CharacterConfigDB.Instance == null)
                 GameConfigLoader.LoadAll();
 
@@ -93,7 +98,6 @@ namespace UI.Panel
                 return;
             }
 
-            // Optional registry for Sprite lookup
             var registry = CharacterRegistryLoader.Instance;
 
             var allChars = db.GetAllCharacters();
@@ -107,7 +111,6 @@ namespace UI.Panel
                 _cards.Add(card);
             }
 
-            // Select first by default
             if (_cards.Count > 0)
                 OnCardSelected(_cards[0].Data);
         }
@@ -118,11 +121,9 @@ namespace UI.Panel
         {
             _selectedDef = def;
 
-            // 更新高亮
             foreach (var c in _cards)
                 c.SetHighlight(c.Data == def);
 
-            // 记录选中的卡片引用
             foreach (var c in _cards)
                 if (c.Data == def)
                 {
@@ -130,10 +131,8 @@ namespace UI.Panel
                     break;
                 }
 
-            // 更新详情
             RefreshDetail(def);
 
-            // 有选择才开启按钮
             if (startButton != null)
             {
                 startButton.gameObject.SetActive(true);
@@ -177,22 +176,20 @@ namespace UI.Panel
                 return;
             }
 
-            // 立即禁用，防止重复点击
             startButton.interactable = false;
 
             GameSessionData.SelectCharacter(_selectedDef.id);
-            Debug.Log($"[CharacterSelectPanel] 选择角色: {_selectedDef.id}，进入战斗");
-            
-            GameSceneManager.Instance?.StartBattle();
+            Debug.Log($"[CharacterSelectPanel] 选择角色: {_selectedDef.id}，触发战斗切换");
+
+            // 通知外部（ECSGameManager）切换模式
+            OnConfirmed?.Invoke();
+            GameEvents.RequestBattleStart();
         }
 
         private void OnBackClicked()
         {
-            // 直接切回 MainMenuPanel，不跳到新场景
-            if (UIManager.Instance != null)
-                UIManager.Instance.ShowPanel<MainMenuPanel>(hideOthers: true, addToStack: false);
-            else
-                GameSceneManager.Instance?.LoadMainMenu();
+            // 新流程：返回 StartMenuPanel
+            UIManager.Instance?.ShowPanel<StartMenuPanel>(hideOthers: true, addToStack: false);
         }
 
         // ── 清理 ────────────────────────────────────────────────

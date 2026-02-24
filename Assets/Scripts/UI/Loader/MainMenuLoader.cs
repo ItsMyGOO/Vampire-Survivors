@@ -2,6 +2,9 @@ using UI.Core;
 using UI.Panel;
 using UnityEngine;
 
+// [DEPRECATED] 旧流程遗留：MainMenuScene 的面板加载器。
+// 新流程已跳过 MainMenuScene，直接进入 BattleScene。
+// 保留此文件作为回滚参考，暂不删除。
 namespace UI.Loader
 {
     /// <summary>

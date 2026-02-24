@@ -2,6 +2,9 @@ using UI.Core;
 using UI.Panel;
 using UnityEngine;
 
+// [DEPRECATED] 旧流程遗留：CharacterSelectScene 的独立场景加载器。
+// 新流程（BattleScene 常驻）中已由 UIManager.ShowPanel<CharacterSelectPanel>() 取代。
+// 保留此文件作为回滚参考，暂不删除。
 namespace UI.Loader
 {
     /// <summary>
