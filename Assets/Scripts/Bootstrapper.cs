@@ -2,7 +2,6 @@
 using Game;
 using Lua;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Bootstrapper : MonoBehaviour
 {
@@ -18,14 +17,6 @@ public class Bootstrapper : MonoBehaviour
         GameConfigLoader.LoadAll();
 
         // 3. 异步叠加加载 BattleScene，加载完成后将其设为激活场景并卸载 Bootstrapper
-        SceneLoader.LoadAdditiveAsync(
-            GameSceneManager.BATTLE_SCENE,
-            onComplete: () =>
-            {
-                SceneManager.SetActiveScene(
-                    SceneManager.GetSceneByName(GameSceneManager.BATTLE_SCENE));
-
-                SceneLoader.UnloadAsync("Bootstrapper");
-            });
+        SceneLoader.LoadAsync(GameSceneManager.BATTLE_SCENE);
     }
 }
