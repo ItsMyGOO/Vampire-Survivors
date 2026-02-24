@@ -1,4 +1,4 @@
-﻿using ECS.Core;
+using ECS.Core;
 
 namespace ECS
 {
@@ -15,7 +15,14 @@ namespace ECS
             this.renderSystem = renderSystem;
         }
 
-        public void Update(World world)
+            /// <summary>
+    /// 销毁所有由 RenderSystem 管理的 GameObject，清空内部状态。
+    /// 切换战斗模式时由 IBattleMode.Exit() 调用。
+    /// </summary>
+    public void DestroyAll() => renderSystem.DestroyAll();
+
+    
+public void Update(World world)
         {
             renderSystem.BeginFrame();
 

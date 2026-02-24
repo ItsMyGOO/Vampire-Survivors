@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RenderObjectPool
@@ -25,4 +25,19 @@ public class RenderObjectPool
         go.SetActive(false);
         pool.Push(go);
     }
+
+    /// <summary>
+    /// 销毁池中所有缓存的 GameObject，彻底清理 View 对象。
+    /// 切换战斗模式时由 IBattleMode.Exit() 调用。
+    /// </summary>
+    public void DestroyAll()
+    {
+        while (pool.Count > 0)
+        {
+            var go = pool.Pop();
+            if (go != null)
+                Object.Destroy(go);
+        }
+    }
+
 }

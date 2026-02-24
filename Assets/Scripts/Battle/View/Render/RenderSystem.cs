@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ECS;
 using UnityEngine;
@@ -230,7 +230,31 @@ public class RenderSystem
         entityErrorCount[eid] = entityErrorCount.TryGetValue(eid, out var c) ? c + 1 : 1;
     }
 
-    private bool ShouldLogError(int eid)
+    
+    // =========================================================
+    // 完整清理（模式切换时调用）
+    // =========================================================
+
+    /// <summary>
+    /// 销毁所有由本系统管理的 GameObject（包括 active 和 pool 中缓存的），
+    /// 清空内部状态。切换战斗模式时由 IBattleMode.Exit() 调用。
+    /// </summary>
+    public void DestroyAll()
+    {
+        foreach (var transform in transforms.Values)
+        {
+            if (transform != null)
+                UnityEngine.Object.Destroy(transform.gameObject);
+        }
+        transforms.Clear();
+        renderers.Clear();
+        entityErrorCount.Clear();
+        aliveThisFrame.Clear();
+        currentCameraTarget = -1;
+
+        pool.DestroyAll();
+    }
+private bool ShouldLogError(int eid)
     {
         return !entityErrorCount.TryGetValue(eid, out var count)
                || count < MAX_ERROR_COUNT_PER_ENTITY;
