@@ -4,10 +4,8 @@ using Battle;
 using ConfigHandler;
 using Game;
 using Session;
-using TMPro;
 using UI.Core;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UI.Panel
 {
@@ -26,17 +24,6 @@ namespace UI.Panel
         [Header("Card List")] [SerializeField] private Transform cardContainer;
         [SerializeField] private CharacterCardItem cardItemPrefab;
 
-        // ── 详情面板 ────────────────────────────────────────────
-        [Header("Detail Panel")] [SerializeField]
-        private TextMeshProUGUI detailNameText;
-
-        [SerializeField] private TextMeshProUGUI detailDescriptionText;
-        [SerializeField] private TextMeshProUGUI detailTraitsText;
-
-        // ── 按钮 ────────────────────────────────────────────────
-        [Header("Buttons")] [SerializeField] private Button startButton;
-        [SerializeField] private Button backButton;
-
         // ── 运行时状态 ──────────────────────────────────────────
         private readonly List<CharacterCardItem> _cards = new List<CharacterCardItem>();
         private CharacterDef _selectedDef;
@@ -49,20 +36,6 @@ namespace UI.Panel
         public event Action OnConfirmed;
 
         // ── UIPanel 生命周期 ────────────────────────────────────
-
-        protected override void OnInit()
-        {
-            if (startButton != null)
-            {
-                startButton.onClick.AddListener(OnStartClicked);
-                startButton.gameObject.SetActive(false);
-                startButton.interactable = false;
-            }
-
-            if (backButton != null)
-                backButton.onClick.AddListener(OnBackClicked);
-        }
-
         protected override void OnAfterShow()
         {
             BuildCardList();
@@ -79,8 +52,6 @@ namespace UI.Panel
 
             _selectedDef = null;
             _selectedCard = null;
-            startButton?.gameObject.SetActive(false);
-            ClearDetail();
 
             if (cardItemPrefab == null || cardContainer == null)
             {
@@ -110,9 +81,6 @@ namespace UI.Panel
                 card.Bind(def, OnCardSelected, portrait);
                 _cards.Add(card);
             }
-
-            if (_cards.Count > 0)
-                OnCardSelected(_cards[0].Data);
         }
 
         // ── 卡片选中回调 ────────────────────────────────────────
@@ -131,39 +99,7 @@ namespace UI.Panel
                     break;
                 }
 
-            RefreshDetail(def);
-
-            if (startButton != null)
-            {
-                startButton.gameObject.SetActive(true);
-                startButton.interactable = true;
-            }
-        }
-
-        // ── 详情面板 ────────────────────────────────────────────
-
-        private void RefreshDetail(CharacterDef def)
-        {
-            if (detailNameText != null)
-                detailNameText.text = def.displayName;
-
-            if (detailDescriptionText != null)
-                detailDescriptionText.text = def.description;
-
-            if (detailTraitsText != null)
-            {
-                if (def.traits != null && def.traits.Count > 0)
-                    detailTraitsText.text = "• " + string.Join("\n• ", def.traits);
-                else
-                    detailTraitsText.text = string.Empty;
-            }
-        }
-
-        private void ClearDetail()
-        {
-            if (detailNameText != null) detailNameText.text = string.Empty;
-            if (detailDescriptionText != null) detailDescriptionText.text = string.Empty;
-            if (detailTraitsText != null) detailTraitsText.text = string.Empty;
+            OnStartClicked();
         }
 
         // ── 按钮回调 ────────────────────────────────────────────
@@ -176,8 +112,6 @@ namespace UI.Panel
                 return;
             }
 
-            startButton.interactable = false;
-
             GameSessionData.SelectCharacter(_selectedDef.id);
             Debug.Log($"[CharacterSelectPanel] 选择角色: {_selectedDef.id}，触发战斗切换");
 
@@ -186,18 +120,6 @@ namespace UI.Panel
             GameEvents.RequestBattleStart();
         }
 
-        private void OnBackClicked()
-        {
-            // 新流程：返回 StartMenuPanel
-            UIManager.Instance?.ShowPanel<StartMenuPanel>(hideOthers: true, addToStack: false);
-        }
-
         // ── 清理 ────────────────────────────────────────────────
-
-        private void OnDestroy()
-        {
-            if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
-            if (backButton != null) backButton.onClick.RemoveListener(OnBackClicked);
-        }
     }
 }

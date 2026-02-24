@@ -1,6 +1,5 @@
 using System;
 using ConfigHandler;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,12 +11,13 @@ namespace UI.Panel
     /// </summary>
     public class CharacterCardItem : MonoBehaviour
     {
-        [Header("UI References")]
-                [SerializeField] private Image portraitImage;
-[SerializeField] private Button selectButton;
+        [Header("UI References")] [SerializeField]
+        private Image portraitImage;
+
+        [SerializeField] private Button selectButton;
         [SerializeField] private Image highlightBorder;
-        [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI descriptionText;
+        [SerializeField] private Text nameText;
+        [SerializeField] private Text descriptionText;
 
         private CharacterDef _data;
         private Action<CharacterDef> _onSelected;
@@ -33,7 +33,7 @@ namespace UI.Panel
         /// <summary>
         /// 由 CharacterSelectPanel 调用，绑定数据和回调
         /// </summary>
-/// <summary>
+        /// <summary>
         /// Bind character data and optional portrait sprite.
         /// Called by CharacterSelectPanel for each card.
         /// </summary>
