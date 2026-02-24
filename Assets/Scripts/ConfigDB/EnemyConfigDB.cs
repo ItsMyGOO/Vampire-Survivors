@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Framework.Config;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace ConfigHandler
 {
@@ -23,7 +24,7 @@ namespace ConfigHandler
                 return null;
 
             var keys = new List<string>(enemies.Keys);
-            string randomKey = keys[UnityEngine.Random.Range(0, keys.Count)];
+            string randomKey = keys[Random.Range(0, keys.Count)];
             return enemies[randomKey];
         }
 

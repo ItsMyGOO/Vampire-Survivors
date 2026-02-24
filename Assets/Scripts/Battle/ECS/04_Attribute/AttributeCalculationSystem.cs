@@ -1,5 +1,5 @@
-using ECS.Core;
 using System.Collections.Generic;
+using ECS.Core;
 
 namespace ECS.Systems
 {

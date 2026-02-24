@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Game;
 using UI.Core;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Panel
 {
@@ -23,30 +24,30 @@ namespace UI.Panel
 
         protected override void OnAfterShow()
         {
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.PauseGame();
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.PauseGame();
         }
 
         private void OnResumeButtonClicked()
         {
             Hide();
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.ResumeGame();
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.ResumeGame();
         }
 
         private void OnRestartButtonClicked()
         {
             Hide();
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.RestartBattle();
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.RestartBattle();
         }
 
         private void OnExitButtonClicked()
         {
             Time.timeScale = 1f;
             Hide();
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.ExitBattle();
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.ExitBattle();
         }
 
         private void OnDestroy()

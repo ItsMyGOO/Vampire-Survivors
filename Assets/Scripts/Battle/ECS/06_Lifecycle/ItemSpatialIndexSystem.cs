@@ -21,7 +21,7 @@ namespace ECS.Systems
         {
             _grid.Clear();
 
-            world.IterateComponents<PositionComponent>(out int[] ids, out PositionComponent[] positions, out int count);
+            world.IterateComponents(out int[] ids, out PositionComponent[] positions, out int count);
             for (int i = 0; i < count; i++)
             {
                 if (!world.HasComponent<PickupableComponent>(ids[i])) continue;

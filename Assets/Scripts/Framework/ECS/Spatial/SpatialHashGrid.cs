@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ECS.Core
 {
@@ -113,10 +115,10 @@ public int QueryNeighbors(float x, float y, float radius, int[] results)
         private double _lastWarnTime = -999;
         private void WarnTruncation(int bufferSize)
         {
-            double now = UnityEngine.Time.realtimeSinceStartupAsDouble;
+            double now = Time.realtimeSinceStartupAsDouble;
             if (now - _lastWarnTime < 1.0) return;
             _lastWarnTime = now;
-            UnityEngine.Debug.LogWarning(
+            Debug.LogWarning(
                 $"[SpatialHashGrid] QueryNeighbors 缓冲区已满（{bufferSize}），" +
                 "查询范围内仍有实体未被写入，存在静默漏检。" +
                 "请增大调用方的 _neighborBuffer 大小。");
@@ -127,8 +129,8 @@ public int QueryNeighbors(float x, float y, float radius, int[] results)
         // ------------------------------------------------
         // 内部辅助
         // ------------------------------------------------
-        private int CellX(float x) => (int)System.Math.Floor(x * _invCellSize);
-        private int CellY(float y) => (int)System.Math.Floor(y * _invCellSize);
+        private int CellX(float x) => (int)Math.Floor(x * _invCellSize);
+        private int CellY(float y) => (int)Math.Floor(y * _invCellSize);
 
         private static long MakeKey(int cx, int cy)
             => ((long)cx << 32) | (uint)cy;

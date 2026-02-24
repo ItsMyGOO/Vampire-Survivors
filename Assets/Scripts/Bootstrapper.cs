@@ -1,4 +1,6 @@
-﻿using Lua;
+﻿using Battle;
+using Game;
+using Lua;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,17 +15,17 @@ public class Bootstrapper : MonoBehaviour
             Instantiate(LuaPrefab);
 
         // 2. 加载所有配置数据库
-        Battle.GameConfigLoader.LoadAll();
+        GameConfigLoader.LoadAll();
 
         // 3. 异步叠加加载 MainMenuScene，加载完成后将其设为激活场景并卸载 Bootstrapper
-        Game.SceneLoader.LoadAdditiveAsync(
-            Game.GameSceneManager.MAIN_MENU_SCENE,
+        SceneLoader.LoadAdditiveAsync(
+            GameSceneManager.MAIN_MENU_SCENE,
             onComplete: () =>
             {
                 SceneManager.SetActiveScene(
-                    SceneManager.GetSceneByName(Game.GameSceneManager.MAIN_MENU_SCENE));
+                    SceneManager.GetSceneByName(GameSceneManager.MAIN_MENU_SCENE));
 
-                Game.SceneLoader.UnloadAsync("Bootstrapper");
+                SceneLoader.UnloadAsync("Bootstrapper");
             });
     }
 }

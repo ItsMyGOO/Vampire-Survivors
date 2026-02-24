@@ -1,6 +1,5 @@
 using System;
 using ConfigHandler;
-
 using UnityEngine;
 
 namespace Battle

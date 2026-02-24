@@ -1,5 +1,5 @@
-using Battle.Upgrade;
 using Cinemachine;
+using Session;
 using UI.Core;
 using UI.Model;
 using UI.Panel;
@@ -15,11 +15,11 @@ namespace Battle
 
         private void Start()
         {
-            if (!Session.GameSessionData.HasSelection)
+            if (!GameSessionData.HasSelection)
                 Debug.LogWarning("[ECSGameManager] GameSessionData 中无角色选择，BattleScene 被加载但未经过角色选择流程。玩家实体将使用默认属性创建。");
 
             _context = BattleGameBuilder.Build(vCam);
-            UIManager.Instance.ShowPanel<BattleHUDPanel>();
+            UIManager.Instance.ShowPanel<BattleHUDPanel>(hideOthers: true);
 
             // 将升级服务推送给 UI 面板，避免 UI 主动拉取全局状态
             if (_context.TryGetUpgradeService(out var upgradeService) &&

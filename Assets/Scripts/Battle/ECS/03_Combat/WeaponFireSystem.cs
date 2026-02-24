@@ -1,7 +1,7 @@
 ﻿using Battle.Weapon;
+using ConfigHandler;
 using ECS.Core;
 using UnityEngine;
-using ConfigHandler;
 
 namespace ECS.Systems
 {

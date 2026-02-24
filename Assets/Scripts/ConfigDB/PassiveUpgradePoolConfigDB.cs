@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Config;
+using UnityEngine;
 
 namespace ConfigHandler
 {
@@ -19,7 +20,7 @@ namespace ConfigHandler
             var root = JsonConfigLoader.Load<PassiveUpgradePoolConfigRoot>(fileName);
             if (root == null || root.passives == null)
             {
-                UnityEngine.Debug.LogError($"[PassiveUpgradePoolConfigDB] 加载失败: {fileName}");
+                Debug.LogError($"[PassiveUpgradePoolConfigDB] 加载失败: {fileName}");
                 return null;
             }
 
@@ -30,7 +31,7 @@ namespace ConfigHandler
                 db.Add(kv.Key, kv.Value);
             }
 
-            UnityEngine.Debug.Log($"[PassiveUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个被动技能配置");
+            Debug.Log($"[PassiveUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个被动技能配置");
             return db;
         }
     }

@@ -2,8 +2,6 @@
 
 namespace UI.Model
 {
-    using UniRx;
-
     public class HUDViewModel
     {
         // ===== 内部可写 =====

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Battle;
 using ConfigHandler;
+using Game;
+using Session;
 using TMPro;
 using UI.Core;
 using UnityEngine;
@@ -19,19 +21,18 @@ namespace UI.Panel
     public class CharacterSelectPanel : UIPanel
     {
         // ── 卡片列表区域 ────────────────────────────────────────
-        [Header("Card List")]
-        [SerializeField] private Transform cardContainer;
+        [Header("Card List")] [SerializeField] private Transform cardContainer;
         [SerializeField] private CharacterCardItem cardItemPrefab;
 
         // ── 详情面板 ────────────────────────────────────────────
-        [Header("Detail Panel")]
-        [SerializeField] private TextMeshProUGUI detailNameText;
+        [Header("Detail Panel")] [SerializeField]
+        private TextMeshProUGUI detailNameText;
+
         [SerializeField] private TextMeshProUGUI detailDescriptionText;
         [SerializeField] private TextMeshProUGUI detailTraitsText;
 
         // ── 按钮 ────────────────────────────────────────────────
-        [Header("Buttons")]
-        [SerializeField] private Button startButton;
+        [Header("Buttons")] [SerializeField] private Button startButton;
         [SerializeField] private Button backButton;
 
         // ── 运行时状态 ──────────────────────────────────────────
@@ -41,7 +42,7 @@ namespace UI.Panel
 
         // ── UIPanel 生命周期 ────────────────────────────────────
 
-protected override void OnInit()
+        protected override void OnInit()
         {
             if (startButton != null)
             {
@@ -62,14 +63,15 @@ protected override void OnInit()
 
         // ── 卡片构建 ────────────────────────────────────────────
 
-private void BuildCardList()
+        private void BuildCardList()
         {
             // Clear old cards
             foreach (var c in _cards)
-                if (c != null) Destroy(c.gameObject);
+                if (c != null)
+                    Destroy(c.gameObject);
             _cards.Clear();
 
-            _selectedDef  = null;
+            _selectedDef = null;
             _selectedCard = null;
             startButton?.gameObject.SetActive(false);
             ClearDetail();
@@ -82,7 +84,7 @@ private void BuildCardList()
 
             // Ensure config is loaded
             if (CharacterConfigDB.Instance == null)
-                Battle.GameConfigLoader.LoadAll();
+                GameConfigLoader.LoadAll();
 
             var db = CharacterConfigDB.Instance;
             if (db == null)
@@ -92,12 +94,12 @@ private void BuildCardList()
             }
 
             // Optional registry for Sprite lookup
-            var registry = Game.CharacterRegistryLoader.Instance;
+            var registry = CharacterRegistryLoader.Instance;
 
             var allChars = db.GetAllCharacters();
             foreach (var def in allChars)
             {
-                var card    = Instantiate(cardItemPrefab, cardContainer);
+                var card = Instantiate(cardItemPrefab, cardContainer);
                 var portrait = registry != null
                     ? registry.GetDefinition(def.id)?.CardSprite
                     : null;
@@ -112,7 +114,7 @@ private void BuildCardList()
 
         // ── 卡片选中回调 ────────────────────────────────────────
 
-private void OnCardSelected(CharacterDef def)
+        private void OnCardSelected(CharacterDef def)
         {
             _selectedDef = def;
 
@@ -122,7 +124,11 @@ private void OnCardSelected(CharacterDef def)
 
             // 记录选中的卡片引用
             foreach (var c in _cards)
-                if (c.Data == def) { _selectedCard = c; break; }
+                if (c.Data == def)
+                {
+                    _selectedCard = c;
+                    break;
+                }
 
             // 更新详情
             RefreshDetail(def);
@@ -163,7 +169,7 @@ private void OnCardSelected(CharacterDef def)
 
         // ── 按钮回调 ────────────────────────────────────────────
 
-private void OnStartClicked()
+        private void OnStartClicked()
         {
             if (_selectedDef == null)
             {
@@ -174,19 +180,19 @@ private void OnStartClicked()
             // 立即禁用，防止重复点击
             startButton.interactable = false;
 
-            Session.GameSessionData.SelectCharacter(_selectedDef.id);
+            GameSessionData.SelectCharacter(_selectedDef.id);
             Debug.Log($"[CharacterSelectPanel] 选择角色: {_selectedDef.id}，进入战斗");
-
-            Game.GameSceneManager.Instance?.StartBattle();
+            
+            GameSceneManager.Instance?.StartBattle();
         }
 
-private void OnBackClicked()
+        private void OnBackClicked()
         {
             // 直接切回 MainMenuPanel，不跳到新场景
             if (UIManager.Instance != null)
                 UIManager.Instance.ShowPanel<MainMenuPanel>(hideOthers: true, addToStack: false);
             else
-                Game.GameSceneManager.Instance?.LoadMainMenu();
+                GameSceneManager.Instance?.LoadMainMenu();
         }
 
         // ── 清理 ────────────────────────────────────────────────
@@ -194,7 +200,7 @@ private void OnBackClicked()
         private void OnDestroy()
         {
             if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
-            if (backButton != null)  backButton.onClick.RemoveListener(OnBackClicked);
+            if (backButton != null) backButton.onClick.RemoveListener(OnBackClicked);
         }
     }
 }

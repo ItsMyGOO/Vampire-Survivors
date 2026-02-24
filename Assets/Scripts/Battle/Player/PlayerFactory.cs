@@ -1,13 +1,13 @@
-using ECS.Core;
-using ECS;
 using Battle.Weapon;
-using Battle.Upgrade;
+using ConfigHandler;
+using ECS;
+using ECS.Core;
 
 namespace Battle.Player
 {
     public static class PlayerFactory
     {
-public static int CreatePlayer(World world, ConfigHandler.CharacterDef characterDef = null)
+public static int CreatePlayer(World world, CharacterDef characterDef = null)
         {
             int id = world.CreateEntity();
 
@@ -27,7 +27,7 @@ public static int CreatePlayer(World world, ConfigHandler.CharacterDef character
 
             float pickupRange = characterDef?.pickupRange ?? 1f;
             world.AddComponent(id, new PickupRangeComponent(pickupRange));
-            world.AddComponent(id, new MagnetComponent(5f, 10f));
+            world.AddComponent(id, new MagnetComponent(5f));
             world.AddComponent(id, new SpriteKeyComponent());
             world.AddComponent(id, new CameraFollowComponent());
 
@@ -72,8 +72,8 @@ public static int CreatePlayer(World world, ConfigHandler.CharacterDef character
             }
             else
             {
-                weaponStats.AddWeapon("ProjectileKnife", 1);
-                weaponStats.AddWeapon("OrbitKnife", 1);
+                weaponStats.AddWeapon("ProjectileKnife");
+                weaponStats.AddWeapon("OrbitKnife");
             }
             world.AddComponent(id, weaponStats);
 

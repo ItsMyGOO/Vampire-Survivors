@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ECS.Core
 {
@@ -145,8 +146,8 @@ namespace ECS.Core
             var newIds  = new int[newCap];
             var newData = new T[newCap];
 
-            System.Array.Copy(_ids,  newIds,  _count);
-            System.Array.Copy(_data, newData, _count);
+            Array.Copy(_ids,  newIds,  _count);
+            Array.Copy(_data, newData, _count);
 
             _ids  = newIds;
             _data = newData;

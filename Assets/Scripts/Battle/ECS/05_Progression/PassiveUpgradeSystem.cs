@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using ConfigHandler;
 using ECS.Core;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ECS.Systems
@@ -37,7 +37,7 @@ namespace ECS.Systems
                 return;
 
             PassiveUpgradeStateComponent passiveState;
-            if (!world.TryGetComponent<PassiveUpgradeStateComponent>(entityId, out passiveState))
+            if (!world.TryGetComponent(entityId, out passiveState))
             {
                 passiveState = PassiveUpgradeStateComponent.Create();
                 world.AddComponent(entityId, passiveState);
@@ -84,7 +84,7 @@ private void ApplyPassiveEffect(World world, int entityId, string passiveId,
             PassiveUpgradePoolDef def, int oldLevel, int newLevel)
         {
             AttributeModifierCollectionComponent modifierCollection;
-            if (!world.TryGetComponent<AttributeModifierCollectionComponent>(entityId, out modifierCollection))
+            if (!world.TryGetComponent(entityId, out modifierCollection))
                 modifierCollection = AttributeModifierCollectionComponent.Create();
 
             // 倒序移除同源修改器，避免 RemoveAll(lambda) 闭包分配

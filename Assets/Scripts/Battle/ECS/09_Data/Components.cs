@@ -104,10 +104,6 @@ namespace ECS
         public float Time;
         public bool Playing;
         public string DefaultAnim;
-
-        public AnimationComponent()
-        {
-        }
     }
 
     /// <summary>

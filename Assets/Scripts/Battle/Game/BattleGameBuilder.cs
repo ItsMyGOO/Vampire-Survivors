@@ -2,10 +2,13 @@ using Battle.Player;
 using Battle.Upgrade;
 using Battle.View;
 using Cinemachine;
+using ConfigHandler;
 using ECS;
 using ECS.Core;
 using ECS.SyncSystems;
+using Session;
 using UI.Model;
+using UnityEngine;
 
 namespace Battle
 {
@@ -18,19 +21,19 @@ public static BattleWorldContext Build(CinemachineVirtualCamera vCam)
             var world = new World();
 
             // 从会话数据读取选中的角色配置
-            ConfigHandler.CharacterDef characterDef = null;
-            string selectedId = Session.GameSessionData.SelectedCharacterId;
+            CharacterDef characterDef = null;
+            string selectedId = GameSessionData.SelectedCharacterId;
             if (!string.IsNullOrEmpty(selectedId))
             {
-                bool found = ConfigHandler.CharacterConfigDB.Instance?.TryGetCharacter(selectedId, out characterDef) ?? false;
+                bool found = CharacterConfigDB.Instance?.TryGetCharacter(selectedId, out characterDef) ?? false;
                 if (!found || characterDef == null)
-                    UnityEngine.Debug.LogWarning($"[BattleGameBuilder] 未找到角色配置 id='{selectedId}'，CharacterConfigDB 中不存在该 ID，将 fallback 到默认属性。请检查 CharacterRegistry 或角色 ScriptableObject 配置。");
+                    Debug.LogWarning($"[BattleGameBuilder] 未找到角色配置 id='{selectedId}'，CharacterConfigDB 中不存在该 ID，将 fallback 到默认属性。请检查 CharacterRegistry 或角色 ScriptableObject 配置。");
                 else
-                    UnityEngine.Debug.Log($"[BattleGameBuilder] 角色配置读取成功: {characterDef.id} ({characterDef.displayName})");
+                    Debug.Log($"[BattleGameBuilder] 角色配置读取成功: {characterDef.id} ({characterDef.displayName})");
             }
             else
             {
-                UnityEngine.Debug.LogWarning("[BattleGameBuilder] GameSessionData 中无角色选择，将使用默认属性");
+                Debug.LogWarning("[BattleGameBuilder] GameSessionData 中无角色选择，将使用默认属性");
             }
             // characterDef 为 null 时 PlayerFactory 自动 fallback 到默认值
                         // 如果没有选择或读取失败，characterDef 为 null，PlayerFactory 会自动使用默认值
@@ -40,7 +43,7 @@ public static BattleWorldContext Build(CinemachineVirtualCamera vCam)
 
             // SpawnController 全局实体：持有生成状态，供 EnemySpawnSystem 读写
             int spawnControllerId = world.CreateEntity();
-            world.AddComponent(spawnControllerId, new ECS.SpawnStateComponent(spawnInterval: 1.0f));
+            world.AddComponent(spawnControllerId, new SpawnStateComponent(spawnInterval: 1.0f));
 
             // Core Systems
             ECSSystemInstaller.Install(world);

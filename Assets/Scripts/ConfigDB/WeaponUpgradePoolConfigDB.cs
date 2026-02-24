@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Framework.Config;
+using UnityEngine;
 
 namespace ConfigHandler
 {
@@ -19,7 +20,7 @@ namespace ConfigHandler
             var wrapper = JsonConfigLoader.Load<WeaponUpgradePoolConfigRoot>(fileName);
             if (wrapper == null || wrapper.weapons == null)
             {
-                UnityEngine.Debug.LogError($"[WeaponUpgradePoolConfigDB] 加载失败: {fileName}");
+                Debug.LogError($"[WeaponUpgradePoolConfigDB] 加载失败: {fileName}");
                 return null;
             }
 
@@ -31,7 +32,7 @@ namespace ConfigHandler
                 db.Add(kvp.Key, def);
             }
             
-            UnityEngine.Debug.Log($"[WeaponUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个武器配置");
+            Debug.Log($"[WeaponUpgradePoolConfigDB] 加载成功: {db.Data.Count} 个武器配置");
             return db;
         }
     }

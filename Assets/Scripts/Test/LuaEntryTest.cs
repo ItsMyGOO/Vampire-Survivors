@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
+using System.Text;
+using UnityEngine;
 using XLua;
 
 namespace Lua
@@ -22,7 +25,7 @@ namespace Lua
             int sum = _luaEnv.Global.Get<IntBinaryOp>("Add")(2, 3);
             Debug.Log("Lua Add result: " + sum);
 
-            var call = _luaEnv.Global.Get<System.Action<LuaEntryTest>>("CallCS");
+            var call = _luaEnv.Global.Get<Action<LuaEntryTest>>("CallCS");
             call(this);
         }
 
@@ -34,9 +37,9 @@ namespace Lua
         private byte[] CustomLoader(ref string filepath)
         {
             string fullPath = Application.dataPath + "/Lua/" + filepath + ".lua";
-            if (System.IO.File.Exists(fullPath))
-                return System.Text.Encoding.UTF8.GetBytes(
-                    System.IO.File.ReadAllText(fullPath)
+            if (File.Exists(fullPath))
+                return Encoding.UTF8.GetBytes(
+                    File.ReadAllText(fullPath)
                 );
 
             return null;

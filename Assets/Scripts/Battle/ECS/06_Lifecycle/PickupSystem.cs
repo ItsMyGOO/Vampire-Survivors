@@ -1,7 +1,6 @@
-﻿using ECS.Core;
-using ECS;
+﻿using System.Collections.Generic;
+using ECS.Core;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace ECS.Systems
 {

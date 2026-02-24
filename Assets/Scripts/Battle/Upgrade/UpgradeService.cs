@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Battle.Player;
 using Battle.Weapon;
 using ConfigHandler;
 using ECS;
 using ECS.Core;
 using UnityEngine;
 using XLua;
+using Random = UnityEngine.Random;
 
 namespace Battle.Upgrade
 {
@@ -116,14 +116,14 @@ namespace Battle.Upgrade
             if (weaponOptions.Count > 0)
             {
                 // 随机选择一个武器选项
-                int randomIndex = UnityEngine.Random.Range(0, weaponOptions.Count);
+                int randomIndex = Random.Range(0, weaponOptions.Count);
                 selected = weaponOptions[randomIndex];
                 Debug.Log($"[ExpSystem] 测试模式 - 随机选择武器: {selected.name} (ID: {selected.id})");
             }
             else if (options.Count > 0)
             {
                 // 如果没有武器选项，随机选择任意选项
-                int randomIndex = UnityEngine.Random.Range(0, options.Count);
+                int randomIndex = Random.Range(0, options.Count);
                 selected = options[randomIndex];
                 Debug.Log($"[ExpSystem] 测试模式 - 随机选择选项: {selected.name} (ID: {selected.id})");
             }
@@ -247,7 +247,7 @@ namespace Battle.Upgrade
                 foreach (var c in pool)
                     totalWeight += c.weight;
 
-                int roll = UnityEngine.Random.Range(0, totalWeight);
+                int roll = Random.Range(0, totalWeight);
                 int acc = 0;
 
                 for (int j = 0; j < pool.Count; j++)

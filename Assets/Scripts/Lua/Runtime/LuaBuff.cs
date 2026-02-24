@@ -1,4 +1,5 @@
-﻿using Core.Buff;
+﻿using System;
+using Core.Buff;
 using XLua;
 
 public class LuaBuff : IBuff
@@ -12,16 +13,16 @@ public class LuaBuff : IBuff
 
     public void OnAdd(ISkillTarget owner)
     {
-        _luaTable.Get<System.Action<ISkillTarget>>("OnAdd")?.Invoke(owner);
+        _luaTable.Get<Action<ISkillTarget>>("OnAdd")?.Invoke(owner);
     }
 
     public void OnRemove()
     {
-        _luaTable.Get<System.Action>("OnRemove")?.Invoke();
+        _luaTable.Get<Action>("OnRemove")?.Invoke();
     }
 
     public void Modify(SkillContext ctx)
     {
-        _luaTable.Get<System.Action<SkillContext>>("ModifyDamage")?.Invoke(ctx);
+        _luaTable.Get<Action<SkillContext>>("ModifyDamage")?.Invoke(ctx);
     }
 }

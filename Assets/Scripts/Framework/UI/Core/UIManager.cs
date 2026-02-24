@@ -18,7 +18,7 @@ namespace UI.Core
         [SerializeField] private Transform panelContainer;
 
         [Header("Settings")]
-        [SerializeField] private bool hideAllOnStart = false;
+        [SerializeField] private bool hideAllOnStart;
 
         private Dictionary<Type, UIPanel> panels = new();
         private Stack<UIPanel> panelStack = new();

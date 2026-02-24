@@ -213,7 +213,7 @@ public class SpriteProvider
     /// </summary>
     public void PrintCacheStats()
     {
-        Debug.Log($"[SpriteProvider] 缓存统计:\n" +
+        Debug.Log("[SpriteProvider] 缓存统计:\n" +
                   $"  已加载图集: {_sheetCache.Count}\n" +
                   $"  正在加载: {_loading.Count}\n" +
                   $"  加载失败: {_failedSheets.Count}");

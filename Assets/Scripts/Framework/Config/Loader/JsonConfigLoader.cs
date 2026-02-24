@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Framework.Config
@@ -20,7 +21,7 @@ public static T Load<T>(string fileName) where T : class
             try
             {
                 // 去掉扩展名，用 Resources.Load 读取（路径相对于 Resources/）
-                string resourcePath = "Data/" + System.IO.Path.GetFileNameWithoutExtension(fileName);
+                string resourcePath = "Data/" + Path.GetFileNameWithoutExtension(fileName);
                 var textAsset = Resources.Load<TextAsset>(resourcePath);
 
                 if (textAsset == null)
@@ -29,7 +30,7 @@ public static T Load<T>(string fileName) where T : class
                     return null;
                 }
 
-                T data = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(textAsset.text);
+                T data = JsonConvert.DeserializeObject<T>(textAsset.text);
 
                 if (data == null)
                 {

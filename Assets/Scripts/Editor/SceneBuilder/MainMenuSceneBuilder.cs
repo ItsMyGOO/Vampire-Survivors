@@ -1,10 +1,15 @@
-using UnityEngine;
+using System;
+using System.Reflection;
+using Game;
+using TMPro;
+using UI.Core;
+using UI.Loader;
+using UI.Panel;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Editor.SceneBuilder
 {
@@ -23,7 +28,7 @@ public static void BuildMainMenuScene()
 
             // ── GameSceneManager ──────────────────────────────────────────────
             var gsmGo = new GameObject("GameSceneManager");
-            gsmGo.AddComponent<Game.GameSceneManager>();
+            gsmGo.AddComponent<GameSceneManager>();
 
             // ── EventSystem ───────────────────────────────────────────────────
             var esGo = new GameObject("EventSystem");
@@ -43,7 +48,7 @@ public static void BuildMainMenuScene()
             scaler.matchWidthOrHeight = 0.5f;
             canvasGo.AddComponent<GraphicRaycaster>();
 
-            var uiManager = canvasGo.AddComponent<UI.Core.UIManager>();
+            var uiManager = canvasGo.AddComponent<UIManager>();
 
             // ── Panels 容器 ───────────────────────────────────────────────────
             var panelsGo = new GameObject("Panels");
@@ -55,26 +60,26 @@ public static void BuildMainMenuScene()
             panelsRect.offsetMax = Vector2.zero;
 
             // 通过反射绑定 UIManager 字段
-            var uiManagerType = typeof(UI.Core.UIManager);
+            var uiManagerType = typeof(UIManager);
             uiManagerType.GetField("panelContainer",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.SetValue(uiManager, panelsGo.transform);
             uiManagerType.GetField("mainCanvas",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.SetValue(uiManager, canvas);
 
             // ── MainMenuLoader ────────────────────────────────────────────────
             // 在运行时从 Prefab 加载 MainMenuPanel，不直接内嵌 Panel 到场景。
             var loaderGo = new GameObject("MainMenuLoader");
-            var loader = loaderGo.AddComponent<UI.Loader.MainMenuLoader>();
+            var loader = loaderGo.AddComponent<MainMenuLoader>();
 
-            var panelPrefab = AssetDatabase.LoadAssetAtPath<UI.Core.UIPanel>(
+            var panelPrefab = AssetDatabase.LoadAssetAtPath<UIPanel>(
                 "Assets/Prefabs/UIPanel/MainMenuPanel.prefab");
             if (panelPrefab != null)
             {
-                typeof(UI.Loader.MainMenuLoader)
+                typeof(MainMenuLoader)
                     .GetField("mainMenuPanelPrefab",
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                        BindingFlags.NonPublic | BindingFlags.Instance)
                     ?.SetValue(loader, panelPrefab);
                 Debug.Log("[MainMenuSceneBuilder] 已绑定 MainMenuPanel prefab");
             }
@@ -114,7 +119,7 @@ public static void BuildMainMenuScene()
 
             panelGo.AddComponent<CanvasGroup>();
 
-            var panel = panelGo.AddComponent<UI.Panel.MainMenuPanel>();
+            var panel = panelGo.AddComponent<MainMenuPanel>();
 
             // ── 背景图（深色半透明遮罩）────────────────────────────────────────
             var bgGo = new GameObject("Background");
@@ -186,7 +191,7 @@ public static void BuildMainMenuScene()
             versionTmp.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
 
             // ── 绑定字段到 MainMenuPanel ──────────────────────────────────────
-            var panelType = typeof(UI.Panel.MainMenuPanel);
+            var panelType = typeof(MainMenuPanel);
             SetSerializedField(panel, panelType, "startButton", startBtnGo.GetComponent<Button>());
             SetSerializedField(panel, panelType, "quitButton", quitBtnGo.GetComponent<Button>());
             SetSerializedField(panel, panelType, "titleText", titleTmp);
@@ -236,10 +241,10 @@ public static void BuildMainMenuScene()
             return btnGo;
         }
 
-        private static void SetSerializedField(object target, System.Type type, string fieldName, object value)
+        private static void SetSerializedField(object target, Type type, string fieldName, object value)
         {
             var field = type.GetField(fieldName,
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                BindingFlags.NonPublic | BindingFlags.Instance);
             field?.SetValue(target, value);
         }
 
@@ -268,7 +273,7 @@ public static void BuildMainMenuScene()
                     return;
 
             var newScenes = new EditorBuildSettingsScene[scenes.Length + 1];
-            System.Array.Copy(scenes, newScenes, scenes.Length);
+            Array.Copy(scenes, newScenes, scenes.Length);
             newScenes[scenes.Length] = new EditorBuildSettingsScene(scenePath, true);
             EditorBuildSettings.scenes = newScenes;
 

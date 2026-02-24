@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using XLua;
+using System.IO;
+using System.Text;
 using UnityEngine;
+using XLua;
 
 namespace Lua
 {
@@ -28,8 +30,8 @@ namespace Lua
         {
             var fullPath = Application.dataPath + "/Lua/" +
                            filepath.Replace('.', '/') + ".lua";
-            if (System.IO.File.Exists(fullPath))
-                return System.Text.Encoding.UTF8.GetBytes(System.IO.File.ReadAllText(fullPath));
+            if (File.Exists(fullPath))
+                return Encoding.UTF8.GetBytes(File.ReadAllText(fullPath));
 
             Debug.LogError("Lua not found: " + fullPath);
             return null;

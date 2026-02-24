@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Game;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Panel
 {
@@ -21,9 +22,9 @@ namespace UI.Panel
         [SerializeField] private TextMeshProUGUI timeText;
         [SerializeField] private TextMeshProUGUI killCountText;
 
-        private float battleTime = 0f;
-        private int killCount = 0;
-        private bool isPaused = false;
+        private float battleTime;
+        private int killCount;
+        private bool isPaused;
 
         private void Awake()
         {
@@ -82,9 +83,9 @@ namespace UI.Panel
         /// </summary>
         private void OnPauseButtonClicked()
         {
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.PauseGame();
+                GameSceneManager.Instance.PauseGame();
             }
 
             isPaused = true;
@@ -102,9 +103,9 @@ namespace UI.Panel
         /// </summary>
         private void OnResumeButtonClicked()
         {
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.ResumeGame();
+                GameSceneManager.Instance.ResumeGame();
             }
 
             isPaused = false;
@@ -130,9 +131,9 @@ namespace UI.Panel
                 OnResumeButtonClicked();
             }
 
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.RestartBattle();
+                GameSceneManager.Instance.RestartBattle();
             }
         }
 
@@ -149,9 +150,9 @@ namespace UI.Panel
                 Time.timeScale = 1f;
             }
 
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.ExitBattle();
+                GameSceneManager.Instance.ExitBattle();
             }
         }
 

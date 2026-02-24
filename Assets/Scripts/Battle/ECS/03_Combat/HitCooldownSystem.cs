@@ -21,7 +21,7 @@ namespace ECS.Systems
         {
             _expired.Clear();
 
-            world.IterateComponents<HitCooldownComponent>(out int[] ids, out HitCooldownComponent[] data, out int count);
+            world.IterateComponents(out int[] ids, out HitCooldownComponent[] data, out int count);
 
             for (int i = 0; i < count; i++)
             {

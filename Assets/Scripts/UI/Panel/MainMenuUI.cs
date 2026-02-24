@@ -1,6 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Game;
 using TMPro;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Panel
 {
@@ -57,9 +59,9 @@ namespace UI.Panel
             }
 
             // 调用场景管理器开始战斗
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.StartBattle();
+                GameSceneManager.Instance.StartBattle();
             }
             else
             {
@@ -74,14 +76,14 @@ namespace UI.Panel
         {
             Debug.Log("[MainMenuUI] 退出游戏");
 
-            if (Game.GameSceneManager.Instance != null)
+            if (GameSceneManager.Instance != null)
             {
-                Game.GameSceneManager.Instance.QuitGame();
+                GameSceneManager.Instance.QuitGame();
             }
             else
             {
 #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
+                EditorApplication.isPlaying = false;
 #else
                 Application.Quit();
 #endif

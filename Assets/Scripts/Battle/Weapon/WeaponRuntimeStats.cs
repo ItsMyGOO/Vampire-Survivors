@@ -48,7 +48,7 @@ namespace Battle.Weapon
 
             var pState = projectile == null
                 ? null
-                : new ProjectileFinalStats()
+                : new ProjectileFinalStats
                 {
                     count = baseStats.count + countAdd,
                     interval = projectile.interval * fireRateMul * playerCooldownMul,
@@ -57,7 +57,7 @@ namespace Battle.Weapon
                 };
             var oState = orbit == null
                 ? null
-                : new OrbitFinalStats()
+                : new OrbitFinalStats
                 {
                     count = baseStats.count + countAdd,
                     radius = orbit.radius + orbitRadiusAdd,

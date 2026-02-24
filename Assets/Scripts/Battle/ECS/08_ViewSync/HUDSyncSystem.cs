@@ -34,7 +34,7 @@ namespace ECS.SyncSystems
         {
             // 懒获取 ExpSystem（只查一次字典）
             if (_expSystem == null)
-                world.TryGetService<ExpSystem>(out _expSystem);
+                world.TryGetService(out _expSystem);
 
             SyncBattleTime(deltaTime);
             SyncLevelAndExp();

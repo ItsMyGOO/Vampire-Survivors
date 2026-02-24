@@ -86,7 +86,7 @@ namespace Battle.Upgrade
         /// </summary>
         public void PrintStatus()
         {
-            Debug.Log($"[ExpSystem] 当前状态:");
+            Debug.Log("[ExpSystem] 当前状态:");
             Debug.Log($"  等级: {ExpData.level.Value}");
             Debug.Log($"  当前经验: {ExpData.current_exp.Value:F1}");
             Debug.Log($"  升级所需: {ExpData.exp_to_next_level.Value:F1}");

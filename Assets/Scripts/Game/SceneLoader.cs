@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace Game
 {
@@ -115,7 +116,7 @@ namespace Game
                 if (_instance != null) return;
 
                 var go = new GameObject("[SceneLoader.Carrier]");
-                UnityEngine.Object.DontDestroyOnLoad(go);
+                Object.DontDestroyOnLoad(go);
                 _instance = go.AddComponent<CarrierBehaviour>();
             }
         }

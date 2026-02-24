@@ -137,7 +137,7 @@ namespace Battle.Upgrade
             }
 
             // 创建新武器数据
-            var weapon = weaponStats.AddWeapon(weaponId, 1);
+            var weapon = weaponStats.AddWeapon(weaponId);
 
             // 初始化运行时属性
             InitializeWeaponStats(weapon, weaponConfig);

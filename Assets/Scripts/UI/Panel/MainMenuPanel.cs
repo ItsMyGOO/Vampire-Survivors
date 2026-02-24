@@ -1,8 +1,9 @@
-using UI.Panel;
-using UnityEngine;
-using UnityEngine.UI;
+using Game;
 using TMPro;
 using UI.Core;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Panel
 {
@@ -52,12 +53,12 @@ private void OnStartButtonClicked()
 
         private void OnQuitButtonClicked()
         {
-            if (Game.GameSceneManager.Instance != null)
-                Game.GameSceneManager.Instance.QuitGame();
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.QuitGame();
             else
             {
 #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
+                EditorApplication.isPlaying = false;
 #else
                 Application.Quit();
 #endif

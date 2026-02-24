@@ -1,6 +1,6 @@
-﻿using ECS.Core;
+﻿using ConfigHandler;
+using ECS.Core;
 using UnityEngine;
-using ConfigHandler;
 
 namespace ECS.Systems
 {
@@ -20,7 +20,7 @@ namespace ECS.Systems
         public override void Update(World world, float deltaTime)
         {
             // 从全局 SpawnController 实体读取状态
-            world.IterateComponents<SpawnStateComponent>(
+            world.IterateComponents(
                 out int[] ids, out SpawnStateComponent[] states, out int count);
 
             if (count == 0) return;

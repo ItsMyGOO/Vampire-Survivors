@@ -1,3 +1,4 @@
+using System;
 using ConfigHandler;
 using TMPro;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace UI.Panel
         [SerializeField] private TextMeshProUGUI descriptionText;
 
         private CharacterDef _data;
-        private System.Action<CharacterDef> _onSelected;
+        private Action<CharacterDef> _onSelected;
 
         public CharacterDef Data => _data;
 
@@ -36,7 +37,7 @@ namespace UI.Panel
         /// Bind character data and optional portrait sprite.
         /// Called by CharacterSelectPanel for each card.
         /// </summary>
-        public void Bind(CharacterDef def, System.Action<CharacterDef> onSelected, Sprite portrait = null)
+        public void Bind(CharacterDef def, Action<CharacterDef> onSelected, Sprite portrait = null)
         {
             _data = def;
             _onSelected = onSelected;

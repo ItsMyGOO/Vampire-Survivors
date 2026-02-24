@@ -136,7 +136,7 @@ namespace Game
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 9999;
 
-            go.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+            go.AddComponent<GraphicRaycaster>();
 
             // 全屏黑色 Image
             var imgGo = new GameObject("FadeImage");

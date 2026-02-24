@@ -44,8 +44,8 @@ namespace ECS.Systems
             world.AddComponent(gemId, new PositionComponent(enemyPos.x, enemyPos.y));
 
             var prop = DropItemConfigDB.Instance.Get("exp_small");
-            world.AddComponent(gemId, new PickupableComponent("exp", prop.exp, true));
-            world.AddComponent(gemId, new SpriteKeyComponent()
+            world.AddComponent(gemId, new PickupableComponent("exp", prop.exp));
+            world.AddComponent(gemId, new SpriteKeyComponent
             {
                 sheet = prop.sheet,
                 key = prop.key

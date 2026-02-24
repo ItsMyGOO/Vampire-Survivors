@@ -1,6 +1,6 @@
-﻿using Battle.Upgrade;
+﻿using System.Collections.Generic;
+using Battle.Upgrade;
 using ECS.Core;
-using System.Collections.Generic;
 
 namespace ECS.Systems
 {

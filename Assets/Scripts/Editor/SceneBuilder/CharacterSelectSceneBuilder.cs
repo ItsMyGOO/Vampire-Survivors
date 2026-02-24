@@ -1,6 +1,10 @@
-using UnityEngine;
+using System.Reflection;
+using Game;
+using UI.Core;
+using UI.Loader;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Editor.SceneBuilder
@@ -23,7 +27,7 @@ namespace Editor.SceneBuilder
 
             // ── GameSceneManager ──────────────────────────────────────────────
             var gsmGo = new GameObject("GameSceneManager");
-            gsmGo.AddComponent<Game.GameSceneManager>();
+            gsmGo.AddComponent<GameSceneManager>();
 
             // ── EventSystem ───────────────────────────────────────────────────
             var esGo = new GameObject("EventSystem");
@@ -41,15 +45,15 @@ namespace Editor.SceneBuilder
             // ── CharacterSelectLoader ─────────────────────────────────────────
             // 负责在 Start() 时通过 UIManager 加载 CharacterSelectPanel prefab
             var loaderGo = new GameObject("CharacterSelectLoader");
-            var loader = loaderGo.AddComponent<UI.Loader.CharacterSelectLoader>();
+            var loader = loaderGo.AddComponent<CharacterSelectLoader>();
 
             // 绑定 prefab 引用
-            var panelPrefab = AssetDatabase.LoadAssetAtPath<UI.Core.UIPanel>(PANEL_PREFAB_PATH);
+            var panelPrefab = AssetDatabase.LoadAssetAtPath<UIPanel>(PANEL_PREFAB_PATH);
             if (panelPrefab != null)
             {
-                var loaderType = typeof(UI.Loader.CharacterSelectLoader);
+                var loaderType = typeof(CharacterSelectLoader);
                 var field = loaderType.GetField("characterSelectPanelPrefab",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    BindingFlags.NonPublic | BindingFlags.Instance);
                 field?.SetValue(loader, panelPrefab);
                 Debug.Log($"[CharacterSelectSceneBuilder] 已绑定 prefab: {PANEL_PREFAB_PATH}");
             }
