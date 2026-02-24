@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ECS
@@ -462,5 +462,25 @@ namespace ECS
             spawnTimer = 0f;
             this.spawnInterval = spawnInterval;
         }
+    }
+
+// ============================================
+// 游荡组件
+// ============================================
+
+    /// <summary>
+    /// 游荡组件 —— 让实体在出生点附近随机行走。
+    /// 不含任何逻辑，仅作数据容器。
+    /// </summary>
+    public struct WanderComponent
+    {
+        public float originX;       // 出生点 X（游荡中心）
+        public float originY;       // 出生点 Y（游荡中心）
+        public float radius;        // 游荡半径
+        public float speed;         // 移动速度
+        public float targetX;       // 当前目标点 X
+        public float targetY;       // 当前目标点 Y
+        public float waitTimer;     // 到达目标后的等待计时器
+        public float waitDuration;  // 每次到达后等待时长（秒）
     }
 }

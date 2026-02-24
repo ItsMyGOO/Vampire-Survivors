@@ -1,4 +1,4 @@
-﻿using Battle.Mode;
+using Battle.Mode;
 using Cinemachine;
 using Game;
 using UnityEngine;
@@ -14,7 +14,7 @@ namespace Battle
         private void Start()
         {
             _controller = new BattleModeController();
-            _controller.SwitchTo(new PlaceholderBattleMode());
+            _controller.SwitchTo(new PreviewBattleMode(vCam));
 
             GameEvents.OnBattleStartRequested += HandleBattleStartRequested;
         }
