@@ -41,6 +41,7 @@ namespace Battle.Mode
             _world = new World();
             _world.RegisterSystem(new WanderSystem());
             _world.RegisterSystem(new MovementSystem());
+            _world.RegisterSystem(new AnimationSystem());
 
             // 生成预览敌人
             PreviewEnemySpawner.Spawn(_world);
